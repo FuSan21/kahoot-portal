@@ -5,8 +5,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "SupaQuiz",
-  description: "OSS Kahoot Alternative powered by Supabase",
+  title: "Kahoots Portal",
+  description: "Kahoot Quiz Platform powered by Next.js 14 and Supabase",
 };
 
 export default function RootLayout({

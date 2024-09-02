@@ -6,8 +6,8 @@ import Link from "next/link";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "SupaQuiz",
-  description: "Fun quiz game powered by Supabase",
+  title: "Kahoots Portal",
+  description: "Kahoot Quiz Platform powered by Next.js 14 and Supabase",
 };
 
 const menuItems: {
