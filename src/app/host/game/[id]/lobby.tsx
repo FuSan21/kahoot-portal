@@ -1,5 +1,6 @@
 import { Participant, supabase } from "@/types/types";
 import { useQRCode } from "next-qrcode";
+import { BASE_URL } from "@/constants";
 
 export default function Lobby({
   participants: participants,
@@ -9,7 +10,17 @@ export default function Lobby({
   gameId: string;
 }) {
   const { Canvas } = useQRCode();
-
+  const gameLink = BASE_URL + `/game/${gameId}`;
+  const onClickCopyGameLink = () => {
+    navigator.clipboard
+      .writeText(gameLink)
+      .then(() => {
+        alert("Game link copied to clipboard!");
+      })
+      .catch((err) => {
+        console.error("Failed to copy: ", err);
+      });
+  };
   const onClickStartGame = async () => {
     const { data, error } = await supabase
       .from("games")
@@ -42,17 +53,22 @@ export default function Lobby({
             Start Game
           </button>
         </div>
-        <div className="pl-4">
-          {/* <img src="/qr.png" alt="QR code" /> */}
-          <Canvas
-            text={`https://kahoot-alternative.vercel.app/game/${gameId}`}
-            options={{
-              errorCorrectionLevel: "M",
-              margin: 3,
-              scale: 4,
-              width: 400,
-            }}
-          />
+        <div className="flex flex-col justify-between">
+          <div className="pl-4">
+            {/* <img src="/qr.png" alt="QR code" /> */}
+            <Canvas
+              text={gameLink}
+              options={{
+                errorCorrectionLevel: "M",
+                margin: 3,
+                scale: 4,
+                width: 400,
+              }}
+            />
+          </div>
+          <div className="text-white text-center">
+            <button onClick={onClickCopyGameLink}>Copy Game Link</button>
+          </div>
         </div>
       </div>
     </div>
