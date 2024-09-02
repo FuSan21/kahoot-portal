@@ -1,23 +1,23 @@
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import '../../globals.css'
-import Link from 'next/link'
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "../../globals.css";
+import Link from "next/link";
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'SupaQuiz',
-  description: 'Fun quiz game powered by Supabase',
-}
+  title: "SupaQuiz",
+  description: "Fun quiz game powered by Supabase",
+};
 
 const menuItems: {
-  label: string
-  href: string
-  icon: React.ReactNode
+  label: string;
+  href: string;
+  icon: React.ReactNode;
 }[] = [
   {
-    label: 'Home',
-    href: '/host/dashboard',
+    label: "Home",
+    href: "/host/dashboard",
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -36,8 +36,8 @@ const menuItems: {
     ),
   },
   {
-    label: 'How to Play',
-    href: '/host/dashboard/how-to',
+    label: "How to Play",
+    href: "/host/dashboard/how-to",
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -55,12 +55,12 @@ const menuItems: {
       </svg>
     ),
   },
-]
+];
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <>
@@ -86,5 +86,5 @@ export default function RootLayout({
         <main className="flex-grow p-2">{children}</main>
       </div>
     </>
-  )
+  );
 }

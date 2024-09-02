@@ -1,50 +1,50 @@
-'use client'
+"use client";
 
-import { QuizSet, supabase } from '@/types/types'
-import { useEffect, useState } from 'react'
+import { QuizSet, supabase } from "@/types/types";
+import { useEffect, useState } from "react";
 
 export default function Home() {
-  const [quizSet, setQuizSet] = useState<QuizSet[]>([])
+  const [quizSet, setQuizSet] = useState<QuizSet[]>([]);
 
   useEffect(() => {
     const getQuizSets = async () => {
       const { data, error } = await supabase
-        .from('quiz_sets')
+        .from("quiz_sets")
         .select(`*, questions(*, choices(*))`)
-        .order('created_at', { ascending: false })
+        .order("created_at", { ascending: false });
       if (error) {
-        alert('Failed to fetch quiz sets')
-        return
+        alert("Failed to fetch quiz sets");
+        return;
       }
-      setQuizSet(data)
-    }
-    getQuizSets()
-  }, [])
+      setQuizSet(data);
+    };
+    getQuizSets();
+  }, []);
 
   const startGame = async (quizSetId: string) => {
     const { data: sessionData, error: sessionError } =
-      await supabase.auth.getSession()
+      await supabase.auth.getSession();
 
     if (!sessionData.session) {
-      await supabase.auth.signInAnonymously()
+      await supabase.auth.signInAnonymously();
     }
 
     const { data, error } = await supabase
-      .from('games')
+      .from("games")
       .insert({
         quiz_set_id: quizSetId,
       })
       .select()
-      .single()
+      .single();
     if (error) {
-      console.error(error)
-      alert('Failed to start game')
-      return
+      console.error(error);
+      alert("Failed to start game");
+      return;
     }
 
-    const gameId = data.id
-    window.open(`/host/game/${gameId}`, '_blank', 'noopener,noreferrer')
-  }
+    const gameId = data.id;
+    window.open(`/host/game/${gameId}`, "_blank", "noopener,noreferrer");
+  };
 
   return (
     <>
@@ -71,5 +71,5 @@ export default function Home() {
         </div>
       ))}
     </>
-  )
+  );
 }

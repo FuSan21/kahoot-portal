@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import {
   Answer,
@@ -8,122 +8,122 @@ import {
   Question,
   QuizSet,
   supabase,
-} from '@/types/types'
-import { useEffect, useState } from 'react'
-import Lobby from './lobby'
-import Quiz from './quiz'
-import Results from './results'
+} from "@/types/types";
+import { useEffect, useState } from "react";
+import Lobby from "./lobby";
+import Quiz from "./quiz";
+import Results from "./results";
 
 enum AdminScreens {
-  lobby = 'lobby',
-  quiz = 'quiz',
-  result = 'result',
+  lobby = "lobby",
+  quiz = "quiz",
+  result = "result",
 }
 
 export default function Home({
   params: { id: gameId },
 }: {
-  params: { id: string }
+  params: { id: string };
 }) {
   const [currentScreen, setCurrentScreen] = useState<AdminScreens>(
     AdminScreens.lobby
-  )
+  );
 
-  const [participants, setParticipants] = useState<Participant[]>([])
+  const [participants, setParticipants] = useState<Participant[]>([]);
 
-  const [quizSet, setQuizSet] = useState<QuizSet>()
+  const [quizSet, setQuizSet] = useState<QuizSet>();
 
   useEffect(() => {
     const getQuestions = async () => {
       const { data: gameData, error: gameError } = await supabase
-        .from('games')
+        .from("games")
         .select()
-        .eq('id', gameId)
-        .single()
+        .eq("id", gameId)
+        .single();
       if (gameError) {
-        console.error(gameError.message)
-        alert('Error getting game data')
-        return
+        console.error(gameError.message);
+        alert("Error getting game data");
+        return;
       }
       const { data, error } = await supabase
-        .from('quiz_sets')
+        .from("quiz_sets")
         .select(`*, questions(*, choices(*))`)
-        .eq('id', gameData.quiz_set_id)
-        .order('order', {
+        .eq("id", gameData.quiz_set_id)
+        .order("order", {
           ascending: true,
-          referencedTable: 'questions',
+          referencedTable: "questions",
         })
-        .single()
+        .single();
       if (error) {
-        console.error(error.message)
-        getQuestions()
-        return
+        console.error(error.message);
+        getQuestions();
+        return;
       }
-      setQuizSet(data)
-    }
+      setQuizSet(data);
+    };
 
     const setGameListner = async () => {
       const { data } = await supabase
-        .from('participants')
+        .from("participants")
         .select()
-        .eq('game_id', gameId)
-        .order('created_at')
-      if (data) setParticipants(data)
+        .eq("game_id", gameId)
+        .order("created_at");
+      if (data) setParticipants(data);
 
       supabase
-        .channel('game')
+        .channel("game")
         .on(
-          'postgres_changes',
+          "postgres_changes",
           {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'participants',
+            event: "INSERT",
+            schema: "public",
+            table: "participants",
             filter: `game_id=eq.${gameId}`,
           },
           (payload) => {
             setParticipants((currentParticipants) => {
-              return [...currentParticipants, payload.new as Participant]
-            })
+              return [...currentParticipants, payload.new as Participant];
+            });
           }
         )
         .on(
-          'postgres_changes',
+          "postgres_changes",
           {
-            event: 'UPDATE',
-            schema: 'public',
-            table: 'games',
+            event: "UPDATE",
+            schema: "public",
+            table: "games",
             filter: `id=eq.${gameId}`,
           },
           (payload) => {
             // start the quiz game
-            const game = payload.new as Game
-            setCurrentQuestionSequence(game.current_question_sequence)
-            setCurrentScreen(game.phase as AdminScreens)
+            const game = payload.new as Game;
+            setCurrentQuestionSequence(game.current_question_sequence);
+            setCurrentScreen(game.phase as AdminScreens);
           }
         )
-        .subscribe()
+        .subscribe();
 
       const { data: gameData, error: gameError } = await supabase
-        .from('games')
+        .from("games")
         .select()
-        .eq('id', gameId)
-        .single()
+        .eq("id", gameId)
+        .single();
 
       if (gameError) {
-        alert(gameError.message)
-        console.error(gameError)
-        return
+        alert(gameError.message);
+        console.error(gameError);
+        return;
       }
 
-      setCurrentQuestionSequence(gameData.current_question_sequence)
-      setCurrentScreen(gameData.phase as AdminScreens)
-    }
+      setCurrentQuestionSequence(gameData.current_question_sequence);
+      setCurrentScreen(gameData.phase as AdminScreens);
+    };
 
-    getQuestions()
-    setGameListner()
-  }, [gameId])
+    getQuestions();
+    setGameListner();
+  }, [gameId]);
 
-  const [currentQuestionSequence, setCurrentQuestionSequence] = useState(0)
+  const [currentQuestionSequence, setCurrentQuestionSequence] = useState(0);
 
   return (
     <main className="bg-green-600 min-h-screen">
@@ -146,5 +146,5 @@ export default function Home({
         ></Results>
       )}
     </main>
-  )
+  );
 }

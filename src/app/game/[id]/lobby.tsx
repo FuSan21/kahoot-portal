@@ -1,54 +1,54 @@
-import { Participant, supabase } from '@/types/types'
-import { on } from 'events'
-import { FormEvent, useEffect, useState } from 'react'
+import { Participant, supabase } from "@/types/types";
+import { on } from "events";
+import { FormEvent, useEffect, useState } from "react";
 
 export default function Lobby({
   gameId,
   onRegisterCompleted,
 }: {
-  gameId: string
-  onRegisterCompleted: (participant: Participant) => void
+  gameId: string;
+  onRegisterCompleted: (participant: Participant) => void;
 }) {
-  const [participant, setParticipant] = useState<Participant | null>(null)
+  const [participant, setParticipant] = useState<Participant | null>(null);
 
   useEffect(() => {
     const fetchParticipant = async () => {
-      let userId: string | null = null
+      let userId: string | null = null;
 
       const { data: sessionData, error: sessionError } =
-        await supabase.auth.getSession()
+        await supabase.auth.getSession();
 
       if (sessionData.session) {
-        userId = sessionData.session?.user.id ?? null
+        userId = sessionData.session?.user.id ?? null;
       } else {
-        const { data, error } = await supabase.auth.signInAnonymously()
-        if (error) console.error(error)
-        userId = data?.user?.id ?? null
+        const { data, error } = await supabase.auth.signInAnonymously();
+        if (error) console.error(error);
+        userId = data?.user?.id ?? null;
       }
 
       if (!userId) {
-        return
+        return;
       }
 
       const { data: participantData, error } = await supabase
-        .from('participants')
+        .from("participants")
         .select()
-        .eq('game_id', gameId)
-        .eq('user_id', userId)
-        .maybeSingle()
+        .eq("game_id", gameId)
+        .eq("user_id", userId)
+        .maybeSingle();
 
       if (error) {
-        return alert(error.message)
+        return alert(error.message);
       }
 
       if (participantData) {
-        setParticipant(participantData)
-        onRegisterCompleted(participantData)
+        setParticipant(participantData);
+        onRegisterCompleted(participantData);
       }
-    }
+    };
 
-    fetchParticipant()
-  }, [gameId, onRegisterCompleted])
+    fetchParticipant();
+  }, [gameId, onRegisterCompleted]);
 
   return (
     <div className="bg-green-500 flex justify-center items-center min-h-screen">
@@ -57,8 +57,8 @@ export default function Lobby({
           <Register
             gameId={gameId}
             onRegisterCompleted={(participant) => {
-              onRegisterCompleted(participant)
-              setParticipant(participant)
+              onRegisterCompleted(participant);
+              setParticipant(participant);
             }}
           />
         )}
@@ -75,40 +75,40 @@ export default function Lobby({
         )}
       </div>
     </div>
-  )
+  );
 }
 
 function Register({
   onRegisterCompleted,
   gameId,
 }: {
-  onRegisterCompleted: (player: Participant) => void
-  gameId: string
+  onRegisterCompleted: (player: Participant) => void;
+  gameId: string;
 }) {
   const onFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setSending(true)
+    e.preventDefault();
+    setSending(true);
 
     if (!nickname) {
-      return
+      return;
     }
     const { data: participant, error } = await supabase
-      .from('participants')
+      .from("participants")
       .insert({ nickname, game_id: gameId })
       .select()
-      .single()
+      .single();
 
     if (error) {
-      setSending(false)
+      setSending(false);
 
-      return alert(error.message)
+      return alert(error.message);
     }
 
-    onRegisterCompleted(participant)
-  }
+    onRegisterCompleted(participant);
+  };
 
-  const [nickname, setNickname] = useState('')
-  const [sending, setSending] = useState(false)
+  const [nickname, setNickname] = useState("");
+  const [sending, setSending] = useState(false);
 
   return (
     <form onSubmit={(e) => onFormSubmit(e)}>
@@ -123,5 +123,5 @@ function Register({
         Join
       </button>
     </form>
-  )
+  );
 }

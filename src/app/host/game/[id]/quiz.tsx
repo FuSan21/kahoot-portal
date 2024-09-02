@@ -1,7 +1,7 @@
-import { TIME_TIL_CHOICE_REVEAL } from '@/constants'
-import { Answer, Participant, Question, supabase } from '@/types/types'
-import { useEffect, useRef, useState } from 'react'
-import { CountdownCircleTimer } from 'react-countdown-circle-timer'
+import { TIME_TIL_CHOICE_REVEAL } from "@/constants";
+import { Answer, Participant, Question, supabase } from "@/types/types";
+import { useEffect, useRef, useState } from "react";
+import { CountdownCircleTimer } from "react-countdown-circle-timer";
 
 export default function Quiz({
   question: question,
@@ -9,89 +9,89 @@ export default function Quiz({
   gameId,
   participants,
 }: {
-  question: Question
-  questionCount: number
-  gameId: string
-  participants: Participant[]
+  question: Question;
+  questionCount: number;
+  gameId: string;
+  participants: Participant[];
 }) {
-  const [isAnswerRevealed, setIsAnswerRevealed] = useState(false)
+  const [isAnswerRevealed, setIsAnswerRevealed] = useState(false);
 
-  const [hasShownChoices, setHasShownChoices] = useState(false)
+  const [hasShownChoices, setHasShownChoices] = useState(false);
 
-  const [answers, setAnswers] = useState<Answer[]>([])
+  const [answers, setAnswers] = useState<Answer[]>([]);
 
-  const answerStateRef = useRef<Answer[]>()
+  const answerStateRef = useRef<Answer[]>();
 
-  answerStateRef.current = answers
+  answerStateRef.current = answers;
 
   const getNextQuestion = async () => {
-    var updateData
+    var updateData;
     if (questionCount == question.order + 1) {
-      updateData = { phase: 'result' }
+      updateData = { phase: "result" };
     } else {
       updateData = {
         current_question_sequence: question.order + 1,
         is_answer_revealed: false,
-      }
+      };
     }
 
     const { data, error } = await supabase
-      .from('games')
+      .from("games")
       .update(updateData)
-      .eq('id', gameId)
+      .eq("id", gameId);
     if (error) {
-      return alert(error.message)
+      return alert(error.message);
     }
-  }
+  };
 
   const onTimeUp = async () => {
-    setIsAnswerRevealed(true)
+    setIsAnswerRevealed(true);
     await supabase
-      .from('games')
+      .from("games")
       .update({
         is_answer_revealed: true,
       })
-      .eq('id', gameId)
-  }
+      .eq("id", gameId);
+  };
 
   useEffect(() => {
-    setIsAnswerRevealed(false)
-    setHasShownChoices(false)
-    setAnswers([])
+    setIsAnswerRevealed(false);
+    setHasShownChoices(false);
+    setAnswers([]);
 
     setTimeout(() => {
-      setHasShownChoices(true)
-    }, TIME_TIL_CHOICE_REVEAL)
+      setHasShownChoices(true);
+    }, TIME_TIL_CHOICE_REVEAL);
 
     const channel = supabase
-      .channel('answers')
+      .channel("answers")
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'answers',
+          event: "INSERT",
+          schema: "public",
+          table: "answers",
           filter: `question_id=eq.${question.id}`,
         },
         (payload) => {
           setAnswers((currentAnswers) => {
-            return [...currentAnswers, payload.new as Answer]
-          })
+            return [...currentAnswers, payload.new as Answer];
+          });
 
           if (
             (answerStateRef.current?.length ?? 0) + 1 ===
             participants.length
           ) {
-            onTimeUp()
+            onTimeUp();
           }
         }
       )
-      .subscribe()
+      .subscribe();
 
     return () => {
-      supabase.removeChannel(channel)
-    }
-  }, [question.id])
+      supabase.removeChannel(channel);
+    };
+  }, [question.id]);
 
   return (
     <div className="h-screen flex flex-col items-stretch bg-slate-900 relative">
@@ -118,11 +118,11 @@ export default function Quiz({
             <div className="text-5xl">
               <CountdownCircleTimer
                 onComplete={() => {
-                  onTimeUp()
+                  onTimeUp();
                 }}
                 isPlaying
                 duration={20}
-                colors={['#004777', '#F7B801', '#A30000', '#A30000']}
+                colors={["#004777", "#F7B801", "#A30000", "#A30000"]}
                 colorsTime={[7, 5, 2, 0]}
               >
                 {({ remainingTime }) => remainingTime}
@@ -154,24 +154,24 @@ export default function Quiz({
                     }}
                     className={`absolute bottom-0 left-0 right-0 mb-1 rounded-t ${
                       index === 0
-                        ? 'bg-red-500'
+                        ? "bg-red-500"
                         : index === 1
-                        ? 'bg-blue-500'
+                        ? "bg-blue-500"
                         : index === 2
-                        ? 'bg-yellow-500'
-                        : 'bg-green-500'
+                        ? "bg-yellow-500"
+                        : "bg-green-500"
                     }`}
                   ></div>
                 </div>
                 <div
                   className={`mt-1 text-white text-lg text-center py-2 rounded-b ${
                     index === 0
-                      ? 'bg-red-500'
+                      ? "bg-red-500"
                       : index === 1
-                      ? 'bg-blue-500'
+                      ? "bg-blue-500"
                       : index === 2
-                      ? 'bg-yellow-500'
-                      : 'bg-green-500'
+                      ? "bg-yellow-500"
+                      : "bg-green-500"
                   }`}
                 >
                   {
@@ -193,14 +193,14 @@ export default function Quiz({
                 className={`px-4 py-6 w-full text-2xl rounded font-bold text-white flex justify-between
                 ${
                   index === 0
-                    ? 'bg-red-500'
+                    ? "bg-red-500"
                     : index === 1
-                    ? 'bg-blue-500'
+                    ? "bg-blue-500"
                     : index === 2
-                    ? 'bg-yellow-500'
-                    : 'bg-green-500'
+                    ? "bg-yellow-500"
+                    : "bg-green-500"
                 }
-                ${isAnswerRevealed && !choice.is_correct ? 'opacity-60' : ''}
+                ${isAnswerRevealed && !choice.is_correct ? "opacity-60" : ""}
                `}
               >
                 <div>{choice.body}</div>
@@ -252,5 +252,5 @@ export default function Quiz({
         </div>
       </div>
     </div>
-  )
+  );
 }

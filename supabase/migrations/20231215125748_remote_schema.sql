@@ -4,7 +4,6 @@ create table if not exists public.quiz_sets (
     name text not null,
     description text
 );
-
 create table if not exists public.questions (
     id uuid default gen_random_uuid() not null primary key,
     created_at timestamp with time zone default now() not null,
@@ -13,7 +12,6 @@ create table if not exists public.questions (
     "order" smallint not null,
     quiz_set_id uuid not null references quiz_sets(id) on delete cascade on update cascade
 );
-
 create table if not exists public.choices (
     id uuid default gen_random_uuid() not null primary key,
     created_at timestamp with time zone default now() not null,
@@ -21,7 +19,6 @@ create table if not exists public.choices (
     body text not null,
     is_correct boolean default false not null
 );
-
 create table if not exists public.games (
     id uuid default gen_random_uuid() not null primary key,
     created_at timestamp with time zone default now() not null,
@@ -30,10 +27,8 @@ create table if not exists public.games (
     phase text default 'lobby' not null,
     quiz_set_id uuid not null references quiz_sets(id) on delete cascade on update cascade
 );
-
 alter table public.games
-    add constraint check_game_phase check (phase in ('lobby', 'quiz', 'result'));
-
+add constraint check_game_phase check (phase in ('lobby', 'quiz', 'result'));
 create table if not exists public.participants (
     id uuid default gen_random_uuid() not null primary key,
     created_at timestamp with time zone default now() not null,
@@ -42,7 +37,6 @@ create table if not exists public.participants (
     user_id uuid default auth.uid() not null references auth.users(id) on delete cascade on update cascade,
     unique (game_id, user_id)
 );
-
 create table if not exists public.answers (
     id uuid default gen_random_uuid() not null primary key,
     created_at timestamp with time zone default now() not null,
@@ -51,6 +45,7 @@ create table if not exists public.answers (
     score smallint not null,
     unique (participant_id, question_id)
 );
-
-alter publication supabase_realtime add table games;
-alter publication supabase_realtime add table participants;
+alter publication supabase_realtime
+add table games;
+alter publication supabase_realtime
+add table participants;

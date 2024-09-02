@@ -1,7 +1,10 @@
-import { QUESTION_ANSWER_TIME, TIME_TIL_CHOICE_REVEAL } from '@/constants'
-import { Choice, Question, supabase } from '@/types/types'
-import { useState, useEffect } from 'react'
-import { ColorFormat, CountdownCircleTimer } from 'react-countdown-circle-timer'
+import { QUESTION_ANSWER_TIME, TIME_TIL_CHOICE_REVEAL } from "@/constants";
+import { Choice, Question, supabase } from "@/types/types";
+import { useState, useEffect } from "react";
+import {
+  ColorFormat,
+  CountdownCircleTimer,
+} from "react-countdown-circle-timer";
 
 export default function Quiz({
   question: question,
@@ -9,26 +12,26 @@ export default function Quiz({
   participantId: playerId,
   isAnswerRevealed,
 }: {
-  question: Question
-  questionCount: number
-  participantId: string
-  isAnswerRevealed: boolean
+  question: Question;
+  questionCount: number;
+  participantId: string;
+  isAnswerRevealed: boolean;
 }) {
-  const [chosenChoice, setChosenChoice] = useState<Choice | null>(null)
+  const [chosenChoice, setChosenChoice] = useState<Choice | null>(null);
 
-  const [hasShownChoices, setHasShownChoices] = useState(false)
+  const [hasShownChoices, setHasShownChoices] = useState(false);
 
-  const [questionStartTime, setQuestionStartTime] = useState(Date.now())
+  const [questionStartTime, setQuestionStartTime] = useState(Date.now());
 
   useEffect(() => {
-    setChosenChoice(null)
-    setHasShownChoices(false)
-  }, [question.id])
+    setChosenChoice(null);
+    setHasShownChoices(false);
+  }, [question.id]);
 
   const answer = async (choice: Choice) => {
-    setChosenChoice(choice)
+    setChosenChoice(choice);
 
-    const now = Date.now()
+    const now = Date.now();
     const score = !choice.is_correct
       ? 0
       : 1000 -
@@ -37,19 +40,19 @@ export default function Quiz({
             0,
             Math.min((now - questionStartTime) / QUESTION_ANSWER_TIME, 1)
           ) * 1000
-        )
+        );
 
-    const { error } = await supabase.from('answers').insert({
+    const { error } = await supabase.from("answers").insert({
       participant_id: playerId,
       question_id: question.id,
       choice_id: choice.id,
       score,
-    })
+    });
     if (error) {
-      setChosenChoice(null)
-      alert(error.message)
+      setChosenChoice(null);
+      alert(error.message);
     }
-  }
+  };
 
   return (
     <div className="h-screen flex flex-col items-stretch bg-slate-900 relative">
@@ -71,13 +74,13 @@ export default function Quiz({
         <div className="flex-grow text-transparent flex justify-center">
           <CountdownCircleTimer
             onComplete={() => {
-              setHasShownChoices(true)
-              setQuestionStartTime(Date.now())
+              setHasShownChoices(true);
+              setQuestionStartTime(Date.now());
             }}
             isPlaying
             duration={TIME_TIL_CHOICE_REVEAL / 1000}
-            colors={['#fff', '#fff', '#fff', '#fff']}
-            trailColor={'transparent' as ColorFormat}
+            colors={["#fff", "#fff", "#fff", "#fff"]}
+            trailColor={"transparent" as ColorFormat}
             colorsTime={[7, 5, 2, 0]}
           >
             {({ remainingTime }) => remainingTime}
@@ -97,14 +100,14 @@ export default function Quiz({
                   className={`px-4 py-6 w-full text-xl rounded text-white flex justify-between md:text-2xl md:font-bold
               ${
                 index === 0
-                  ? 'bg-red-500'
+                  ? "bg-red-500"
                   : index === 1
-                  ? 'bg-blue-500'
+                  ? "bg-blue-500"
                   : index === 2
-                  ? 'bg-yellow-500'
-                  : 'bg-green-500'
+                  ? "bg-yellow-500"
+                  : "bg-green-500"
               }
-              ${isAnswerRevealed && !choice.is_correct ? 'opacity-60' : ''}
+              ${isAnswerRevealed && !choice.is_correct ? "opacity-60" : ""}
              `}
                 >
                   <div>{choice.body}</div>
@@ -154,11 +157,11 @@ export default function Quiz({
       {isAnswerRevealed && (
         <div className="flex-grow flex justify-center items-center flex-col">
           <h2 className="text-white text-2xl text-center pb-2">
-            {chosenChoice?.is_correct ? 'Correct' : 'Incorrect'}
+            {chosenChoice?.is_correct ? "Correct" : "Incorrect"}
           </h2>
           <div
             className={`text-white rounded-full p-4  ${
-              chosenChoice?.is_correct ? 'bg-green-500' : 'bg-red-500'
+              chosenChoice?.is_correct ? "bg-green-500" : "bg-red-500"
             }`}
           >
             {chosenChoice?.is_correct && (
@@ -203,5 +206,5 @@ export default function Quiz({
         </div>
       </div>
     </div>
-  )
+  );
 }

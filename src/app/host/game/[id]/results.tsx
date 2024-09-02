@@ -5,38 +5,38 @@ import {
   Question,
   QuizSet,
   supabase,
-} from '@/types/types'
-import { useEffect, useState } from 'react'
-import Confetti from 'react-confetti'
-import useWindowSize from 'react-use/lib/useWindowSize'
+} from "@/types/types";
+import { useEffect, useState } from "react";
+import Confetti from "react-confetti";
+import useWindowSize from "react-use/lib/useWindowSize";
 
 export default function Results({
   quizSet,
   gameId,
 }: {
-  participants: Participant[]
-  quizSet: QuizSet
-  gameId: string
+  participants: Participant[];
+  quizSet: QuizSet;
+  gameId: string;
 }) {
-  const [gameResults, setGameResults] = useState<GameResult[]>([])
+  const [gameResults, setGameResults] = useState<GameResult[]>([]);
 
-  const { width, height } = useWindowSize()
+  const { width, height } = useWindowSize();
 
   useEffect(() => {
     const getResults = async () => {
       const { data, error } = await supabase
-        .from('game_results')
+        .from("game_results")
         .select()
-        .eq('game_id', gameId)
-        .order('total_score', { ascending: false })
+        .eq("game_id", gameId)
+        .order("total_score", { ascending: false });
       if (error) {
-        return alert(error.message)
+        return alert(error.message);
       }
 
-      setGameResults(data)
-    }
-    getResults()
-  }, [gameId])
+      setGameResults(data);
+    };
+    getResults();
+  }, [gameId]);
 
   return (
     <div className="min-h-screen bg-black">
@@ -51,15 +51,15 @@ export default function Results({
             <div
               key={gameResult.participant_id}
               className={`flex justify-between items-center bg-white py-2 px-4 rounded my-4 max-w-2xl w-full ${
-                index < 3 ? 'shadow-xl font-bold' : ''
+                index < 3 ? "shadow-xl font-bold" : ""
               }`}
             >
-              <div className={`pr-4 ${index < 3 ? 'text-3xl' : 'text-l'}`}>
+              <div className={`pr-4 ${index < 3 ? "text-3xl" : "text-l"}`}>
                 {index + 1}
               </div>
               <div
                 className={`flex-grow font-bold ${
-                  index < 3 ? 'text-5xl' : 'text-2xl'
+                  index < 3 ? "text-5xl" : "text-2xl"
                 }`}
               >
                 {gameResult.nickname}
@@ -76,5 +76,5 @@ export default function Results({
       </div>
       <Confetti width={width} height={height} recycle={true} />
     </div>
-  )
+  );
 }
