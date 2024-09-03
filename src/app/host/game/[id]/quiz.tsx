@@ -109,7 +109,7 @@ export default function Quiz({
         )}
       </div>
 
-      <div className="text-center">
+      <div className="text-center py-4">
         <h2 className="pb-4 text-3xl bg-white font-bold mx-24 my-12 p-4 rounded inline-block">
           {question.body}
         </h2>
