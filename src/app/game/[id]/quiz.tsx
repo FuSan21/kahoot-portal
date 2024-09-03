@@ -1,6 +1,7 @@
 import { QUESTION_ANSWER_TIME, TIME_TIL_CHOICE_REVEAL } from "@/constants";
 import { Choice, Question, supabase } from "@/types/types";
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import {
   ColorFormat,
   CountdownCircleTimer,
@@ -8,11 +9,13 @@ import {
 
 export default function Quiz({
   question: question,
+  quiz: quiz,
   questionCount: questionCount,
   participantId: playerId,
   isAnswerRevealed,
 }: {
   question: Question;
+  quiz: string;
   questionCount: number;
   participantId: string;
   isAnswerRevealed: boolean;
@@ -60,6 +63,15 @@ export default function Quiz({
         <h2 className="pb-4 text-2xl bg-white font-bold mx-4 my-12 p-4 rounded inline-block md:text-3xl md:px-24">
           {question.body}
         </h2>
+        {question.image && (
+          <Image
+            src={"/quiz-image/" + quiz + "/" + question.image}
+            alt={question.body}
+            width={400}
+            height={400}
+            className="justify-center items-center mx-auto"
+          />
+        )}
       </div>
 
       {!isAnswerRevealed && chosenChoice && (

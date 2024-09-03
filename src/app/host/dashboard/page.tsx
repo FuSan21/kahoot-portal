@@ -2,6 +2,7 @@
 
 import { QuizSet, supabase } from "@/types/types";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 export default function Home() {
   const [quizSet, setQuizSet] = useState<QuizSet[]>([]);
@@ -53,7 +54,13 @@ export default function Home() {
           key={quizSet.id}
           className="flex justify-start shadow my-4 mx-2 rounded"
         >
-          <img className="h-28" src="/default.png" alt="default quiz image" />
+          <Image
+            className="h-28"
+            src={"/quiz-image/" + quizSet.id + "/" + quizSet.image}
+            alt={quizSet.name}
+            width={100}
+            height={100}
+          />
           <div className="p-2 flex flex-col justify-between items-stretch flex-grow">
             <h2 className="font-bold">{quizSet.name}</h2>
             <div className="flex justify-between items-end">

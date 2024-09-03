@@ -111,6 +111,7 @@ export default function Home({
       {currentScreen == Screens.quiz && questions && (
         <Quiz
           question={questions![currentQuestionSequence]}
+          quiz={questions![currentQuestionSequence].quiz_set_id}
           questionCount={questions!.length}
           participantId={participant!.id}
           isAnswerRevealed={isAnswerRevealed}

@@ -193,7 +193,7 @@ export type Database = {
           body: string;
           created_at: string;
           id: string;
-          image_url: string | null;
+          image: string | null;
           order: number;
           quiz_set_id: string;
         };
@@ -201,7 +201,7 @@ export type Database = {
           body: string;
           created_at?: string;
           id?: string;
-          image_url?: string | null;
+          image?: string | null;
           order: number;
           quiz_set_id: string;
         };
@@ -209,7 +209,7 @@ export type Database = {
           body?: string;
           created_at?: string;
           id?: string;
-          image_url?: string | null;
+          image?: string | null;
           order?: number;
           quiz_set_id?: string;
         };
@@ -227,18 +227,21 @@ export type Database = {
         Row: {
           created_at: string;
           description: string | null;
+          image: string | null;
           id: string;
           name: string;
         };
         Insert: {
           created_at?: string;
           description?: string | null;
+          image?: string | null;
           id?: string;
           name: string;
         };
         Update: {
           created_at?: string;
           description?: string | null;
+          image?: string | null;
           id?: string;
           name?: string;
         };

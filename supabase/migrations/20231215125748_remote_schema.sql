@@ -2,13 +2,14 @@ create table if not exists public.quiz_sets (
     id uuid default gen_random_uuid() not null primary key,
     created_at timestamp with time zone default now() not null,
     name text not null,
-    description text
+    description text,
+    "image" text
 );
 create table if not exists public.questions (
     id uuid default gen_random_uuid() not null primary key,
     created_at timestamp with time zone default now() not null,
     body text not null,
-    image_url text,
+    "image" text,
     "order" smallint not null,
     quiz_set_id uuid not null references quiz_sets(id) on delete cascade on update cascade
 );

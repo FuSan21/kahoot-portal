@@ -2,14 +2,17 @@ import { TIME_TIL_CHOICE_REVEAL } from "@/constants";
 import { Answer, Participant, Question, supabase } from "@/types/types";
 import { useEffect, useRef, useState } from "react";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
+import Image from "next/image";
 
 export default function Quiz({
   question: question,
+  quiz: quiz,
   questionCount: questionCount,
   gameId,
   participants,
 }: {
   question: Question;
+  quiz: string;
   questionCount: number;
   gameId: string;
   participants: Participant[];
@@ -110,6 +113,15 @@ export default function Quiz({
         <h2 className="pb-4 text-3xl bg-white font-bold mx-24 my-12 p-4 rounded inline-block">
           {question.body}
         </h2>
+        {question.image && (
+          <Image
+            src={"/quiz-image/" + quiz + "/" + question.image}
+            alt={question.body}
+            width={400}
+            height={400}
+            className="justify-center items-center mx-auto"
+          />
+        )}
       </div>
 
       <div className="flex-grow text-white px-8">

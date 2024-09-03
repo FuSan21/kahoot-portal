@@ -133,6 +133,7 @@ export default function Home({
       {currentScreen == AdminScreens.quiz && (
         <Quiz
           question={quizSet!.questions![currentQuestionSequence]}
+          quiz={quizSet!.id}
           questionCount={quizSet!.questions!.length}
           gameId={gameId}
           participants={participants}
