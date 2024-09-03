@@ -44,7 +44,7 @@ export default function Home() {
     }
 
     const gameId = data.id;
-    window.open(`/host/game/${gameId}`, "_blank", "noopener,noreferrer");
+    window.open(`/host/game/${gameId}`, "_self", "noopener,noreferrer");
   };
 
   return (
