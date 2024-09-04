@@ -1,6 +1,7 @@
 import "../../globals.css";
-import Link from "next/link";
 import RootLayout from "@/app/layout";
+import SiteLogo from "@/app/host/dashboard/sitelogo.svg";
+import Image from "next/image";
 
 const menuItems: {
   label: string;
@@ -56,26 +57,37 @@ export default function DashboardLayout({
 }) {
   return (
     <RootLayout>
-      <header className="h-16 px-2 flex justify-between border-b border-gray-200 items-center">
-        <h1>Kahoot Portal</h1>
-      </header>
-      <div className="flex">
-        <nav className="border-r border-r-gray-200">
-          <ul>
-            {menuItems.map((item) => (
-              <li key={item.href} className="">
-                <Link
-                  className="flex items-center h-12 w-52 hover:bg-gray-100"
+      <div className="min-h-screen flex flex-col">
+        <header className="h-16 px-2 flex justify-between border-b border-gray-200 items-center">
+          <h1>Kahoot Portal</h1>
+        </header>
+        <div className="flex flex-col sm:flex-row h-full flex-grow">
+          <nav className="w-full sm:w-64 bg-gray-50 border-r border-gray-200">
+            <div className="flex justify-center items-center py-4 px-6">
+              <a href="/host/dashboard">
+                <Image priority src={SiteLogo} alt="Kahoot Portal" />
+              </a>
+            </div>
+
+            <div className="sm:mb-10">
+              <h3 className="mx-6 mb-2 text-xs text-gray-400 uppercase tracking-widest">
+                Main
+              </h3>
+              {menuItems.map((item) => (
+                <a
                   href={item.href}
+                  key={item.href}
+                  className="flex items-center px-6 py-2.5 text-gray-500 hover:text-orange-600 group"
                 >
                   <div className="px-2">{item.icon}</div>
                   <div className="flex-grow">{item.label}</div>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-        <main className="flex-grow p-2">{children}</main>
+                </a>
+              ))}
+            </div>
+          </nav>
+
+          <main className="p-2 sm:p-10 flex-grow">{children}</main>
+        </div>
       </div>
     </RootLayout>
   );
