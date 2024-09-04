@@ -3,6 +3,7 @@
 import { QuizSet, supabase } from "@/types/types";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { toast } from "sonner";
 
 export default function Home() {
   const [quizSet, setQuizSet] = useState<QuizSet[]>([]);
@@ -14,7 +15,7 @@ export default function Home() {
         .select(`*, questions(*, choices(*))`)
         .order("created_at", { ascending: false });
       if (error) {
-        alert("Failed to fetch quiz sets");
+        toast.error("Failed to fetch quiz sets");
         return;
       }
       setQuizSet(data);
@@ -39,7 +40,7 @@ export default function Home() {
       .single();
     if (error) {
       console.error(error);
-      alert("Failed to start game");
+      toast.error("Failed to start game");
       return;
     }
 

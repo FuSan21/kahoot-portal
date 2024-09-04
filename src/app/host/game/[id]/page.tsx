@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import Lobby from "./lobby";
 import Quiz from "./quiz";
 import Results from "./results";
+import { toast } from "sonner";
 
 enum AdminScreens {
   lobby = "lobby",
@@ -42,7 +43,7 @@ export default function Home({
         .single();
       if (gameError) {
         console.error(gameError.message);
-        alert("Error getting game data");
+        toast.error("Error getting game data");
         return;
       }
       const { data, error } = await supabase
@@ -110,7 +111,7 @@ export default function Home({
         .single();
 
       if (gameError) {
-        alert(gameError.message);
+        toast.error(gameError.message);
         console.error(gameError);
         return;
       }

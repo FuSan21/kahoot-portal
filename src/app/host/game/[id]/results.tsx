@@ -9,6 +9,7 @@ import {
 import { useEffect, useState } from "react";
 import Confetti from "react-confetti";
 import useWindowSize from "react-use/lib/useWindowSize";
+import { toast } from "sonner";
 
 export default function Results({
   quizSet,
@@ -30,7 +31,7 @@ export default function Results({
         .eq("game_id", gameId)
         .order("total_score", { ascending: false });
       if (error) {
-        return alert(error.message);
+        return toast.error(error.message);
       }
 
       setGameResults(data);

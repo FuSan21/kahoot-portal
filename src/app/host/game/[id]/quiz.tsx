@@ -3,6 +3,7 @@ import { Answer, Participant, Question, supabase } from "@/types/types";
 import { useEffect, useRef, useState } from "react";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import Image from "next/image";
+import { toast } from "sonner";
 
 export default function Quiz({
   question: question,
@@ -43,7 +44,7 @@ export default function Quiz({
       .update(updateData)
       .eq("id", gameId);
     if (error) {
-      return alert(error.message);
+      return toast.error(error.message);
     }
   };
 

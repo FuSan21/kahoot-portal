@@ -1,6 +1,7 @@
 import { Participant, supabase } from "@/types/types";
 import { useQRCode } from "next-qrcode";
 import { BASE_URL } from "@/constants";
+import { toast } from "sonner";
 
 export default function Lobby({
   participants: participants,
@@ -15,9 +16,10 @@ export default function Lobby({
     navigator.clipboard
       .writeText(gameLink)
       .then(() => {
-        alert("Game link copied to clipboard!");
+        toast.success("Game link copied to clipboard!");
       })
       .catch((err) => {
+        toast.error("Failed to copy game link to clipboard!");
         console.error("Failed to copy: ", err);
       });
   };
@@ -27,7 +29,7 @@ export default function Lobby({
       .update({ phase: "quiz" })
       .eq("id", gameId);
     if (error) {
-      return alert(error.message);
+      return toast.error(error.message);
     }
   };
 

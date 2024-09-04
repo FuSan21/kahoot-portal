@@ -1,6 +1,7 @@
 import { Participant, supabase } from "@/types/types";
 import { on } from "events";
 import { FormEvent, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function Lobby({
   gameId,
@@ -38,7 +39,7 @@ export default function Lobby({
         .maybeSingle();
 
       if (error) {
-        return alert(error.message);
+        return toast.error(error.message);
       }
 
       if (participantData) {
@@ -101,7 +102,7 @@ function Register({
     if (error) {
       setSending(false);
 
-      return alert(error.message);
+      return toast.error(error.message);
     }
 
     onRegisterCompleted(participant);

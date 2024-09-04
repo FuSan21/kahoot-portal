@@ -2,6 +2,7 @@ import { QUESTION_ANSWER_TIME, TIME_TIL_CHOICE_REVEAL } from "@/constants";
 import { Choice, Question, supabase } from "@/types/types";
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { toast } from "sonner";
 import {
   ColorFormat,
   CountdownCircleTimer,
@@ -53,7 +54,7 @@ export default function Quiz({
     });
     if (error) {
       setChosenChoice(null);
-      alert(error.message);
+      toast.error(error.message);
     }
   };
 
