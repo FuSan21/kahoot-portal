@@ -52,7 +52,7 @@ export default function Home() {
       {quizSet.map((quizSet) => (
         <div
           key={quizSet.id}
-          className="flex justify-start shadow my-4 mx-2 rounded"
+          className="flex justify-start shadow my-4 mx-2 rounded w-full p-2"
         >
           <Image
             className="h-28"

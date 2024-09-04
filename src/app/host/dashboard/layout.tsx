@@ -1,14 +1,6 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "../../globals.css";
 import Link from "next/link";
-
-const inter = Inter({ subsets: ["latin"] });
-
-export const metadata: Metadata = {
-  title: "Kahoots Portal",
-  description: "Kahoot Quiz Platform powered by Next.js 14 and Supabase",
-};
+import RootLayout from "@/app/layout";
 
 const menuItems: {
   label: string;
@@ -57,15 +49,15 @@ const menuItems: {
   },
 ];
 
-export default function RootLayout({
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <>
+    <RootLayout>
       <header className="h-16 px-2 flex justify-between border-b border-gray-200 items-center">
-        <h1>SupaQuiz</h1>
+        <h1>Kahoot Portal</h1>
       </header>
       <div className="flex">
         <nav className="border-r border-r-gray-200">
@@ -85,6 +77,6 @@ export default function RootLayout({
         </nav>
         <main className="flex-grow p-2">{children}</main>
       </div>
-    </>
+    </RootLayout>
   );
 }
