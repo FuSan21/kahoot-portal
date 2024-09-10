@@ -49,35 +49,37 @@ export default function Home() {
   };
 
   return (
-    <>
+    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 p-4">
       {quizSet.map((quizSet) => (
         <div
           key={quizSet.id}
-          className="flex justify-start shadow my-4 mx-2 rounded w-full p-2"
+          className="flex flex-col bg-white shadow rounded overflow-hidden"
         >
-          <Image
-            className="h-28"
-            src={"/quiz-image/" + quizSet.id + "/" + quizSet.image}
-            alt={quizSet.name}
-            width={100}
-            height={100}
-          />
-          <div className="p-2 flex flex-col justify-between items-stretch flex-grow">
-            <h2 className="font-bold">{quizSet.name}</h2>
-            <div className="flex justify-between items-end">
-              <div>{quizSet.questions.length} questions</div>
-              <div>
-                <button
-                  className="bg-green-500 text-white py-1 px-4 rounded"
-                  onClick={() => startGame(quizSet.id)}
-                >
-                  Start Game
-                </button>
+          <div className="p-4 flex items-start">
+            <Image
+              className="h-20 w-20 object-cover rounded flex-shrink-0"
+              src={"/quiz-image/" + quizSet.id + "/" + quizSet.image}
+              alt={quizSet.name}
+              width={80}
+              height={80}
+            />
+            <div className="ml-4 flex-grow min-w-0">
+              <h2 className="font-bold text-lg break-words">{quizSet.name}</h2>
+              <div className="text-sm text-gray-600 mt-1">
+                {quizSet.questions.length} questions
               </div>
             </div>
           </div>
+          <div className="p-4 bg-gray-50 mt-auto">
+            <button
+              className="bg-green-500 text-white py-2 px-4 rounded w-full hover:bg-green-600 transition-colors"
+              onClick={() => startGame(quizSet.id)}
+            >
+              Start Game
+            </button>
+          </div>
         </div>
       ))}
-    </>
+    </div>
   );
 }
