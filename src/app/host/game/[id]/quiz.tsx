@@ -1,6 +1,6 @@
 import { TIME_TIL_CHOICE_REVEAL } from "@/constants";
 import { Answer, Participant, Question, supabase } from "@/types/types";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import Image from "next/image";
 import { toast } from "sonner";
@@ -48,7 +48,7 @@ export default function Quiz({
     }
   };
 
-  const onTimeUp = async () => {
+  const onTimeUp = useCallback(async () => {
     setIsAnswerRevealed(true);
     await supabase
       .from("games")
@@ -56,7 +56,13 @@ export default function Quiz({
         is_answer_revealed: true,
       })
       .eq("id", gameId);
-  };
+  }, [gameId]);
+
+  const participantsLengthRef = useRef(participants.length);
+
+  useEffect(() => {
+    participantsLengthRef.current = participants.length;
+  }, [participants.length]);
 
   useEffect(() => {
     setIsAnswerRevealed(false);
@@ -84,7 +90,7 @@ export default function Quiz({
 
           if (
             (answerStateRef.current?.length ?? 0) + 1 ===
-            participants.length
+            participantsLengthRef.current
           ) {
             onTimeUp();
           }
@@ -95,7 +101,7 @@ export default function Quiz({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [question.id]);
+  }, [question.id, onTimeUp]);
 
   return (
     <div className="h-screen flex flex-col items-stretch bg-slate-900 relative">
