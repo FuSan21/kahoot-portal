@@ -200,7 +200,7 @@ VALUES (
     'e85b9d7f-c1d3-49a6-bdf3-5a0cfe1d13b0',
     'General Science Quiz',
     'Test your knowledge of general science',
-    'featured.png'
+    'featured.jpg'
   );
 SELECT add_question (
     quiz_set_id => 'e85b9d7f-c1d3-49a6-bdf3-5a0cfe1d13b0'::uuid,
