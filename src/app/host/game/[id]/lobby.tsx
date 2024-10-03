@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Participant, supabase } from "@/types/types";
 import { useQRCode } from "next-qrcode";
 import { BASE_URL } from "@/constants";
@@ -17,6 +17,13 @@ export default function Lobby({
   const gameLink = BASE_URL + `/game/${gameId}`;
   const [pin, setPin] = useState<number | null>(null);
   const [isPinSet, setIsPinSet] = useState(false);
+  const [canStartGame, setCanStartGame] = useState(false);
+
+  useEffect(() => {
+    if (preloadProgress === 100) {
+      setCanStartGame(true);
+    }
+  }, [preloadProgress]);
 
   const onClickSetPin = async () => {
     if (pin === null || pin < 10000 || pin > 99999) {
@@ -112,8 +119,13 @@ export default function Lobby({
                 ))}
               </div>
               <button
-                className="mx-auto bg-white py-2 px-6 md:py-4 md:px-12 block text-black w-full md:w-auto"
+                className={`mx-auto py-2 px-6 md:py-4 md:px-12 block text-black w-full md:w-auto ${
+                  canStartGame
+                    ? "bg-white hover:bg-gray-200"
+                    : "bg-gray-400 cursor-not-allowed"
+                }`}
                 onClick={onClickStartGame}
+                disabled={!canStartGame}
               >
                 Start Game
               </button>
@@ -122,18 +134,19 @@ export default function Lobby({
         )}
       </div>
 
-      {/* Add this progress bar */}
-      <div className="w-full max-w-md mt-4">
-        <div className="bg-white rounded-full h-4 overflow-hidden">
-          <div
-            className="bg-blue-500 h-full transition-all duration-300 ease-out"
-            style={{ width: `${preloadProgress}%` }}
-          ></div>
+      {preloadProgress < 100 && (
+        <div className="w-full max-w-md mt-4">
+          <div className="bg-white rounded-full h-4 overflow-hidden">
+            <div
+              className="bg-blue-500 h-full transition-all duration-300 ease-out"
+              style={{ width: `${preloadProgress}%` }}
+            ></div>
+          </div>
+          <p className="text-center text-white mt-2">
+            Preloading images: {Math.round(preloadProgress)}%
+          </p>
         </div>
-        <p className="text-center text-white mt-2">
-          Preloading images: {Math.round(preloadProgress)}%
-        </p>
-      </div>
+      )}
     </div>
   );
 }
