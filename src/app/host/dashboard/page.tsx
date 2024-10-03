@@ -60,10 +60,7 @@ export default function Home() {
               className="h-20 w-20 object-cover rounded flex-shrink-0"
               src={
                 quizSet.image
-                  ? supabase.storage
-                      .from("quiz_images")
-                      .getPublicUrl(`${quizSet.id}/${quizSet.image}`).data
-                      .publicUrl
+                  ? `/api/getImage?path=${quizSet.id}/${quizSet.image}`
                   : "/default.png"
               }
               alt={quizSet.name}

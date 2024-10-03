@@ -6,6 +6,16 @@ export const supabase = createClient<Database>(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+export function createAdminClient() {
+  if (typeof window === "undefined") {
+    return createClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_KEY!
+    );
+  }
+  throw new Error("Admin client should only be created on the server");
+}
+
 export type Participant = Database["public"]["Tables"]["participants"]["Row"];
 
 export type Choice = Database["public"]["Tables"]["choices"]["Row"];

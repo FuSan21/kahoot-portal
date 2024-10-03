@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import Image from "next/image";
 import { toast } from "sonner";
+import { ImagePlaceholder } from "@/utils/imagePlaceholder";
 
 export default function Quiz({
   question: question,
@@ -103,6 +104,20 @@ export default function Quiz({
     };
   }, [question.id, onTimeUp]);
 
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  useEffect(() => {
+    // Reset image loaded state when question changes
+    setImageLoaded(false);
+
+    // Preload the image
+    if (question.image) {
+      const img = new window.Image();
+      img.src = `/api/getImage?path=${quiz}/${question.image}`;
+      img.onload = () => setImageLoaded(true);
+    }
+  }, [question.image, quiz]);
+
   return (
     <div className="min-h-screen flex flex-col items-stretch bg-slate-900">
       <div className="flex-grow flex flex-col">
@@ -122,17 +137,20 @@ export default function Quiz({
             {question.body}
           </h2>
           {question.image && (
-            <Image
-              src={
-                supabase.storage
-                  .from("quiz_images")
-                  .getPublicUrl(`${quiz}/${question.image}`).data.publicUrl
-              }
-              alt={question.body}
-              width={400}
-              height={400}
-              className="justify-center items-center mx-auto"
-            />
+            <>
+              {!imageLoaded && <ImagePlaceholder />}
+              <Image
+                src={`/api/getImage?path=${quiz}/${question.image}`}
+                alt={question.body}
+                width={400}
+                height={400}
+                className={`justify-center items-center mx-auto ${
+                  imageLoaded ? "block" : "hidden"
+                }`}
+                onLoad={() => setImageLoaded(true)}
+                priority
+              />
+            </>
           )}
         </div>
 

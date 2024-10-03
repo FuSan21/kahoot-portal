@@ -66,11 +66,7 @@ export default function Quiz({
         </h2>
         {question.image && (
           <Image
-            src={
-              supabase.storage
-                .from("quiz_images")
-                .getPublicUrl(`${quiz}/${question.image}`).data.publicUrl
-            }
+            src={`/api/getImage?path=${quiz}/${question.image}`}
             alt={question.body}
             width={400}
             height={400}

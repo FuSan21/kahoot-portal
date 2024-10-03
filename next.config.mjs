@@ -17,9 +17,6 @@ const nextConfig = {
       },
     ];
   },
-  images: {
-    domains: [process.env.SUPABASE_DOMAIN],
-  },
 };
 
 const withMDX = createMDX({
