@@ -14,6 +14,7 @@ import Lobby from "./lobby";
 import Quiz from "./quiz";
 import Results from "./results";
 import { toast } from "sonner";
+import { preloadQuizImages } from "@/utils/imagePreloader";
 
 enum AdminScreens {
   lobby = "lobby",
@@ -33,6 +34,8 @@ export default function Home({
   const [participants, setParticipants] = useState<Participant[]>([]);
 
   const [quizSet, setQuizSet] = useState<QuizSet>();
+
+  const [preloadProgress, setPreloadProgress] = useState(0);
 
   useEffect(() => {
     const getQuestions = async () => {
@@ -61,6 +64,9 @@ export default function Home({
         return;
       }
       setQuizSet(data);
+
+      // Preload images after setting questions
+      await preloadQuizImages(data.id, setPreloadProgress);
     };
 
     const setGameListner = async () => {
@@ -129,7 +135,11 @@ export default function Home({
   return (
     <main className="bg-green-600 min-h-screen">
       {currentScreen == AdminScreens.lobby && (
-        <Lobby participants={participants} gameId={gameId}></Lobby>
+        <Lobby
+          participants={participants}
+          gameId={gameId}
+          preloadProgress={preloadProgress}
+        ></Lobby>
       )}
       {currentScreen == AdminScreens.quiz && (
         <Quiz

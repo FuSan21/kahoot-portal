@@ -7,9 +7,11 @@ import { toast } from "sonner";
 export default function Lobby({
   participants: participants,
   gameId,
+  preloadProgress,
 }: {
   participants: Participant[];
   gameId: string;
+  preloadProgress: number;
 }) {
   const { Canvas } = useQRCode();
   const gameLink = BASE_URL + `/game/${gameId}`;
@@ -55,7 +57,7 @@ export default function Lobby({
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen p-4">
+    <div className="min-h-screen bg-green-500 flex flex-col items-center justify-center">
       <div className="flex flex-col md:flex-row justify-between m-auto bg-black p-4 md:p-12 w-full max-w-4xl">
         {!isPinSet ? (
           <div className="w-full">
@@ -118,6 +120,19 @@ export default function Lobby({
             </div>
           </>
         )}
+      </div>
+
+      {/* Add this progress bar */}
+      <div className="w-full max-w-md mt-4">
+        <div className="bg-white rounded-full h-4 overflow-hidden">
+          <div
+            className="bg-blue-500 h-full transition-all duration-300 ease-out"
+            style={{ width: `${preloadProgress}%` }}
+          ></div>
+        </div>
+        <p className="text-center text-white mt-2">
+          Preloading images: {Math.round(preloadProgress)}%
+        </p>
       </div>
     </div>
   );
