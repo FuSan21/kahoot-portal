@@ -13,7 +13,7 @@ export default function Quiz({
   quiz: quiz,
   questionCount: questionCount,
   participantId: playerId,
-  isAnswerRevealed,
+  isAnswerRevealed: isAnswerRevealed,
 }: {
   question: Question;
   quiz: string;
@@ -66,7 +66,11 @@ export default function Quiz({
         </h2>
         {question.image && (
           <Image
-            src={"/quiz-image/" + quiz + "/" + question.image}
+            src={
+              supabase.storage
+                .from("quiz_images")
+                .getPublicUrl(`${quiz}/${question.image}`).data.publicUrl
+            }
             alt={question.body}
             width={400}
             height={400}

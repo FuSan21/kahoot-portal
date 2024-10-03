@@ -51,3 +51,5 @@ alter publication supabase_realtime
 add table games;
 alter publication supabase_realtime
 add table participants;
+insert into storage.buckets (id, name, public)
+values ('quiz_images', 'quiz_images', true);

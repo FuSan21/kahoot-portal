@@ -58,7 +58,14 @@ export default function Home() {
           <div className="p-4 flex items-start">
             <Image
               className="h-20 w-20 object-cover rounded flex-shrink-0"
-              src={"/quiz-image/" + quizSet.id + "/" + quizSet.image}
+              src={
+                quizSet.image
+                  ? supabase.storage
+                      .from("quiz_images")
+                      .getPublicUrl(`${quizSet.id}/${quizSet.image}`).data
+                      .publicUrl
+                  : "/default.png"
+              }
               alt={quizSet.name}
               width={80}
               height={80}
