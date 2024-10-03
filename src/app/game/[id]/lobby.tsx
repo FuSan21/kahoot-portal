@@ -11,6 +11,8 @@ export default function Lobby({
   onRegisterCompleted: (participant: Participant) => void;
 }) {
   const [participant, setParticipant] = useState<Participant | null>(null);
+  const [pin, setPin] = useState<number | null>(null);
+  const [isPinVerified, setIsPinVerified] = useState(false);
 
   useEffect(() => {
     const fetchParticipant = async () => {
@@ -51,10 +53,52 @@ export default function Lobby({
     fetchParticipant();
   }, [gameId, onRegisterCompleted]);
 
+  const verifyPin = async () => {
+    if (pin === null || pin < 10000 || pin > 99999) {
+      return toast.error("Please enter a 5-digit PIN");
+    }
+
+    const { data, error } = await supabase
+      .from("games")
+      .select("pin")
+      .eq("id", gameId)
+      .single();
+
+    if (error) {
+      return toast.error("Error verifying PIN");
+    }
+
+    if (data.pin === pin) {
+      setIsPinVerified(true);
+    } else {
+      toast.error("Incorrect PIN");
+    }
+  };
+
   return (
     <div className="bg-green-500 flex justify-center items-center min-h-screen">
       <div className="bg-black p-12">
-        {!participant && (
+        {!isPinVerified ? (
+          <div>
+            <input
+              type="number"
+              placeholder="Enter 5-digit PIN"
+              value={pin || ""}
+              onChange={(e) => {
+                const value = parseInt(e.target.value);
+                if (!isNaN(value) && value >= 0 && value <= 99999) {
+                  setPin(value);
+                }
+              }}
+              className="p-2 w-full border border-black text-black mb-4"
+              min="10000"
+              max="99999"
+            />
+            <button onClick={verifyPin} className="w-full py-2 bg-green-500">
+              Verify PIN
+            </button>
+          </div>
+        ) : !participant ? (
           <Register
             gameId={gameId}
             onRegisterCompleted={(participant) => {
@@ -62,9 +106,7 @@ export default function Lobby({
               setParticipant(participant);
             }}
           />
-        )}
-
-        {participant && (
+        ) : (
           <div className="text-white max-w-md">
             <h1 className="text-xl pb-4">Welcome {participant.nickname}！</h1>
             <p>

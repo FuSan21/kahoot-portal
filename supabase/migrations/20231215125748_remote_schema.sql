@@ -23,6 +23,7 @@ create table if not exists public.choices (
 create table if not exists public.games (
     id uuid default gen_random_uuid() not null primary key,
     created_at timestamp with time zone default now() not null,
+    pin integer,
     current_question_sequence smallint default 0 not null,
     is_answer_revealed boolean default false not null,
     phase text default 'lobby' not null,
