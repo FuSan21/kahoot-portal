@@ -1,6 +1,6 @@
 import { TIME_TIL_CHOICE_REVEAL, QUESTION_ANSWER_TIME } from "@/constants";
 import { Answer, Participant, Question, supabase, Game } from "@/types/types";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import Image from "next/image";
 import { toast } from "sonner";
@@ -96,6 +96,13 @@ export default function Quiz({
       .eq("id", gameId);
   }, [gameId]);
 
+  const handleTimeUp = useCallback(() => {
+    onTimeUp();
+    // If you need to return something for the OnComplete type, you can do so here
+    // For example, to stop the timer:
+    return { shouldRepeat: false };
+  }, [onTimeUp]);
+
   const participantsLengthRef = useRef(participants.length);
 
   useEffect(() => {
@@ -188,6 +195,19 @@ export default function Quiz({
     }
   }, [question.image, quiz]);
 
+  const initialRemainingTime = useMemo(() => {
+    if (!questionStartTime || !hasShownChoices)
+      return QUESTION_ANSWER_TIME / 1000;
+
+    const startTime = new Date(questionStartTime).getTime();
+    const choicesRevealTime = startTime + TIME_TIL_CHOICE_REVEAL;
+    const now = Date.now();
+    const elapsedTime = now - choicesRevealTime;
+    const remainingTime =
+      Math.max(0, QUESTION_ANSWER_TIME - elapsedTime) / 1000;
+    return remainingTime;
+  }, [questionStartTime, hasShownChoices]);
+
   return (
     <div className="min-h-screen flex flex-col items-stretch bg-slate-900">
       <div className="flex-grow flex flex-col">
@@ -225,19 +245,19 @@ export default function Quiz({
         </div>
 
         <div className="flex-grow text-white px-8">
-          {hasShownChoices && !isAnswerRevealed && (
+          {hasShownChoices && !isAnswerRevealed && questionStartTime && (
             <div className="flex justify-between items-center">
               <div className="text-5xl">
                 <CountdownCircleTimer
-                  onComplete={() => {
-                    onTimeUp();
-                  }}
-                  isPlaying
+                  key={`${questionStartTime}-${hasShownChoices}`}
+                  onComplete={handleTimeUp}
+                  isPlaying={hasShownChoices}
                   duration={QUESTION_ANSWER_TIME / 1000}
+                  initialRemainingTime={initialRemainingTime}
                   colors={["#004777", "#F7B801", "#A30000", "#A30000"]}
-                  colorsTime={[7, 5, 2, 0]}
+                  colorsTime={[15, 10, 5, 0]}
                 >
-                  {({ remainingTime }) => remainingTime}
+                  {({ remainingTime }) => Math.ceil(remainingTime)}
                 </CountdownCircleTimer>
               </div>
               <div className="text-center">
