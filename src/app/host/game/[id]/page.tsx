@@ -165,15 +165,18 @@ export default function Home({
           preloadProgress={preloadProgress}
         ></Lobby>
       )}
-      {currentScreen == AdminScreens.quiz && (
-        <Quiz
-          question={quizSet!.questions![currentQuestionSequence]}
-          quiz={quizSet!.id}
-          questionCount={quizSet!.questions!.length}
-          gameId={gameId}
-          participants={participants}
-        ></Quiz>
-      )}
+      {currentScreen == AdminScreens.quiz &&
+        (quizSet?.questions ? (
+          <Quiz
+            question={quizSet.questions[currentQuestionSequence]}
+            quiz={quizSet.id}
+            questionCount={quizSet.questions.length}
+            gameId={gameId}
+            participants={participants}
+          />
+        ) : (
+          <div>Loading quiz data...</div>
+        ))}
       {currentScreen == AdminScreens.result && (
         <Results
           participants={participants!}

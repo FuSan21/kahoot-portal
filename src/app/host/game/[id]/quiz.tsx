@@ -1,4 +1,4 @@
-import { TIME_TIL_CHOICE_REVEAL } from "@/constants";
+import { TIME_TIL_CHOICE_REVEAL, QUESTION_ANSWER_TIME } from "@/constants";
 import { Answer, Participant, Question, supabase, Game } from "@/types/types";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
@@ -107,9 +107,42 @@ export default function Quiz({
     setHasShownChoices(false);
     setAnswers([]);
 
-    setTimeout(() => {
-      setHasShownChoices(true);
-    }, TIME_TIL_CHOICE_REVEAL);
+    const checkAndSetChoicesVisibility = (startTime: string) => {
+      const startTimeMs = new Date(startTime).getTime();
+      const revealTime = startTimeMs + TIME_TIL_CHOICE_REVEAL;
+      const now = Date.now();
+
+      if (now >= revealTime) {
+        setHasShownChoices(true);
+      } else {
+        const timeoutId = setTimeout(() => {
+          setHasShownChoices(true);
+        }, revealTime - now);
+
+        return () => clearTimeout(timeoutId);
+      }
+    };
+
+    // Check if we already have a start time
+    if (questionStartTime) {
+      checkAndSetChoicesVisibility(questionStartTime);
+    } else {
+      // If we don't have a start time, fetch it from the database
+      const fetchStartTime = async () => {
+        const { data, error } = await supabase
+          .from("games")
+          .select("current_question_start_time")
+          .eq("id", gameId)
+          .single();
+
+        if (data && data.current_question_start_time) {
+          setQuestionStartTime(data.current_question_start_time);
+          checkAndSetChoicesVisibility(data.current_question_start_time);
+        }
+      };
+
+      fetchStartTime();
+    }
 
     const channel = supabase
       .channel("answers")
@@ -139,7 +172,7 @@ export default function Quiz({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [question.id, onTimeUp]);
+  }, [question.id, onTimeUp, questionStartTime, gameId]);
 
   const [imageLoaded, setImageLoaded] = useState(false);
 
@@ -200,7 +233,7 @@ export default function Quiz({
                     onTimeUp();
                   }}
                   isPlaying
-                  duration={20}
+                  duration={QUESTION_ANSWER_TIME / 1000}
                   colors={["#004777", "#F7B801", "#A30000", "#A30000"]}
                   colorsTime={[7, 5, 2, 0]}
                 >
