@@ -37,7 +37,11 @@ export default function Quiz({
       updateData = {
         current_question_sequence: question.order + 1,
         is_answer_revealed: false,
+        current_question_start_time: null,
       };
+      console.log(
+        "Setting current_question_start_time to null for next question"
+      );
     }
 
     const { data, error } = await supabase

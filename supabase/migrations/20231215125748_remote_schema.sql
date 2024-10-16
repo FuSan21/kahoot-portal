@@ -27,7 +27,8 @@ create table if not exists public.games (
     current_question_sequence smallint default 0 not null,
     is_answer_revealed boolean default false not null,
     phase text default 'lobby' not null,
-    quiz_set_id uuid not null references quiz_sets(id) on delete cascade on update cascade
+    quiz_set_id uuid not null references quiz_sets(id) on delete cascade on update cascade,
+    current_question_start_time timestamp with time zone
 );
 alter table public.games
 add constraint check_game_phase check (phase in ('lobby', 'quiz', 'result'));

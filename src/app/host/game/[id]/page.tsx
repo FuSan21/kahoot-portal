@@ -101,11 +101,35 @@ export default function Home({
             table: "games",
             filter: `id=eq.${gameId}`,
           },
-          (payload) => {
-            // start the quiz game
+          async (payload) => {
             const game = payload.new as Game;
             setCurrentQuestionSequence(game.current_question_sequence);
             setCurrentScreen(game.phase as AdminScreens);
+
+            // Check if current_question_start_time is null and set it if necessary
+            if (
+              game.phase === "quiz" &&
+              game.current_question_start_time === null
+            ) {
+              const newStartTime = new Date().toISOString();
+              console.log(
+                "Setting current_question_start_time to:",
+                newStartTime
+              );
+              const { error } = await supabase
+                .from("games")
+                .update({ current_question_start_time: newStartTime })
+                .eq("id", gameId);
+
+              if (error) {
+                console.error(
+                  "Error updating current_question_start_time:",
+                  error
+                );
+              } else {
+                console.log("Successfully updated current_question_start_time");
+              }
+            }
           }
         )
         .subscribe();

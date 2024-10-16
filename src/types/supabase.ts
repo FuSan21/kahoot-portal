@@ -101,6 +101,7 @@ export type Database = {
         Row: {
           created_at: string
           current_question_sequence: number
+          current_question_start_time: string | null
           host_user_id: string | null
           id: string
           is_answer_revealed: boolean
@@ -111,6 +112,7 @@ export type Database = {
         Insert: {
           created_at?: string
           current_question_sequence?: number
+          current_question_start_time?: string | null
           host_user_id?: string | null
           id?: string
           is_answer_revealed?: boolean
@@ -121,6 +123,7 @@ export type Database = {
         Update: {
           created_at?: string
           current_question_sequence?: number
+          current_question_start_time?: string | null
           host_user_id?: string | null
           id?: string
           is_answer_revealed?: boolean
@@ -129,13 +132,6 @@ export type Database = {
           quiz_set_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "games_host_user_id_fkey"
-            columns: ["host_user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "games_quiz_set_id_fkey"
             columns: ["quiz_set_id"]
@@ -180,13 +176,6 @@ export type Database = {
             columns: ["game_id"]
             isOneToOne: false
             referencedRelation: "games"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "participants_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -363,4 +352,19 @@ export type Enums<
   ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
     ? PublicSchema["Enums"][PublicEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof PublicSchema["CompositeTypes"]
+    | { schema: keyof Database },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
+    ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
