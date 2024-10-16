@@ -115,6 +115,7 @@ export default function Home({
           questionCount={questions!.length}
           participantId={participant!.id}
           isAnswerRevealed={isAnswerRevealed}
+          gameId={gameId}
         ></Quiz>
       )}
       {currentScreen == Screens.results && (

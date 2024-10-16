@@ -1,5 +1,5 @@
 import { TIME_TIL_CHOICE_REVEAL } from "@/constants";
-import { Answer, Participant, Question, supabase } from "@/types/types";
+import { Answer, Participant, Question, supabase, Game } from "@/types/types";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import Image from "next/image";
@@ -28,6 +28,39 @@ export default function Quiz({
   const answerStateRef = useRef<Answer[]>();
 
   answerStateRef.current = answers;
+
+  const [questionStartTime, setQuestionStartTime] = useState<string | null>(
+    null
+  );
+
+  useEffect(() => {
+    const subscription = supabase
+      .channel(`game_${gameId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "games",
+          filter: `id=eq.${gameId}`,
+        },
+        (payload) => {
+          const updatedGame = payload.new as Game;
+          if (updatedGame.current_question_start_time) {
+            console.log(
+              "Host: Question start time updated:",
+              updatedGame.current_question_start_time
+            );
+            setQuestionStartTime(updatedGame.current_question_start_time);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [gameId]);
 
   const getNextQuestion = async () => {
     var updateData;

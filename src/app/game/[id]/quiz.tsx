@@ -1,5 +1,5 @@
 import { QUESTION_ANSWER_TIME, TIME_TIL_CHOICE_REVEAL } from "@/constants";
-import { Choice, Question, supabase } from "@/types/types";
+import { Choice, Question, supabase, Game } from "@/types/types";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
@@ -14,23 +14,66 @@ export default function Quiz({
   questionCount: questionCount,
   participantId: playerId,
   isAnswerRevealed: isAnswerRevealed,
+  gameId: gameId,
 }: {
   question: Question;
   quiz: string;
   questionCount: number;
   participantId: string;
   isAnswerRevealed: boolean;
+  gameId: string;
 }) {
   const [chosenChoice, setChosenChoice] = useState<Choice | null>(null);
 
   const [hasShownChoices, setHasShownChoices] = useState(false);
 
-  const [questionStartTime, setQuestionStartTime] = useState(Date.now());
+  const [questionStartTime, setQuestionStartTime] = useState<string | null>(
+    null
+  );
 
   useEffect(() => {
     setChosenChoice(null);
     setHasShownChoices(false);
   }, [question.id]);
+
+  useEffect(() => {
+    const subscription = supabase
+      .channel(`game_${gameId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "games",
+          filter: `id=eq.${gameId}`,
+        },
+        (payload) => {
+          const updatedGame = payload.new as Game;
+          console.log("Client: Received game update:", updatedGame);
+          console.log(
+            "Client: Current question start time:",
+            updatedGame.current_question_start_time
+          );
+
+          if (updatedGame.current_question_start_time) {
+            console.log(
+              "Client: Question start time updated:",
+              updatedGame.current_question_start_time
+            );
+            setQuestionStartTime(updatedGame.current_question_start_time);
+          } else {
+            console.log("Client: Question start time is null");
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [gameId]);
+
+  console.log("Client: Current question start time state:", questionStartTime);
 
   const answer = async (choice: Choice) => {
     setChosenChoice(choice);
