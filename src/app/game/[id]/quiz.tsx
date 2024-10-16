@@ -27,7 +27,7 @@ export default function Quiz({
 
   const [hasShownChoices, setHasShownChoices] = useState(false);
 
-  const [questionStartTime, setQuestionStartTime] = useState<string | null>(
+  const [questionStartTime, setQuestionStartTime] = useState<number | null>(
     null
   );
 
@@ -37,6 +37,30 @@ export default function Quiz({
   }, [question.id]);
 
   useEffect(() => {
+    // Fetch current game state on mount
+    const fetchGameState = async () => {
+      const { data, error } = await supabase
+        .from("games")
+        .select("current_question_start_time")
+        .eq("id", gameId)
+        .single();
+
+      if (error) {
+        console.error("Error fetching game state:", error);
+        return;
+      }
+
+      if (data.current_question_start_time) {
+        const startTime = new Date(data.current_question_start_time).getTime();
+        setQuestionStartTime(startTime);
+        if (Date.now() >= startTime + TIME_TIL_CHOICE_REVEAL) {
+          setHasShownChoices(true);
+        }
+      }
+    };
+
+    fetchGameState();
+
     const subscription = supabase
       .channel(`game_${gameId}`)
       .on(
@@ -60,9 +84,17 @@ export default function Quiz({
               "Client: Question start time updated:",
               updatedGame.current_question_start_time
             );
-            setQuestionStartTime(updatedGame.current_question_start_time);
+            const startTime = new Date(
+              updatedGame.current_question_start_time
+            ).getTime();
+            setQuestionStartTime(startTime);
+            if (Date.now() >= startTime + TIME_TIL_CHOICE_REVEAL) {
+              setHasShownChoices(true);
+            }
           } else {
             console.log("Client: Question start time is null");
+            setQuestionStartTime(null);
+            setHasShownChoices(false);
           }
         }
       )
@@ -77,6 +109,11 @@ export default function Quiz({
 
   const answer = async (choice: Choice) => {
     setChosenChoice(choice);
+
+    if (!questionStartTime) {
+      toast.error("Question start time is not set");
+      return;
+    }
 
     const now = Date.now();
     const score = !choice.is_correct
@@ -129,12 +166,21 @@ export default function Quiz({
       {!hasShownChoices && !isAnswerRevealed && (
         <div className="flex-grow text-transparent flex justify-center">
           <CountdownCircleTimer
+            key={questionStartTime}
             onComplete={() => {
               setHasShownChoices(true);
-              setQuestionStartTime(Date.now());
             }}
-            isPlaying
+            isPlaying={questionStartTime !== null}
             duration={TIME_TIL_CHOICE_REVEAL / 1000}
+            initialRemainingTime={
+              questionStartTime
+                ? Math.max(
+                    0,
+                    (questionStartTime + TIME_TIL_CHOICE_REVEAL - Date.now()) /
+                      1000
+                  )
+                : TIME_TIL_CHOICE_REVEAL / 1000
+            }
             colors={["#fff", "#fff", "#fff", "#fff"]}
             trailColor={"transparent" as ColorFormat}
             colorsTime={[7, 5, 2, 0]}
