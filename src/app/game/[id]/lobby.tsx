@@ -1,14 +1,15 @@
 import { Participant, supabase } from "@/types/types";
-import { on } from "events";
 import { FormEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export default function Lobby({
   gameId,
   onRegisterCompleted,
+  preloadProgress,
 }: {
   gameId: string;
   onRegisterCompleted: (participant: Participant) => void;
+  preloadProgress: number;
 }) {
   const [participant, setParticipant] = useState<Participant | null>(null);
   const [pin, setPin] = useState<number | null>(null);
@@ -76,8 +77,8 @@ export default function Lobby({
   };
 
   return (
-    <div className="bg-green-500 flex justify-center items-center min-h-screen">
-      <div className="bg-black p-12">
+    <div className="bg-green-500 flex flex-col justify-center items-center min-h-screen">
+      <div className="bg-black p-12 mb-4">
         {!isPinVerified ? (
           <div>
             <input
@@ -117,6 +118,20 @@ export default function Lobby({
           </div>
         )}
       </div>
+
+      {preloadProgress < 100 && (
+        <div className="w-full max-w-md mt-4">
+          <div className="bg-white rounded-full h-4 overflow-hidden">
+            <div
+              className="bg-blue-500 h-full transition-all duration-300 ease-out"
+              style={{ width: `${preloadProgress}%` }}
+            ></div>
+          </div>
+          <p className="text-center text-white mt-2">
+            Preloading images: {Math.round(preloadProgress)}%
+          </p>
+        </div>
+      )}
     </div>
   );
 }

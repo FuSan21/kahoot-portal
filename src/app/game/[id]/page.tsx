@@ -1,72 +1,70 @@
 "use client";
 
-import React, { FormEvent, useEffect, useRef, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { RealtimeChannel } from "@supabase/supabase-js";
-import { Choice, Game, Participant, Question, supabase } from "@/types/types";
+import { Game, Participant, QuizSet, supabase } from "@/types/types";
+import { Screens } from "@/types/enums";
 import Lobby from "./lobby";
 import Quiz from "./quiz";
-
-enum Screens {
-  lobby = "lobby",
-  quiz = "quiz",
-  results = "result",
-}
+import Results from "./results";
+import { toast } from "sonner";
+import { preloadQuizImages } from "@/utils/imagePreloader";
 
 export default function Home({
   params: { id: gameId },
 }: {
   params: { id: string };
 }) {
-  const onRegisterCompleted = (participant: Participant) => {
-    setParticipant(participant);
-    getGame();
-  };
-
-  const stateRef = useRef<Participant | null>();
-
-  const [participant, setParticipant] = useState<Participant | null>();
-
-  stateRef.current = participant;
-
-  const [currentScreen, setCurrentScreen] = useState(Screens.lobby);
-
-  const [questions, setQuestions] = useState<Question[]>();
-
+  const [currentScreen, setCurrentScreen] = useState<Screens>(Screens.lobby);
+  const [participant, setParticipant] = useState<Participant | null>(null);
+  const [quizSet, setQuizSet] = useState<QuizSet>();
   const [currentQuestionSequence, setCurrentQuestionSequence] = useState(0);
   const [isAnswerRevealed, setIsAnswerRevealed] = useState(false);
+  const [preloadProgress, setPreloadProgress] = useState(0);
 
-  const getGame = async () => {
-    const { data: game } = await supabase
-      .from("games")
-      .select()
-      .eq("id", gameId)
-      .single();
-    if (!game) return;
+  const fetchQuizSetData = useCallback(async () => {
+    try {
+      const { data: gameData, error: gameError } = await supabase
+        .from("games")
+        .select()
+        .eq("id", gameId)
+        .single();
+
+      if (gameError || !gameData) {
+        throw new Error(gameError?.message || "Game data not found");
+      }
+
+      const { data: quizSetData, error: quizSetError } = await supabase
+        .from("quiz_sets")
+        .select(`*, questions(*, choices(*))`)
+        .eq("id", gameData.quiz_set_id)
+        .order("order", { ascending: true, referencedTable: "questions" })
+        .single();
+
+      if (quizSetError || !quizSetData) {
+        throw new Error(quizSetError?.message || "Quiz set data not found");
+      }
+
+      setQuizSet(quizSetData as QuizSet);
+      await preloadQuizImages(quizSetData.id, setPreloadProgress);
+    } catch (error) {
+      console.error("Error fetching quiz set data:", error);
+      toast.error("Failed to load quiz data");
+    }
+  }, [gameId]);
+
+  const handleGameUpdate = useCallback((payload: { new: Game }) => {
+    const game = payload.new;
+    setCurrentQuestionSequence(game.current_question_sequence);
+    setIsAnswerRevealed(game.is_answer_revealed);
     setCurrentScreen(game.phase as Screens);
-    if (game.phase == Screens.quiz) {
-      setCurrentQuestionSequence(game.current_question_sequence);
-      setIsAnswerRevealed(game.is_answer_revealed);
-    }
-
-    getQuestions(game.quiz_set_id);
-  };
-
-  const getQuestions = async (quizSetId: string) => {
-    const { data, error } = await supabase
-      .from("questions")
-      .select(`*, choices(*)`)
-      .eq("quiz_set_id", quizSetId)
-      .order("order", { ascending: true });
-    if (error) {
-      getQuestions(quizSetId);
-      return;
-    }
-    setQuestions(data);
-  };
+  }, []);
 
   useEffect(() => {
-    const setGameListner = (): RealtimeChannel => {
-      return supabase
+    let channel: RealtimeChannel;
+
+    const setupGameListener = async () => {
+      channel = supabase
         .channel("game_participant")
         .on(
           "postgres_changes",
@@ -76,62 +74,68 @@ export default function Home({
             table: "games",
             filter: `id=eq.${gameId}`,
           },
-          (payload) => {
-            if (!stateRef.current) return;
-
-            // start the quiz game
-            const game = payload.new as Game;
-
-            if (game.phase == "result") {
-              setCurrentScreen(Screens.results);
-            } else {
-              setCurrentScreen(Screens.quiz);
-              setCurrentQuestionSequence(game.current_question_sequence);
-              setIsAnswerRevealed(game.is_answer_revealed);
-            }
-          }
+          handleGameUpdate
         )
         .subscribe();
+
+      const { data: gameData, error: gameError } = await supabase
+        .from("games")
+        .select()
+        .eq("id", gameId)
+        .single();
+
+      if (gameError) {
+        toast.error("Failed to fetch game data");
+        console.error(gameError);
+        return;
+      }
+
+      handleGameUpdate({ new: gameData });
     };
 
-    const gameChannel = setGameListner();
+    fetchQuizSetData();
+    setupGameListener();
+
     return () => {
-      supabase.removeChannel(gameChannel);
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
     };
-  }, [gameId]);
+  }, [gameId, fetchQuizSetData, handleGameUpdate]);
 
-  return (
-    <main className="bg-green-500 min-h-screen">
-      {currentScreen == Screens.lobby && (
-        <Lobby
-          onRegisterCompleted={onRegisterCompleted}
-          gameId={gameId}
-        ></Lobby>
-      )}
-      {currentScreen == Screens.quiz && questions && (
-        <Quiz
-          question={questions![currentQuestionSequence]}
-          quiz={questions![currentQuestionSequence].quiz_set_id}
-          questionCount={questions!.length}
-          participantId={participant!.id}
-          isAnswerRevealed={isAnswerRevealed}
-          gameId={gameId}
-        ></Quiz>
-      )}
-      {currentScreen == Screens.results && (
-        <Results participant={participant!}></Results>
-      )}
-    </main>
-  );
-}
+  const onRegisterCompleted = (newParticipant: Participant) => {
+    setParticipant(newParticipant);
+  };
 
-function Results({ participant }: { participant: Participant }) {
-  return (
-    <div className="flex justify-center items-center min-h-screen text-center">
-      <div className="p-8 bg-black text-white rounded-lg">
-        <h2 className="text-2xl pb-4">Hey {participant.nickname}！</h2>
-        <p>Thanks for playing 🎉</p>
-      </div>
-    </div>
-  );
+  const renderScreen = () => {
+    switch (currentScreen) {
+      case Screens.lobby:
+        return (
+          <Lobby
+            gameId={gameId}
+            onRegisterCompleted={onRegisterCompleted}
+            preloadProgress={preloadProgress}
+          />
+        );
+      case Screens.quiz:
+        return quizSet?.questions ? (
+          <Quiz
+            question={quizSet.questions[currentQuestionSequence]}
+            quiz={quizSet.id}
+            questionCount={quizSet.questions.length}
+            participantId={participant!.id}
+            isAnswerRevealed={isAnswerRevealed}
+            gameId={gameId}
+          />
+        ) : (
+          <div>Loading quiz data...</div>
+        );
+      case Screens.results:
+        return <Results participant={participant!} gameId={gameId} />;
+      default:
+        return null;
+    }
+  };
+
+  return <main className="bg-green-500 min-h-screen">{renderScreen()}</main>;
 }
