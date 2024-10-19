@@ -114,28 +114,8 @@ export default function Quiz({
     setHasShownChoices(false);
     setAnswers([]);
 
-    const checkAndSetChoicesVisibility = (startTime: string) => {
-      const startTimeMs = new Date(startTime).getTime();
-      const revealTime = startTimeMs + TIME_TIL_CHOICE_REVEAL;
-      const now = Date.now();
-
-      if (now >= revealTime) {
-        setHasShownChoices(true);
-      } else {
-        const timeoutId = setTimeout(() => {
-          setHasShownChoices(true);
-        }, revealTime - now);
-
-        return () => clearTimeout(timeoutId);
-      }
-    };
-
-    // Check if we already have a start time
-    if (questionStartTime) {
-      checkAndSetChoicesVisibility(questionStartTime);
-    } else {
-      // If we don't have a start time, fetch it from the database
-      const fetchStartTime = async () => {
+    const fetchStartTime = async () => {
+      if (!questionStartTime) {
         const { data, error } = await supabase
           .from("games")
           .select("current_question_start_time")
@@ -144,12 +124,11 @@ export default function Quiz({
 
         if (data && data.current_question_start_time) {
           setQuestionStartTime(data.current_question_start_time);
-          checkAndSetChoicesVisibility(data.current_question_start_time);
         }
-      };
+      }
+    };
 
-      fetchStartTime();
-    }
+    fetchStartTime();
 
     const channel = supabase
       .channel("answers")
@@ -179,7 +158,29 @@ export default function Quiz({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [question.id, onTimeUp, questionStartTime, gameId]);
+  }, [question.id, onTimeUp, gameId, questionStartTime]);
+
+  useEffect(() => {
+    if (!questionStartTime) return;
+
+    const checkAndSetChoicesVisibility = () => {
+      const startTimeMs = new Date(questionStartTime).getTime();
+      const revealTime = startTimeMs + TIME_TIL_CHOICE_REVEAL;
+      const now = Date.now();
+
+      if (now >= revealTime) {
+        setHasShownChoices(true);
+      } else {
+        const timeoutId = setTimeout(() => {
+          setHasShownChoices(true);
+        }, revealTime - now);
+
+        return () => clearTimeout(timeoutId);
+      }
+    };
+
+    checkAndSetChoicesVisibility();
+  }, [questionStartTime]);
 
   const [imageLoaded, setImageLoaded] = useState(false);
 

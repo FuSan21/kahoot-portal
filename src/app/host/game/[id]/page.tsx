@@ -54,16 +54,6 @@ export default function Home({
     }
   }, [gameId]);
 
-  const handleGameUpdate = useCallback((payload: { new: Game }) => {
-    const game = payload.new;
-    setCurrentQuestionSequence(game.current_question_sequence);
-    setCurrentScreen(game.phase as AdminScreens);
-
-    if (game.phase === "quiz" && game.current_question_start_time === null) {
-      updateQuestionStartTime();
-    }
-  }, []);
-
   const updateQuestionStartTime = useCallback(async () => {
     const newStartTime = new Date().toISOString();
     const { error } = await supabase
@@ -75,6 +65,19 @@ export default function Home({
       console.error("Error updating current_question_start_time:", error);
     }
   }, [gameId]);
+
+  const handleGameUpdate = useCallback(
+    (payload: { new: Game }) => {
+      const game = payload.new;
+      setCurrentQuestionSequence(game.current_question_sequence);
+      setCurrentScreen(game.phase as AdminScreens);
+
+      if (game.phase === "quiz" && game.current_question_start_time === null) {
+        updateQuestionStartTime();
+      }
+    },
+    [updateQuestionStartTime]
+  );
 
   useEffect(() => {
     let channel: RealtimeChannel;
