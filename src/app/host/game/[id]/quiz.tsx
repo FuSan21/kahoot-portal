@@ -4,7 +4,6 @@ import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import Image from "next/image";
 import { toast } from "sonner";
-import { ImagePlaceholder } from "@/utils/imagePlaceholder";
 
 export default function Quiz({
   question: question,
@@ -182,20 +181,6 @@ export default function Quiz({
     checkAndSetChoicesVisibility();
   }, [questionStartTime]);
 
-  const [imageLoaded, setImageLoaded] = useState(false);
-
-  useEffect(() => {
-    // Reset image loaded state when question changes
-    setImageLoaded(false);
-
-    // Preload the image
-    if (question.image) {
-      const img = new window.Image();
-      img.src = `/api/getImage?path=${quiz}/${question.image}`;
-      img.onload = () => setImageLoaded(true);
-    }
-  }, [question.image, quiz]);
-
   const initialRemainingTime = useMemo(() => {
     if (!questionStartTime || !hasShownChoices)
       return QUESTION_ANSWER_TIME / 1000;
@@ -210,9 +195,9 @@ export default function Quiz({
   }, [questionStartTime, hasShownChoices]);
 
   return (
-    <div className="min-h-screen flex flex-col items-stretch bg-slate-900">
-      <div className="flex-grow flex flex-col">
-        <div className="absolute right-4 top-4">
+    <div className="h-screen flex flex-col items-stretch bg-slate-900 overflow-auto">
+      <div className="flex-grow flex flex-col min-h-0">
+        <div className="absolute right-4 top-4 z-10">
           {isAnswerRevealed && (
             <button
               className="p-2 bg-white text-black rounded hover:bg-gray-200"
@@ -223,31 +208,26 @@ export default function Quiz({
           )}
         </div>
 
-        <div className="text-center py-4 flex-grow flex flex-col justify-center">
+        <div className="text-center py-4 flex-shrink-0">
           <h2 className="pb-4 text-3xl bg-white font-bold mx-auto my-12 p-4 rounded inline-block max-w-[80%]">
             {question.body}
           </h2>
           {question.image && (
-            <>
-              {!imageLoaded && <ImagePlaceholder />}
+            <div className="w-full max-w-[400px] mx-auto">
               <Image
                 src={`/api/getImage?path=${quiz}/${question.image}`}
                 alt={question.body}
                 width={400}
                 height={400}
-                className={`justify-center items-center mx-auto ${
-                  imageLoaded ? "block" : "hidden"
-                }`}
-                onLoad={() => setImageLoaded(true)}
-                priority
+                className="w-full h-auto max-h-[40vh] object-contain"
               />
-            </>
+            </div>
           )}
         </div>
 
-        <div className="flex-grow text-white px-8">
+        <div className="flex-grow flex flex-col justify-center items-center min-h-0 text-white px-8">
           {hasShownChoices && !isAnswerRevealed && questionStartTime && (
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center w-full max-w-4xl">
               <div className="text-5xl">
                 <CountdownCircleTimer
                   key={`${questionStartTime}-${hasShownChoices}`}
@@ -268,7 +248,7 @@ export default function Quiz({
             </div>
           )}
           {isAnswerRevealed && (
-            <div className="flex justify-center">
+            <div className="flex justify-center w-full max-w-4xl">
               {question.choices.map((choice, index) => (
                 <div
                   key={choice.id}
@@ -319,11 +299,11 @@ export default function Quiz({
         </div>
 
         {hasShownChoices && (
-          <div className="flex justify-between flex-wrap p-4">
+          <div className="flex justify-between flex-wrap p-4 max-w-4xl mx-auto w-full">
             {question.choices.map((choice, index) => (
-              <div key={choice.id} className="w-1/2 p-1">
+              <div key={choice.id} className="w-1/2 p-1 flex">
                 <div
-                  className={`px-4 py-6 w-full text-2xl rounded font-bold text-white flex justify-between
+                  className={`px-4 py-6 w-full text-2xl rounded font-bold text-white flex items-center
                   ${
                     index === 0
                       ? "bg-red-500"
@@ -336,10 +316,10 @@ export default function Quiz({
                   ${isAnswerRevealed && !choice.is_correct ? "opacity-60" : ""}
                  `}
                 >
-                  <div>{choice.body}</div>
+                  <div className="flex-grow">{choice.body}</div>
                   {isAnswerRevealed && (
-                    <div>
-                      {choice.is_correct && (
+                    <div className="flex-shrink-0 ml-2">
+                      {choice.is_correct ? (
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
@@ -354,8 +334,7 @@ export default function Quiz({
                             d="m4.5 12.75 6 6 9-13.5"
                           />
                         </svg>
-                      )}
-                      {!choice.is_correct && (
+                      ) : (
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
@@ -379,7 +358,7 @@ export default function Quiz({
           </div>
         )}
 
-        <div className="flex text-white py-2 px-4 items-center bg-black">
+        <div className="flex text-white py-2 px-4 items-center bg-black flex-shrink-0">
           <div className="text-2xl">
             {question.order + 1}/{questionCount}
           </div>
