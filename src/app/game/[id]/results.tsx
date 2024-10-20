@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Participant, supabase } from "@/types/types";
+import { toast } from "sonner";
 
 interface ResultsProps {
   participant: Participant;
@@ -10,22 +11,20 @@ export default function Results({ participant, gameId }: ResultsProps) {
   const [score, setScore] = useState<number | null>(null);
 
   useEffect(() => {
-    const fetchScore = async () => {
+    const getScore = async () => {
       const { data, error } = await supabase
-        .from("participants")
-        .select("score")
-        .eq("id", participant.id)
-        .single();
-
+        .from("game_results")
+        .select()
+        .eq("game_id", gameId)
+        .eq("participant_id", participant.id)
+        .order("total_score");
       if (error) {
-        console.error("Error fetching score:", error);
-      } else {
-        setScore(data.score);
+        return toast.error(error.message);
       }
+      setScore(data[0].total_score);
     };
-
-    fetchScore();
-  }, [participant.id]);
+    getScore();
+  }, [gameId, participant.id]);
 
   return (
     <div className="flex justify-center items-center min-h-screen text-center">
