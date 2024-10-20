@@ -1,6 +1,6 @@
 import "../../globals.css";
 import RootLayout from "@/app/layout";
-import SiteLogo from "@/app/host/dashboard/sitelogo.svg";
+import SiteLogo from "@/app/host/dashboard/sitelogo.webp";
 import Image from "next/image";
 
 const menuItems: {
@@ -59,13 +59,13 @@ export default function DashboardLayout({
     <RootLayout>
       <div className="min-h-screen flex flex-col">
         <header className="h-16 px-2 flex justify-between border-b border-gray-200 items-center">
-          <h1>Kahoot Portal</h1>
+          <h1>AGT Quiz Portal</h1>
         </header>
         <div className="flex flex-col sm:flex-row h-full flex-grow">
           <nav className="w-full sm:w-64 bg-gray-50 border-r border-gray-200">
             <div className="flex justify-center items-center py-4 px-6">
               <a href="/host/dashboard">
-                <Image priority src={SiteLogo} alt="Kahoot Portal" />
+                <Image priority src={SiteLogo} alt="AGT Quiz Portal" />
               </a>
             </div>
 
