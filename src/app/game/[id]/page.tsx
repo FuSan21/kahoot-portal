@@ -137,5 +137,9 @@ export default function Home({
     }
   };
 
-  return <main className="bg-green-500 min-h-screen">{renderScreen()}</main>;
+  return (
+    <main className="bg-green-500 flex-grow flex flex-col items-center justify-center">
+      {renderScreen()}
+    </main>
+  );
 }

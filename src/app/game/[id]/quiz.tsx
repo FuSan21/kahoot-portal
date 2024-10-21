@@ -131,7 +131,7 @@ export default function Quiz({
   };
 
   return (
-    <div className="h-screen flex flex-col items-stretch bg-slate-900 overflow-auto">
+    <div className="flex flex-col flex-grow items-stretch bg-slate-900 overflow-auto">
       <div className="text-center py-4 flex-shrink-0">
         <h2 className="pb-4 text-2xl bg-white font-bold mx-4 my-12 p-4 rounded inline-block md:text-3xl md:px-24">
           {question.body}
