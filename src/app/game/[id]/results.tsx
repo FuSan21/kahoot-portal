@@ -27,7 +27,7 @@ export default function Results({ participant, gameId }: ResultsProps) {
   }, [gameId, participant.id]);
 
   return (
-    <div className="flex justify-center items-center min-h-screen text-center">
+    <div className="flex flex-col flex-grow justify-center items-center text-center">
       <div className="p-8 bg-black text-white rounded-lg">
         <h2 className="text-2xl pb-4">Hey {participant.nickname}！</h2>
         {score !== null ? (
