@@ -83,11 +83,24 @@ export default function Home({
     let channel: RealtimeChannel;
 
     const setupGameListener = async () => {
-      const { data: initialParticipants } = await supabase
+      const { data: initialParticipants, error } = await supabase
         .from("participants")
-        .select()
+        .select(
+          `
+          *,
+          profile:profiles(avatar_url)
+        `
+        )
         .eq("game_id", gameId)
         .order("created_at");
+
+      if (error) {
+        console.error("Error fetching participants:", error);
+        toast.error("Failed to fetch participants");
+        return;
+      }
+
+      console.log(initialParticipants);
 
       setParticipants(initialParticipants || []);
 

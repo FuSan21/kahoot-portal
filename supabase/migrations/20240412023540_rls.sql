@@ -48,8 +48,10 @@ update using (auth.uid() = host_user_id) with check (auth.uid() = host_user_id);
 alter table public.participants enable row level security;
 create policy "Participants are viewable by everyone." on public.participants for
 select using (true);
-create policy "Participants can insert theirselves" on public.participants for
+create policy "Participants can insert or update themselves" on public.participants for
 insert with check (auth.uid() = user_id);
+create policy "Participants can update themselves" on public.participants for
+update using (auth.uid() = user_id);
 alter table public.answers enable row level security;
 create policy "Answers are viewable by everyone." on public.answers for
 select using (true);

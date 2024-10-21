@@ -23,7 +23,6 @@ create table if not exists public.choices (
 create table if not exists public.games (
     id uuid default gen_random_uuid() not null primary key,
     created_at timestamp with time zone default now() not null,
-    pin integer,
     current_question_sequence smallint default 0 not null,
     is_answer_revealed boolean default false not null,
     phase text default 'lobby' not null,
@@ -37,7 +36,7 @@ create table if not exists public.participants (
     created_at timestamp with time zone default now() not null,
     nickname text not null,
     game_id uuid not null references games(id) on delete cascade on update cascade,
-    user_id uuid default auth.uid() not null references auth.users(id) on delete cascade on update cascade,
+    user_id uuid default auth.uid() not null references public.profiles(id) on delete cascade on update cascade,
     unique (game_id, user_id)
 );
 create table if not exists public.answers (
