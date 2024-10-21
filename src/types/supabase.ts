@@ -106,7 +106,6 @@ export type Database = {
           id: string
           is_answer_revealed: boolean
           phase: string
-          pin: number | null
           quiz_set_id: string
         }
         Insert: {
@@ -117,7 +116,6 @@ export type Database = {
           id?: string
           is_answer_revealed?: boolean
           phase?: string
-          pin?: number | null
           quiz_set_id: string
         }
         Update: {
@@ -128,7 +126,6 @@ export type Database = {
           id?: string
           is_answer_revealed?: boolean
           phase?: string
-          pin?: number | null
           quiz_set_id?: string
         }
         Relationships: [
@@ -179,7 +176,7 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "participants_user_id_fkey1"
+            foreignKeyName: "participants_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
