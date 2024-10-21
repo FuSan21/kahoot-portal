@@ -24,13 +24,6 @@ export default function Home() {
   }, []);
 
   const startGame = async (quizSetId: string) => {
-    const { data: sessionData, error: sessionError } =
-      await supabase.auth.getSession();
-
-    if (!sessionData.session) {
-      await supabase.auth.signInAnonymously();
-    }
-
     const { data, error } = await supabase
       .from("games")
       .insert({

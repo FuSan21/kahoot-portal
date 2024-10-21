@@ -197,7 +197,7 @@ export default function Quiz({
   return (
     <div className="h-screen flex flex-col items-stretch bg-slate-900 overflow-auto">
       <div className="flex-grow flex flex-col min-h-0">
-        <div className="absolute right-4 top-4 z-10">
+        <div className="absolute right-4 top-28 z-10">
           {isAnswerRevealed && (
             <button
               className="p-2 bg-white text-black rounded hover:bg-gray-200"
