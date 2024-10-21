@@ -1,5 +1,5 @@
+import { useEffect, useState } from "react";
 import { Participant, supabase } from "@/types/types";
-import { FormEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export default function Lobby({
@@ -12,102 +12,51 @@ export default function Lobby({
   preloadProgress: number;
 }) {
   const [participant, setParticipant] = useState<Participant | null>(null);
-  const [pin, setPin] = useState<number | null>(null);
-  const [isPinVerified, setIsPinVerified] = useState(false);
 
   useEffect(() => {
-    const fetchParticipant = async () => {
-      let userId: string | null = null;
-
+    const registerParticipant = async () => {
       const { data: sessionData, error: sessionError } =
         await supabase.auth.getSession();
 
-      if (sessionData.session) {
-        userId = sessionData.session?.user.id ?? null;
-      } else {
-        const { data, error } = await supabase.auth.signInAnonymously();
-        if (error) console.error(error);
-        userId = data?.user?.id ?? null;
-      }
-
-      if (!userId) {
+      if (sessionError) {
+        console.error(sessionError);
+        toast.error("Error fetching session");
         return;
       }
 
+      if (!sessionData.session) {
+        toast.error("Please sign in to join the game");
+        return;
+      }
+
+      const userId = sessionData.session.user.id;
+      const nickname = sessionData.session.user.user_metadata.name;
+
       const { data: participantData, error } = await supabase
         .from("participants")
+        .upsert(
+          { game_id: gameId, user_id: userId, nickname },
+          { onConflict: "game_id,user_id", ignoreDuplicates: false }
+        )
         .select()
-        .eq("game_id", gameId)
-        .eq("user_id", userId)
-        .maybeSingle();
+        .single();
 
       if (error) {
-        return toast.error(error.message);
+        toast.error(error.message);
+        return;
       }
 
-      if (participantData) {
-        setParticipant(participantData);
-        onRegisterCompleted(participantData);
-      }
+      setParticipant(participantData);
+      onRegisterCompleted(participantData);
     };
 
-    fetchParticipant();
+    registerParticipant();
   }, [gameId, onRegisterCompleted]);
-
-  const verifyPin = async () => {
-    if (pin === null || pin < 10000 || pin > 99999) {
-      return toast.error("Please enter a 5-digit PIN");
-    }
-
-    const { data, error } = await supabase
-      .from("games")
-      .select("pin")
-      .eq("id", gameId)
-      .single();
-
-    if (error) {
-      return toast.error("Error verifying PIN");
-    }
-
-    if (data.pin === pin) {
-      setIsPinVerified(true);
-    } else {
-      toast.error("Incorrect PIN");
-    }
-  };
 
   return (
     <div className="bg-green-500 flex-grow flex flex-col items-center justify-center">
       <div className="bg-black p-12 mb-4">
-        {!isPinVerified ? (
-          <div>
-            <input
-              type="number"
-              placeholder="Enter 5-digit PIN"
-              value={pin || ""}
-              onChange={(e) => {
-                const value = parseInt(e.target.value);
-                if (!isNaN(value) && value >= 0 && value <= 99999) {
-                  setPin(value);
-                }
-              }}
-              className="p-2 w-full border border-black text-black mb-4"
-              min="10000"
-              max="99999"
-            />
-            <button onClick={verifyPin} className="w-full py-2 bg-green-500">
-              Verify PIN
-            </button>
-          </div>
-        ) : !participant ? (
-          <Register
-            gameId={gameId}
-            onRegisterCompleted={(participant) => {
-              onRegisterCompleted(participant);
-              setParticipant(participant);
-            }}
-          />
-        ) : (
+        {participant ? (
           <div className="text-white max-w-md">
             <h1 className="text-xl pb-4">Welcome {participant.nickname}！</h1>
             <p>
@@ -116,6 +65,8 @@ export default function Lobby({
               starts the game.
             </p>
           </div>
+        ) : (
+          <div className="text-white">Joining the game...</div>
         )}
       </div>
 
@@ -133,53 +84,5 @@ export default function Lobby({
         </div>
       )}
     </div>
-  );
-}
-
-function Register({
-  onRegisterCompleted,
-  gameId,
-}: {
-  onRegisterCompleted: (player: Participant) => void;
-  gameId: string;
-}) {
-  const onFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setSending(true);
-
-    if (!nickname) {
-      return;
-    }
-    const { data: participant, error } = await supabase
-      .from("participants")
-      .insert({ nickname, game_id: gameId })
-      .select()
-      .single();
-
-    if (error) {
-      setSending(false);
-
-      return toast.error(error.message);
-    }
-
-    onRegisterCompleted(participant);
-  };
-
-  const [nickname, setNickname] = useState("");
-  const [sending, setSending] = useState(false);
-
-  return (
-    <form onSubmit={(e) => onFormSubmit(e)}>
-      <input
-        className="p-2 w-full border border-black text-black"
-        type="text"
-        onChange={(val) => setNickname(val.currentTarget.value)}
-        placeholder="Nickname"
-        maxLength={20}
-      />
-      <button disabled={sending} className="w-full py-2 bg-green-500 mt-4">
-        Join
-      </button>
-    </form>
   );
 }

@@ -17,7 +17,16 @@ export function supabaseAdminClient() {
   throw new Error("Admin client should only be created on the server");
 }
 
-export type Participant = Database["public"]["Tables"]["participants"]["Row"];
+export interface Participant {
+  id: string;
+  game_id: string;
+  user_id: string;
+  nickname: string;
+  created_at: string;
+  profile?: {
+    avatar_url: string | null;
+  } | null;
+}
 
 export type Choice = Database["public"]["Tables"]["choices"]["Row"];
 
