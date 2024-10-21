@@ -64,7 +64,7 @@ export default function Lobby({
   };
 
   return (
-    <div className="min-h-screen bg-green-500 flex flex-col items-center justify-center">
+    <div className="bg-green-500 flex-grow flex flex-col items-center justify-center">
       <div className="flex flex-col md:flex-row justify-between m-auto bg-black p-4 md:p-12 w-full max-w-4xl">
         {!isPinSet ? (
           <div className="w-full">

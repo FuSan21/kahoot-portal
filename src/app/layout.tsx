@@ -34,7 +34,7 @@ export default async function RootLayout({
               </div>
             )}
           </header>
-          {children}
+          <main className="flex-grow flex flex-col">{children}</main>
         </div>
         <Toaster richColors />
       </body>

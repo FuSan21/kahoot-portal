@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createAdminClient } from "@/types/types";
+import { supabaseAdminClient } from "@/types/types";
 
 export async function GET(request: NextRequest) {
   const path = request.nextUrl.searchParams.get("path");
@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const supabaseAdmin = createAdminClient();
+    const supabaseAdmin = supabaseAdminClient();
     const { data, error } = await supabaseAdmin.storage
       .from("quiz_images")
       .download(path);

@@ -77,7 +77,7 @@ export default function Lobby({
   };
 
   return (
-    <div className="bg-green-500 flex flex-col justify-center items-center min-h-screen">
+    <div className="bg-green-500 flex-grow flex flex-col items-center justify-center">
       <div className="bg-black p-12 mb-4">
         {!isPinVerified ? (
           <div>
