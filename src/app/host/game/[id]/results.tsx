@@ -40,7 +40,7 @@ export default function Results({
   }, [gameId]);
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="flex flex-col flex-grow bg-black">
       <div className="text-center">
         <h1 className="text-3xl my-4 py-4 px-12 bg-white inline-block rounded font-bold">
           {quizSet.name}
