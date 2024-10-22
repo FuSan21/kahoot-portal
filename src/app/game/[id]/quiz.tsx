@@ -32,6 +32,8 @@ export default function Quiz({
     null
   );
 
+  const [currentScore, setCurrentScore] = useState<number | null>(null);
+
   useEffect(() => {
     setChosenChoice(null);
     setHasShownChoices(false);
@@ -108,25 +110,27 @@ export default function Quiz({
       return;
     }
 
-    const now = Date.now();
-    const score = !choice.is_correct
-      ? 0
-      : 1000 -
-        Math.round(
-          Math.max(
-            0,
-            Math.min((now - questionStartTime) / QUESTION_ANSWER_TIME, 1)
-          ) * 1000
-        );
+    const answerTime = Date.now() - questionStartTime;
+    let score = 0;
+
+    if (choice.is_correct) {
+      if (answerTime <= 3000) score = 3;
+      else if (answerTime <= 6000) score = 2;
+      else score = 1;
+    }
+
+    setCurrentScore(score);
 
     const { error } = await supabase.from("answers").insert({
       participant_id: playerId,
       question_id: question.id,
       choice_id: choice.id,
-      score,
+      score: score,
     });
+
     if (error) {
       setChosenChoice(null);
+      setCurrentScore(null);
       toast.error(error.message);
     }
   };

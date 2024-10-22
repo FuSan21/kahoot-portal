@@ -33,6 +33,8 @@ export default function Quiz({
     null
   );
 
+  const [answerOrder, setAnswerOrder] = useState<string[]>([]);
+
   useEffect(() => {
     const subscription = supabase
       .channel(`game_${gameId}`)
@@ -141,8 +143,35 @@ export default function Quiz({
           filter: `question_id=eq.${question.id}`,
         },
         (payload) => {
+          const newAnswer = payload.new as Answer;
           setAnswers((currentAnswers) => {
-            return [...currentAnswers, payload.new as Answer];
+            const updatedAnswers = [...currentAnswers, newAnswer];
+            const correctChoiceId = question.choices.find(
+              (c) => c.is_correct
+            )?.id;
+            const correctAnswers = updatedAnswers.filter(
+              (answer) => answer.choice_id === correctChoiceId
+            );
+
+            // Assign scores based on order of correct answers
+            correctAnswers.forEach((answer, index) => {
+              let score = 0;
+              if (index === 0) score = 3;
+              else if (index === 1) score = 2;
+              else if (index === 2) score = 1;
+
+              // Update the answer with the calculated score
+              supabase
+                .from("answers")
+                .update({ score })
+                .eq("id", answer.id)
+                .then(({ error }) => {
+                  if (error)
+                    console.error("Error updating answer score:", error);
+                });
+            });
+
+            return updatedAnswers;
           });
 
           if (
@@ -158,7 +187,7 @@ export default function Quiz({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [question.id, onTimeUp, gameId, questionStartTime]);
+  }, [question.id, onTimeUp, gameId, questionStartTime, question.choices]);
 
   useEffect(() => {
     if (!questionStartTime) return;

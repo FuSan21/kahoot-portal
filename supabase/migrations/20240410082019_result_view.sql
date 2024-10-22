@@ -1,8 +1,12 @@
 create or replace view game_results as
 select participants.id as participant_id,
     participants.nickname,
-    sum(answers.score) total_score,
-    games.id as game_id
+    sum(answers.score) as total_score,
+    games.id as game_id,
+    array_agg(
+        answers.score
+        order by questions.order
+    ) as scores
 from games
     inner join quiz_sets on games.quiz_set_id = quiz_sets.id
     inner join questions on quiz_sets.id = questions.quiz_set_id

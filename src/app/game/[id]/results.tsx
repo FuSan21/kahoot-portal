@@ -7,31 +7,43 @@ interface ResultsProps {
   gameId: string;
 }
 
+interface DetailedGameResult {
+  total_score: number;
+  scores: number[];
+}
+
 export default function Results({ participant, gameId }: ResultsProps) {
-  const [score, setScore] = useState<number | null>(null);
+  const [result, setResult] = useState<DetailedGameResult | null>(null);
 
   useEffect(() => {
-    const getScore = async () => {
+    const getResult = async () => {
       const { data, error } = await supabase
         .from("game_results")
         .select()
         .eq("game_id", gameId)
         .eq("participant_id", participant.id)
-        .order("total_score");
+        .single();
+
       if (error) {
         return toast.error(error.message);
       }
-      setScore(data[0].total_score);
+
+      setResult(data);
     };
-    getScore();
+    getResult();
   }, [gameId, participant.id]);
 
   return (
     <div className="flex flex-col flex-grow justify-center items-center text-center">
       <div className="p-8 bg-black text-white rounded-lg">
         <h2 className="text-2xl pb-4">Hey {participant.nickname}！</h2>
-        {score !== null ? (
-          <p>Your final score: {score} points</p>
+        {result ? (
+          <>
+            <p className="text-xl font-bold mb-2">
+              Your final score: {result.total_score} points
+            </p>
+            <p className="text-sm">({result.scores.join("+")})</p>
+          </>
         ) : (
           <p>Loading your score...</p>
         )}
