@@ -100,8 +100,6 @@ export default function Home({
         return;
       }
 
-      console.log(initialParticipants);
-
       setParticipants(initialParticipants || []);
 
       channel = supabase
@@ -114,11 +112,28 @@ export default function Home({
             table: "participants",
             filter: `game_id=eq.${gameId}`,
           },
-          (payload) =>
+          async (payload) => {
+            const { data: profileData, error: profileError } = await supabase
+              .from("profiles")
+              .select("avatar_url")
+              .eq("id", payload.new.user_id)
+              .single();
+
+            if (profileError) {
+              console.error("Error fetching profile:", profileError);
+              return;
+            }
+
             setParticipants((current) => [
               ...current,
-              payload.new as Participant,
-            ])
+              {
+                ...payload.new,
+                profile: {
+                  avatar_url: profileData?.avatar_url || null,
+                },
+              } as Participant,
+            ]);
+          }
         )
         .on(
           "postgres_changes",
