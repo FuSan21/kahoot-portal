@@ -23,10 +23,12 @@ interface DetailedGameResult extends GameResult {
 export default function Results({
   quizSet,
   gameId,
+  isAuthorized,
 }: {
   participants: Participant[];
   quizSet: QuizSet;
   gameId: string;
+  isAuthorized: boolean;
 }) {
   const [gameResults, setGameResults] = useState<DetailedGameResult[]>([]);
   const { width, height } = useWindowSize();
@@ -57,6 +59,10 @@ export default function Results({
     };
     getResults();
   }, [gameId]);
+
+  if (!isAuthorized) {
+    return null;
+  }
 
   return (
     <div className="flex flex-col flex-grow bg-black">
