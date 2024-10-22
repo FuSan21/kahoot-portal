@@ -9,12 +9,15 @@ import Results from "./results";
 import { toast } from "sonner";
 import { preloadQuizImages } from "@/utils/imagePreloader";
 import { RealtimeChannel } from "@supabase/supabase-js";
+import { useRouter } from "next/navigation";
 
 export default function Home({
   params: { id: gameId },
 }: {
   params: { id: string };
 }) {
+  const router = useRouter();
+  const [isAuthorized, setIsAuthorized] = useState(false);
   const [currentScreen, setCurrentScreen] = useState<AdminScreens>(
     AdminScreens.lobby
   );
@@ -180,6 +183,7 @@ export default function Home({
             participants={participants}
             gameId={gameId}
             preloadProgress={preloadProgress}
+            isAuthorized={isAuthorized}
           />
         );
       case AdminScreens.quiz:
@@ -190,6 +194,7 @@ export default function Home({
             questionCount={quizSet.questions.length}
             gameId={gameId}
             participants={participants}
+            isAuthorized={isAuthorized}
           />
         ) : (
           <div>Loading quiz data...</div>
@@ -200,12 +205,52 @@ export default function Home({
             participants={participants}
             quizSet={quizSet!}
             gameId={gameId}
+            isAuthorized={isAuthorized}
           />
         );
       default:
         return null;
     }
   };
+
+  useEffect(() => {
+    const checkAuthorization = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("You must be logged in to access this page");
+        router.push("/login"); // Adjust this path as needed
+        return;
+      }
+
+      const { data: game, error } = await supabase
+        .from("games")
+        .select("host_user_id")
+        .eq("id", gameId)
+        .single();
+
+      if (error || !game) {
+        toast.error("Failed to fetch game data");
+        router.push("/"); // Redirect to home or error page
+        return;
+      }
+
+      if (game.host_user_id !== user.id) {
+        toast.error("You are not authorized to host this game");
+        router.push("/"); // Redirect to home or error page
+        return;
+      }
+
+      setIsAuthorized(true);
+    };
+
+    checkAuthorization();
+  }, [gameId, router]);
+
+  if (!isAuthorized) {
+    return <div>Checking authorization...</div>;
+  }
 
   return (
     <main className="bg-green-600 flex-grow flex flex-col">

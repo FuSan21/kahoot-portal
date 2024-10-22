@@ -12,12 +12,14 @@ export default function Quiz({
   questionCount: questionCount,
   gameId,
   participants,
+  isAuthorized,
 }: {
   question: Question;
   quiz: string;
   questionCount: number;
   gameId: string;
   participants: Participant[];
+  isAuthorized: boolean;
 }) {
   const [isAnswerRevealed, setIsAnswerRevealed] = useState(false);
 
@@ -223,6 +225,10 @@ export default function Quiz({
       Math.max(0, QUESTION_ANSWER_TIME - elapsedTime) / 1000;
     return remainingTime;
   }, [questionStartTime, hasShownChoices]);
+
+  if (!isAuthorized) {
+    return null;
+  }
 
   return (
     <div className="flex flex-col flex-grow items-stretch bg-slate-900 overflow-auto">

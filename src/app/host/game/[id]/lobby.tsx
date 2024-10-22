@@ -8,10 +8,12 @@ export default function Lobby({
   participants: participants,
   gameId,
   preloadProgress,
+  isAuthorized,
 }: {
   participants: Participant[];
   gameId: string;
   preloadProgress: number;
+  isAuthorized: boolean;
 }) {
   const { Canvas } = useQRCode();
   const gameLink = BASE_URL + `/game/${gameId}`;
@@ -45,6 +47,10 @@ export default function Lobby({
     }
     toast.success("Game started successfully!");
   };
+
+  if (!isAuthorized) {
+    return null;
+  }
 
   return (
     <div className="bg-green-500 flex-grow flex flex-col items-center justify-center">
