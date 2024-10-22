@@ -271,6 +271,7 @@ export type Database = {
           game_id: string | null
           nickname: string | null
           participant_id: string | null
+          scores: number[] | null
           total_score: number | null
         }
         Relationships: []

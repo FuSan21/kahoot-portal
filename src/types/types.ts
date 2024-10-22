@@ -42,4 +42,6 @@ export type Answer = Database["public"]["Tables"]["answers"]["Row"];
 
 export type Game = Database["public"]["Tables"]["games"]["Row"];
 
-export type GameResult = Database["public"]["Views"]["game_results"]["Row"];
+export type GameResult = Database["public"]["Views"]["game_results"]["Row"] & {
+  scores: number[];
+};
