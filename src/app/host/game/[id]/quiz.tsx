@@ -1,5 +1,6 @@
 import { TIME_TIL_CHOICE_REVEAL, QUESTION_ANSWER_TIME } from "@/constants";
 import { Answer, Participant, Question, supabase, Game } from "@/types/types";
+import { getPreloadedImage } from "@/utils/imagePreloader";
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import Image from "next/image";
@@ -215,7 +216,10 @@ export default function Quiz({
           {question.image && (
             <div className="w-full max-w-[400px] mx-auto">
               <Image
-                src={`/api/getImage?path=${quiz}/${question.image}`}
+                src={
+                  getPreloadedImage(`${quiz}/${question.image}`) ||
+                  `/api/getImage?path=${quiz}/${question.image}`
+                }
                 alt={question.body}
                 width={400}
                 height={400}
