@@ -1,5 +1,7 @@
 import { supabase } from "@/types/types";
 
+const imageCache: { [key: string]: string } = {};
+
 export async function preloadQuizImages(
   quizId: string,
   onProgress: (progress: number) => void
@@ -23,12 +25,13 @@ export async function preloadQuizImages(
         const blob = await response.blob();
         const objectURL = URL.createObjectURL(blob);
 
+        imageCache[imagePath] = objectURL;
+
         const img = new Image();
         img.src = objectURL;
 
         return new Promise<void>((resolve) => {
           img.onload = () => {
-            URL.revokeObjectURL(objectURL);
             loadedCount++;
             onProgress((loadedCount / totalImages) * 100);
             resolve();
@@ -42,4 +45,8 @@ export async function preloadQuizImages(
   } catch (error) {
     console.error("Error preloading quiz images:", error);
   }
+}
+
+export function getPreloadedImage(imagePath: string): string | undefined {
+  return imageCache[imagePath];
 }
