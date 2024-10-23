@@ -253,8 +253,6 @@ export default function Home({
   }
 
   return (
-    <main className="bg-green-600 flex-grow flex flex-col">
-      {renderScreen()}
-    </main>
+    <div className="bg-green-600 flex-grow flex flex-col">{renderScreen()}</div>
   );
 }

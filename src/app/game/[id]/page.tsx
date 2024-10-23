@@ -138,8 +138,8 @@ export default function Home({
   };
 
   return (
-    <main className="bg-green-500 flex-grow flex flex-col items-center justify-center">
+    <div className="bg-green-500 flex-grow flex flex-col items-center justify-center">
       {renderScreen()}
-    </main>
+    </div>
   );
 }

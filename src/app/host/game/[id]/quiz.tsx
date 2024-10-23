@@ -264,9 +264,9 @@ export default function Quiz({
           )}
         </div>
 
-        <div className="flex-grow flex flex-col justify-center items-center min-h-0 text-white px-8">
+        <div className="flex flex-col flex-grow md:flex-row justify-between p-4 max-w-4xl mx-auto w-full text-white">
           {hasShownChoices && !isAnswerRevealed && questionStartTime && (
-            <div className="flex justify-between items-center w-full max-w-4xl">
+            <div className="flex justify-center md:justify-start items-center w-full mb-4 md:mb-0">
               <div className="text-5xl">
                 <CountdownCircleTimer
                   key={`${questionStartTime}-${hasShownChoices}`}
@@ -276,24 +276,25 @@ export default function Quiz({
                   initialRemainingTime={initialRemainingTime}
                   colors={["#004777", "#F7B801", "#A30000", "#A30000"]}
                   colorsTime={[15, 10, 5, 0]}
+                  size={80}
                 >
                   {({ remainingTime }) => Math.ceil(remainingTime)}
                 </CountdownCircleTimer>
               </div>
-              <div className="text-center">
-                <div className="text-6xl pb-4">{answers.length}</div>
-                <div className="text-3xl">Answers</div>
-              </div>
             </div>
           )}
           {isAnswerRevealed && (
-            <div className="flex justify-center w-full max-w-4xl">
+            <div className="flex justify-center w-full mb-4 md:mb-0">
               {question.choices.map((choice, index) => (
                 <div
                   key={choice.id}
-                  className="mx-2 h-48 w-24 flex flex-col items-stretch justify-end"
+                  className="mx-1 h-36 md:h-48 w-16 md:w-24 flex flex-col items-stretch justify-end"
                 >
-                  <div className="flex-grow relative">
+                  <div
+                    className={`flex-grow relative ${
+                      isAnswerRevealed && !choice.is_correct ? "opacity-60" : ""
+                    }`}
+                  >
                     <div
                       style={{
                         height: `${
@@ -316,7 +317,7 @@ export default function Quiz({
                     ></div>
                   </div>
                   <div
-                    className={`mt-1 text-white text-lg text-center py-2 rounded-b ${
+                    className={`mt-1 text-white text-sm md:text-lg text-center py-1 md:py-2 rounded-b ${
                       index === 0
                         ? "bg-red-500"
                         : index === 1
@@ -335,6 +336,31 @@ export default function Quiz({
               ))}
             </div>
           )}
+          <div className="flex flex-col text-center">
+            <div className="text-xl md:text-3xl pb-2 md:pb-4">Participants</div>
+            <div className="max-h-36 md:max-h-48 overflow-y-auto">
+              {answers.map((answer) => {
+                const participant = participants.find(
+                  (p) => p.id === answer.participant_id
+                );
+                return (
+                  <div
+                    key={answer.id}
+                    className={`mb-1 md:mb-2 p-1 md:p-2 rounded text-sm md:text-base ${
+                      isAnswerRevealed
+                        ? answer.choice_id ===
+                          question.choices.find((c) => c.is_correct)?.id
+                          ? "bg-green-500"
+                          : "bg-red-500"
+                        : "bg-gray-500"
+                    }`}
+                  >
+                    {participant?.nickname}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
 
         {hasShownChoices && (
