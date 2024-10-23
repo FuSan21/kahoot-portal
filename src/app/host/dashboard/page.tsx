@@ -10,9 +10,19 @@ export default function Home() {
 
   useEffect(() => {
     const getQuizSets = async () => {
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+      if (userError) {
+        toast.error("Failed to fetch user");
+        return;
+      }
+
       const { data, error } = await supabase
         .from("quiz_sets")
         .select(`*, questions(*, choices(*))`)
+        .or(`created_by.eq.${user?.id},created_by.is.null`)
         .order("created_at", { ascending: false });
       if (error) {
         toast.error("Failed to fetch quiz sets");

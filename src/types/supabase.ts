@@ -243,6 +243,7 @@ export type Database = {
       quiz_sets: {
         Row: {
           created_at: string
+          created_by: string | null
           description: string | null
           id: string
           image: string | null
@@ -250,6 +251,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          created_by?: string | null
           description?: string | null
           id?: string
           image?: string | null
@@ -257,12 +259,21 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          created_by?: string | null
           description?: string | null
           id?: string
           image?: string | null
           name?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "quiz_sets_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
