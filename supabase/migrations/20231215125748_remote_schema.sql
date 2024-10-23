@@ -4,7 +4,7 @@ create table if not exists public.quiz_sets (
     created_by uuid references public.profiles(id) on delete cascade on update cascade,
     name text not null,
     description text,
-    "image" text,
+    "image" text
 );
 create table if not exists public.questions (
     id uuid default gen_random_uuid() not null primary key,

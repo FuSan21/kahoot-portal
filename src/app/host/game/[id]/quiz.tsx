@@ -1,10 +1,13 @@
 import { TIME_TIL_CHOICE_REVEAL, QUESTION_ANSWER_TIME } from "@/constants";
 import { Answer, Participant, Question, supabase, Game } from "@/types/types";
 import { getPreloadedImage } from "@/utils/imagePreloader";
+import CheckIcon from "@/app/components/icons/CheckIcon";
+import CrossIcon from "@/app/components/icons/CrossIcon";
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import Image from "next/image";
 import { toast } from "sonner";
+import ParticipantsList from "@/app/components/ParticipantsList";
 
 export default function Quiz({
   question: question,
@@ -35,8 +38,6 @@ export default function Quiz({
     null
   );
 
-  const [answerOrder, setAnswerOrder] = useState<string[]>([]);
-
   useEffect(() => {
     const subscription = supabase
       .channel(`game_${gameId}`)
@@ -51,10 +52,6 @@ export default function Quiz({
         (payload) => {
           const updatedGame = payload.new as Game;
           if (updatedGame.current_question_start_time) {
-            console.log(
-              "Host: Question start time updated:",
-              updatedGame.current_question_start_time
-            );
             setQuestionStartTime(updatedGame.current_question_start_time);
           }
         }
@@ -76,9 +73,6 @@ export default function Quiz({
         is_answer_revealed: false,
         current_question_start_time: null,
       };
-      console.log(
-        "Setting current_question_start_time to null for next question"
-      );
     }
 
     const { data, error } = await supabase
@@ -116,18 +110,39 @@ export default function Quiz({
   useEffect(() => {
     setIsAnswerRevealed(false);
     setHasShownChoices(false);
-    setAnswers([]);
+
+    const fetchAnswers = async () => {
+      const participantIds = participants.map((p) => p.id);
+      const { data, error } = await supabase
+        .from("answers")
+        .select("*")
+        .eq("question_id", question.id)
+        .in("participant_id", participantIds);
+
+      if (error) {
+        console.error("Error fetching answers:", error);
+        toast.error("Failed to fetch answers");
+      } else {
+        console.log("Fetched answers:", data);
+        setAnswers(data || []);
+      }
+    };
+
+    fetchAnswers();
 
     const fetchStartTime = async () => {
       if (!questionStartTime) {
         const { data, error } = await supabase
           .from("games")
-          .select("current_question_start_time")
+          .select("current_question_start_time,is_answer_revealed")
           .eq("id", gameId)
           .single();
 
         if (data && data.current_question_start_time) {
           setQuestionStartTime(data.current_question_start_time);
+        }
+        if (data && data.is_answer_revealed) {
+          setIsAnswerRevealed(true);
         }
       }
     };
@@ -189,7 +204,14 @@ export default function Quiz({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [question.id, onTimeUp, gameId, questionStartTime, question.choices]);
+  }, [
+    question.id,
+    onTimeUp,
+    gameId,
+    questionStartTime,
+    question.choices,
+    participants,
+  ]);
 
   useEffect(() => {
     if (!questionStartTime) return;
@@ -231,59 +253,59 @@ export default function Quiz({
   }
 
   return (
-    <div className="flex flex-col flex-grow items-stretch bg-slate-900 overflow-auto">
-      <div className="flex-grow flex flex-col min-h-0">
-        <div className="absolute right-4 top-28 z-10">
-          {isAnswerRevealed && (
-            <button
-              className="p-2 bg-white text-black rounded hover:bg-gray-200"
-              onClick={getNextQuestion}
-            >
-              Next
-            </button>
-          )}
-        </div>
+    <div className="flex flex-col flex-grow items-stretch bg-slate-900 overflow-auto min-w-[80vw]">
+      <div className="absolute right-4 top-28 z-10">
+        {isAnswerRevealed && (
+          <button
+            className="p-2 bg-white text-black rounded hover:bg-gray-200"
+            onClick={getNextQuestion}
+          >
+            Next
+          </button>
+        )}
+      </div>
 
-        <div className="text-center py-4 flex-shrink-0">
-          <h2 className="pb-4 text-3xl bg-white font-bold mx-auto my-12 p-4 rounded inline-block max-w-[80%]">
-            {question.body}
-          </h2>
-          {question.image && (
-            <div className="w-full max-w-[400px] mx-auto">
-              <Image
-                src={
-                  getPreloadedImage(`${quiz}/${question.image}`) ||
-                  `/api/getImage?path=${quiz}/${question.image}`
-                }
-                alt={question.body}
-                width={400}
-                height={400}
-                className="w-full h-auto max-h-[40vh] object-contain"
-              />
-            </div>
-          )}
-        </div>
+      <div className="text-center py-4 flex-shrink-0">
+        <h2 className="pb-4 text-3xl bg-white font-bold mx-auto my-12 p-4 rounded inline-block max-w-[80%]">
+          {question.body}
+        </h2>
+        {question.image && (
+          <div className="w-full mx-auto">
+            <Image
+              src={
+                getPreloadedImage(`${quiz}/${question.image}`) ||
+                `/api/getImage?path=${quiz}/${question.image}`
+              }
+              alt={question.body}
+              width={400}
+              height={400}
+              className="w-full h-auto max-h-[40vh] object-contain"
+            />
+          </div>
+        )}
+      </div>
 
-        <div className="flex flex-col flex-grow md:flex-row justify-between p-4 max-w-4xl mx-auto w-full text-white">
-          {hasShownChoices && !isAnswerRevealed && questionStartTime && (
-            <div className="flex justify-center md:justify-start items-center w-full mb-4 md:mb-0">
-              <div className="text-5xl">
-                <CountdownCircleTimer
-                  key={`${questionStartTime}-${hasShownChoices}`}
-                  onComplete={handleTimeUp}
-                  isPlaying={hasShownChoices}
-                  duration={QUESTION_ANSWER_TIME / 1000}
-                  initialRemainingTime={initialRemainingTime}
-                  colors={["#004777", "#F7B801", "#A30000", "#A30000"]}
-                  colorsTime={[15, 10, 5, 0]}
-                  size={80}
-                >
-                  {({ remainingTime }) => Math.ceil(remainingTime)}
-                </CountdownCircleTimer>
-              </div>
+      <div className="flex flex-col flex-grow md:flex-row justify-between p-4 max-w-4xl mx-auto w-full text-white">
+        {hasShownChoices && !isAnswerRevealed && questionStartTime && (
+          <div className="flex justify-center md:justify-start items-center w-full mb-4 md:mb-0">
+            <div className="text-5xl">
+              <CountdownCircleTimer
+                key={`${questionStartTime}-${hasShownChoices}`}
+                onComplete={handleTimeUp}
+                isPlaying={hasShownChoices}
+                duration={QUESTION_ANSWER_TIME / 1000}
+                initialRemainingTime={initialRemainingTime}
+                colors={["#004777", "#F7B801", "#A30000", "#A30000"]}
+                colorsTime={[15, 10, 5, 0]}
+                size={80}
+              >
+                {({ remainingTime }) => Math.ceil(remainingTime)}
+              </CountdownCircleTimer>
             </div>
-          )}
-          {isAnswerRevealed && (
+          </div>
+        )}
+        {isAnswerRevealed && (
+          <>
             <div className="flex justify-center w-full mb-4 md:mb-0">
               {question.choices.map((choice, index) => (
                 <div
@@ -335,40 +357,22 @@ export default function Quiz({
                 </div>
               ))}
             </div>
-          )}
-          <div className="flex flex-col text-center">
-            <div className="text-xl md:text-3xl pb-2 md:pb-4">Participants</div>
-            <div className="max-h-36 md:max-h-48 overflow-y-auto">
-              {answers.map((answer) => {
-                const participant = participants.find(
-                  (p) => p.id === answer.participant_id
-                );
-                return (
-                  <div
-                    key={answer.id}
-                    className={`mb-1 md:mb-2 p-1 md:p-2 rounded text-sm md:text-base ${
-                      isAnswerRevealed
-                        ? answer.choice_id ===
-                          question.choices.find((c) => c.is_correct)?.id
-                          ? "bg-green-500"
-                          : "bg-red-500"
-                        : "bg-gray-500"
-                    }`}
-                  >
-                    {participant?.nickname}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
+            <ParticipantsList
+              answers={answers}
+              participants={participants}
+              question={{ choices: question.choices }}
+              isAnswerRevealed={isAnswerRevealed}
+            />
+          </>
+        )}
+      </div>
 
-        {hasShownChoices && (
-          <div className="flex justify-between flex-wrap p-4 max-w-4xl mx-auto w-full">
-            {question.choices.map((choice, index) => (
-              <div key={choice.id} className="w-1/2 p-1 flex">
-                <div
-                  className={`px-4 py-6 w-full text-2xl rounded font-bold text-white flex items-center
+      {hasShownChoices && (
+        <div className="flex justify-between flex-wrap p-4 max-w-4xl mx-auto w-full">
+          {question.choices.map((choice, index) => (
+            <div key={choice.id} className="w-1/2 p-1 flex">
+              <div
+                className={`px-4 py-6 w-full text-2xl rounded font-bold text-white flex items-center
                   ${
                     index === 0
                       ? "bg-red-500"
@@ -380,53 +384,22 @@ export default function Quiz({
                   }
                   ${isAnswerRevealed && !choice.is_correct ? "opacity-60" : ""}
                  `}
-                >
-                  <div className="flex-grow">{choice.body}</div>
-                  {isAnswerRevealed && (
-                    <div className="flex-shrink-0 ml-2">
-                      {choice.is_correct ? (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth={5}
-                          stroke="currentColor"
-                          className="w-6 h-6"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="m4.5 12.75 6 6 9-13.5"
-                          />
-                        </svg>
-                      ) : (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth={5}
-                          stroke="currentColor"
-                          className="w-6 h-6"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M6 18 18 6M6 6l12 12"
-                          />
-                        </svg>
-                      )}
-                    </div>
-                  )}
-                </div>
+              >
+                <div className="flex-grow">{choice.body}</div>
+                {isAnswerRevealed && (
+                  <div className="flex-shrink-0 ml-2">
+                    {choice.is_correct ? <CheckIcon /> : <CrossIcon />}
+                  </div>
+                )}
               </div>
-            ))}
-          </div>
-        )}
+            </div>
+          ))}
+        </div>
+      )}
 
-        <div className="flex text-white py-2 px-4 items-center bg-black flex-shrink-0">
-          <div className="text-2xl">
-            {question.order + 1}/{questionCount}
-          </div>
+      <div className="flex text-white py-2 px-4 items-center bg-black flex-shrink-0">
+        <div className="text-2xl">
+          {question.order + 1}/{questionCount}
         </div>
       </div>
     </div>
