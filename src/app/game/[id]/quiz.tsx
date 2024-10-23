@@ -1,5 +1,7 @@
 import { QUESTION_ANSWER_TIME, TIME_TIL_CHOICE_REVEAL } from "@/constants";
 import { Choice, Question, supabase, Game } from "@/types/types";
+import CheckIcon from "@/app/components/icons/CheckIcon";
+import CrossIcon from "@/app/components/icons/CrossIcon";
 import { getPreloadedImage } from "@/utils/imagePreloader";
 import { useState, useEffect } from "react";
 import Image from "next/image";
@@ -31,8 +33,6 @@ export default function Quiz({
   const [questionStartTime, setQuestionStartTime] = useState<number | null>(
     null
   );
-
-  const [currentScore, setCurrentScore] = useState<number | null>(null);
 
   useEffect(() => {
     setChosenChoice(null);
@@ -119,30 +119,29 @@ export default function Quiz({
       else score = 1;
     }
 
-    setCurrentScore(score);
-
-    const { error } = await supabase.from("answers").insert({
-      participant_id: playerId,
-      question_id: question.id,
-      choice_id: choice.id,
-      score: score,
-    });
+    const { error } = await supabase.from("answers").upsert(
+      {
+        participant_id: playerId,
+        question_id: question.id,
+        choice_id: choice.id,
+        score: score,
+      },
+      { onConflict: "participant_id,question_id" }
+    );
 
     if (error) {
-      setChosenChoice(null);
-      setCurrentScore(null);
       toast.error(error.message);
     }
   };
 
   return (
-    <div className="flex flex-col flex-grow items-stretch bg-slate-900 overflow-auto">
+    <div className="flex flex-col flex-grow items-stretch bg-slate-900 overflow-auto min-w-[80vw]">
       <div className="text-center py-4 flex-shrink-0">
-        <h2 className="pb-4 text-2xl bg-white font-bold mx-4 my-12 p-4 rounded inline-block md:text-3xl md:px-24">
+        <h2 className="pb-4 text-3xl bg-white font-bold mx-auto my-12 p-4 rounded inline-block max-w-[80%]">
           {question.body}
         </h2>
         {question.image && (
-          <div className="w-full max-w-[400px] mx-auto">
+          <div className="w-full mx-auto">
             <Image
               src={
                 getPreloadedImage(`${quiz}/${question.image}`) ||
@@ -219,38 +218,8 @@ export default function Quiz({
                     <div className="flex-grow">{choice.body}</div>
                     {isAnswerRevealed && (
                       <div className="flex-shrink-0 ml-2">
-                        {choice.is_correct && (
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth={5}
-                            stroke="currentColor"
-                            className="w-6 h-6"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="m4.5 12.75 6 6 9-13.5"
-                            />
-                          </svg>
-                        )}
-                        {!choice.is_correct && (
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth={5}
-                            stroke="currentColor"
-                            className="w-6 h-6"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M6 18 18 6M6 6l12 12"
-                            />
-                          </svg>
-                        )}
+                        {choice.is_correct && <CheckIcon />}
+                        {!choice.is_correct && <CrossIcon />}
                       </div>
                     )}
                   </button>
@@ -270,38 +239,8 @@ export default function Quiz({
                 chosenChoice?.is_correct ? "bg-green-500" : "bg-red-500"
               }`}
             >
-              {chosenChoice?.is_correct && (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={5}
-                  stroke="currentColor"
-                  className="w-6 h-6"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="m4.5 12.75 6 6 9-13.5"
-                  />
-                </svg>
-              )}
-              {!chosenChoice?.is_correct && (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={5}
-                  stroke="currentColor"
-                  className="w-6 h-6"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M6 18 18 6M6 6l12 12"
-                  />
-                </svg>
-              )}
+              {chosenChoice?.is_correct && <CheckIcon />}
+              {!chosenChoice?.is_correct && <CrossIcon />}
             </div>
           </div>
         )}
