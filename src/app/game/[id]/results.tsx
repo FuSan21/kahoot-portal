@@ -28,7 +28,13 @@ export default function Results({ participant, gameId }: ResultsProps) {
         return toast.error(error.message);
       }
 
-      setResult(data);
+      if (data) {
+        const detailedResult: DetailedGameResult = {
+          total_score: data.total_score || 0,
+          scores: data.scores || [],
+        };
+        setResult(detailedResult);
+      }
     };
     getResult();
   }, [gameId, participant.id]);
