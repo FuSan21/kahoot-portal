@@ -41,7 +41,6 @@ export async function preloadQuizImages(
     });
 
     await Promise.all(preloadPromises);
-    console.log("All quiz images preloaded");
   } catch (error) {
     console.error("Error preloading quiz images:", error);
   }

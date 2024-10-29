@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
-import { RealtimeChannel } from "@supabase/supabase-js";
+import { User, RealtimeChannel } from "@supabase/supabase-js";
 import { Game, Participant, QuizSet, supabase } from "@/types/types";
 import { Screens } from "@/types/enums";
 import Lobby from "./lobby";
@@ -9,19 +9,36 @@ import Quiz from "./quiz";
 import Results from "./results";
 import { toast } from "sonner";
 import { preloadQuizImages } from "@/utils/imagePreloader";
+import JitsiMeetSidebar from "@/app/components/JitsiMeetSidebar";
+import { generateJWT } from "@/app/auth/jitsi/generateJwt";
 
 export default function Home({
   params: { id: gameId },
 }: {
   params: { id: string };
 }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [jwt, setJwt] = useState<string>("");
   const [currentScreen, setCurrentScreen] = useState<Screens>(Screens.lobby);
   const [participant, setParticipant] = useState<Participant | null>(null);
   const [quizSet, setQuizSet] = useState<QuizSet>();
   const [currentQuestionSequence, setCurrentQuestionSequence] = useState(0);
   const [isAnswerRevealed, setIsAnswerRevealed] = useState(false);
   const [preloadProgress, setPreloadProgress] = useState(0);
-
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        setUser(user);
+      } catch (error) {
+        console.error("Error fetching user:", error);
+        toast.error("Failed to fetch user information.");
+      }
+    };
+    fetchUser();
+  }, [gameId]);
   const fetchQuizSetData = useCallback(async () => {
     try {
       const { data: gameData, error: gameError } = await supabase
@@ -107,6 +124,30 @@ export default function Home({
     setParticipant(newParticipant);
   };
 
+  useEffect(() => {
+    const fetchJWT = async () => {
+      if (!user || !user.user_metadata || !quizSet) {
+        return;
+      }
+      try {
+        const token = await generateJWT({
+          userId: user.id,
+          name: user.user_metadata.name,
+          avatar: user.user_metadata.avatar_url,
+          email: user.email || null,
+          moderator: false,
+          room: "*",
+        });
+
+        setJwt(token);
+      } catch (error) {
+        toast.error("Failed to generate JWT");
+      }
+    };
+
+    fetchJWT();
+  }, [user, quizSet]);
+
   const renderScreen = () => {
     switch (currentScreen) {
       case Screens.lobby:
@@ -138,8 +179,21 @@ export default function Home({
   };
 
   return (
-    <div className="bg-green-500 flex-grow flex flex-col items-center justify-center">
-      {renderScreen()}
+    <div className="flex flex-grow">
+      <div className="flex-grow bg-green-500 flex flex-col items-center justify-center">
+        {renderScreen()}
+      </div>
+      <div className="w-[40vw] min-w-20 bg-gray-800 flex flex-col">
+        {jwt ? (
+          <JitsiMeetSidebar
+            jwt={jwt}
+            roomName={quizSet?.name || "AGT Quiz Portal"}
+            avatar={user?.user_metadata.avatar_url}
+          />
+        ) : (
+          <div>Loading meeting...</div>
+        )}
+      </div>
     </div>
   );
 }

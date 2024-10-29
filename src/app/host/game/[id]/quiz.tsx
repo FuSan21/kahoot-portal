@@ -123,7 +123,6 @@ export default function Quiz({
         console.error("Error fetching answers:", error);
         toast.error("Failed to fetch answers");
       } else {
-        console.log("Fetched answers:", data);
         setAnswers(data || []);
       }
     };
@@ -254,7 +253,7 @@ export default function Quiz({
 
   return (
     <div className="flex flex-col flex-grow items-stretch bg-slate-900 overflow-auto min-w-[80vw]">
-      <div className="absolute right-4 top-28 z-10">
+      <div className="relative flex justify-end p-4 z-10">
         {isAnswerRevealed && (
           <button
             className="p-2 bg-white text-black rounded hover:bg-gray-200"
@@ -279,7 +278,7 @@ export default function Quiz({
               alt={question.body}
               width={400}
               height={400}
-              className="w-full h-auto max-h-[40vh] object-contain"
+              className="w-full h-auto max-h-[30vh] object-contain"
             />
           </div>
         )}

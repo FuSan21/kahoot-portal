@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@jitsi/react-sdk": "^1.4.0",
     "@mdx-js/loader": "^3.0.1",
     "@mdx-js/react": "^3.0.1",
     "@next/mdx": "^14.2.5",
@@ -16,6 +17,7 @@
     "@supabase/supabase-js": "^2.45.6",
     "@types/mdx": "^2.0.13",
     "google-one-tap": "^1.0.6",
+    "jsonwebtoken": "^9.0.2",
     "next": "^14.2.7",
     "next-qrcode": "^2.5.1",
     "react": "^18.3.1",
@@ -27,6 +29,7 @@
   },
   "devDependencies": {
     "@types/google-one-tap": "^1.2.6",
+    "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^20",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",

@@ -78,10 +78,6 @@ export default function Quiz({
           const updatedGame = payload.new as Game;
 
           if (updatedGame.current_question_start_time) {
-            console.log(
-              "Client: Question start time updated:",
-              updatedGame.current_question_start_time
-            );
             const startTime = new Date(
               updatedGame.current_question_start_time
             ).getTime();
@@ -150,7 +146,7 @@ export default function Quiz({
               alt={question.body}
               width={400}
               height={400}
-              className="w-full h-auto max-h-[40vh] object-contain"
+              className="w-full h-auto max-h-[30vh] object-contain"
             />
           </div>
         )}

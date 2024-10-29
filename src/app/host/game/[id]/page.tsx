@@ -8,8 +8,10 @@ import Quiz from "./quiz";
 import Results from "./results";
 import { toast } from "sonner";
 import { preloadQuizImages } from "@/utils/imagePreloader";
-import { RealtimeChannel } from "@supabase/supabase-js";
+import { RealtimeChannel, User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
+import JitsiMeetSidebar from "@/app/components/JitsiMeetSidebar";
+import { generateJWT } from "@/app/auth/jitsi/generateJwt";
 
 export default function Home({
   params: { id: gameId },
@@ -17,6 +19,8 @@ export default function Home({
   params: { id: string };
 }) {
   const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+  const [jwt, setJwt] = useState<string>("");
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [currentScreen, setCurrentScreen] = useState<AdminScreens>(
     AdminScreens.lobby
@@ -220,7 +224,7 @@ export default function Home({
       } = await supabase.auth.getUser();
       if (!user) {
         toast.error("You must be logged in to access this page");
-        router.push("/login"); // Adjust this path as needed
+        router.push("/login");
         return;
       }
 
@@ -232,7 +236,7 @@ export default function Home({
 
       if (error || !game) {
         toast.error("Failed to fetch game data");
-        router.push("/"); // Redirect to home or error page
+        router.push("/");
         return;
       }
 
@@ -241,20 +245,57 @@ export default function Home({
         router.push("/"); // Redirect to home or error page
         return;
       }
-
+      setUser(user);
       setIsAuthorized(true);
     };
 
     checkAuthorization();
   }, [gameId, router]);
 
+  useEffect(() => {
+    const fetchJWT = async () => {
+      if (!user || !user.user_metadata || !quizSet) {
+        return;
+      }
+      try {
+        const token = await generateJWT({
+          userId: user.id,
+          name: user.user_metadata.name,
+          avatar: user.user_metadata.avatar_url,
+          email: user.email || null,
+          moderator: true,
+          room: "*",
+        });
+
+        setJwt(token);
+      } catch (error) {
+        toast.error("Failed to generate JWT");
+      }
+    };
+
+    fetchJWT();
+  }, [user, quizSet]);
+
   if (!isAuthorized) {
     return <div>Checking authorization...</div>;
   }
 
   return (
-    <div className="bg-green-500 flex-grow flex flex-col items-center justify-center">
-      {renderScreen()}
+    <div className="flex flex-grow">
+      <div className="flex-grow bg-green-500 flex flex-col items-center justify-center">
+        {renderScreen()}
+      </div>
+      <div className="w-[40vw] min-w-20 bg-gray-800 flex flex-col">
+        {jwt ? (
+          <JitsiMeetSidebar
+            jwt={jwt}
+            roomName={quizSet?.name || "AGT Quiz Portal"}
+            avatar={user?.user_metadata.avatar_url}
+          />
+        ) : (
+          <div>Loading meeting...</div>
+        )}
+      </div>
     </div>
   );
 }
