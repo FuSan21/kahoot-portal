@@ -34,14 +34,15 @@ const ParticipantsList: React.FC<ParticipantsListProps> = ({
             (c) => c.id === answer.choice_id
           );
 
-          const backgroundColor =
-            choiceIndex === 0
-              ? "bg-red-500"
-              : choiceIndex === 1
-              ? "bg-blue-500"
-              : choiceIndex === 2
-              ? "bg-yellow-500"
-              : "bg-green-500";
+          const backgroundColor = !isAnswerRevealed
+            ? "bg-gray-500"
+            : choiceIndex === 0
+            ? "bg-red-500"
+            : choiceIndex === 1
+            ? "bg-blue-500"
+            : choiceIndex === 2
+            ? "bg-yellow-500"
+            : "bg-green-500";
 
           return (
             <div
