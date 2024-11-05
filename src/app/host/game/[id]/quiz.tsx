@@ -30,7 +30,7 @@ export default function Quiz({
 
   const [answers, setAnswers] = useState<Answer[]>([]);
 
-  const answerStateRef = useRef<Answer[]>();
+  const answerStateRef = useRef<Answer[]>(undefined);
 
   answerStateRef.current = answers;
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, use } from "react";
 import { User, RealtimeChannel } from "@supabase/supabase-js";
 import { Game, Participant, QuizSet, supabase } from "@/types/types";
 import { Screens } from "@/types/enums";
@@ -12,11 +12,17 @@ import { preloadQuizImages } from "@/utils/imagePreloader";
 import JitsiMeetSidebar from "@/app/components/JitsiMeetSidebar";
 import { generateJWT } from "@/app/auth/jitsi/generateJwt";
 
-export default function Home({
-  params: { id: gameId },
-}: {
-  params: { id: string };
-}) {
+export default function Home(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = use(props.params);
+
+  const {
+    id: gameId
+  } = params;
+
   const [user, setUser] = useState<User | null>(null);
   const [jwt, setJwt] = useState<string>("");
   const [currentScreen, setCurrentScreen] = useState<Screens>(Screens.lobby);

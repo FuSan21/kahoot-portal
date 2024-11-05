@@ -2,7 +2,7 @@
 
 import { Game, Participant, QuizSet, supabase } from "@/types/types";
 import { AdminScreens } from "@/types/enums";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, use } from "react";
 import Lobby from "./lobby";
 import Quiz from "./quiz";
 import Results from "./results";
@@ -13,11 +13,17 @@ import { useRouter } from "next/navigation";
 import JitsiMeetSidebar from "@/app/components/JitsiMeetSidebar";
 import { generateJWT } from "@/app/auth/jitsi/generateJwt";
 
-export default function Home({
-  params: { id: gameId },
-}: {
-  params: { id: string };
-}) {
+export default function Home(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = use(props.params);
+
+  const {
+    id: gameId
+  } = params;
+
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [jwt, setJwt] = useState<string>("");
