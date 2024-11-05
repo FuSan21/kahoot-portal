@@ -82,7 +82,7 @@ export async function POST(request: Request) {
           regex: false,
         },
       },
-      room: room || "AGT Quiz Portal",
+      room: room || "Kahoot Portal",
       sub: process.env.JITSI_SUBJECT?.split("/")[0] || "",
     };
 

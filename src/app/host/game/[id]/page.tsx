@@ -289,7 +289,7 @@ export default function Home({
         {jwt ? (
           <JitsiMeetSidebar
             jwt={jwt}
-            roomName={quizSet?.name || "AGT Quiz Portal"}
+            roomName={quizSet?.name || "Kahoot Portal"}
             avatar={user?.user_metadata.avatar_url}
           />
         ) : (

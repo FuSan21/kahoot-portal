@@ -54,7 +54,7 @@ const JitsiMeetSidebar: React.FC<JitsiMeetProps> = ({
   return (
     <JaaSMeeting
       appId="vpaas-magic-cookie-445f1d3e84bb47cfbb92b3849e0209ab"
-      roomName={roomName || "AGT Quiz Portal"}
+      roomName={roomName || "Kahoot Portal"}
       jwt={jwt}
       configOverwrite={{
         disableThirdPartyRequests: true,

@@ -27,7 +27,7 @@ export default async function RootLayout({
       <body className={inter.className}>
         <div className="min-h-screen flex flex-col">
           <header className="h-16 px-2 flex justify-between border-b border-gray-200 items-center">
-            <h1>AGT Quiz Portal</h1>
+            <h1>Kahoot Portal</h1>
             {user && (
               <div className="relative">
                 <UserCard user={user} />
