@@ -4,7 +4,7 @@ import { useEffect } from "react";
 interface JitsiMeetProps {
   jwt: string;
   roomName: string;
-  avatar: string;
+  onReadyToClose?: () => void;
 }
 
 const renderSpinner = () => (
@@ -40,7 +40,7 @@ const spinnerKeyframes = `
 const JitsiMeetSidebar: React.FC<JitsiMeetProps> = ({
   jwt,
   roomName,
-  avatar,
+  onReadyToClose,
 }) => {
   useEffect(() => {
     const style = document.createElement("style");
@@ -57,15 +57,15 @@ const JitsiMeetSidebar: React.FC<JitsiMeetProps> = ({
       roomName={roomName || "Kahoot Portal"}
       jwt={jwt}
       configOverwrite={{
-        disableThirdPartyRequests: true,
         disableLocalVideoFlip: true,
         backgroundAlpha: 0.5,
         startWithAudioMuted: true,
         startWithVideoMuted: true,
         prejoinPageEnabled: false,
+        startAudioOnly: true,
       }}
       interfaceConfigOverwrite={{
-        VIDEO_LAYOUT_FIT: "nocrop",
+        VIDEO_LAYOUT_FIT: "both",
         MOBILE_APP_PROMO: false,
         TILE_VIEW_MAX_COLUMNS: 5,
       }}
@@ -74,10 +74,8 @@ const JitsiMeetSidebar: React.FC<JitsiMeetProps> = ({
         iframeRef.style.width = "100%";
         iframeRef.style.flexGrow = "1";
       }}
+      onReadyToClose={onReadyToClose}
       spinner={renderSpinner}
-      onApiReady={(api) => {
-        api.executeCommand("avatarUrl", avatar);
-      }}
     />
   );
 };

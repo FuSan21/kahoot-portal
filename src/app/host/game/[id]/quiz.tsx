@@ -252,7 +252,7 @@ export default function Quiz({
   }
 
   return (
-    <div className="flex flex-col flex-grow items-stretch bg-slate-900 overflow-auto min-w-[80vw]">
+    <div className="flex flex-col flex-grow items-stretch bg-slate-900 overflow-auto w-full">
       <div className="relative flex justify-end p-4 z-10">
         {isAnswerRevealed && (
           <button
@@ -284,7 +284,7 @@ export default function Quiz({
         )}
       </div>
 
-      <div className="flex flex-col flex-grow md:flex-row justify-between p-4 max-w-4xl mx-auto w-full text-white">
+      <div className="flex flex-col flex-grow flex-wrap md:flex-row justify-between p-4 max-w-4xl mx-auto w-full text-white">
         {hasShownChoices && !isAnswerRevealed && questionStartTime && (
           <div className="flex justify-center md:justify-start items-center w-full mb-4 md:mb-0">
             <div className="text-5xl">
@@ -304,11 +304,11 @@ export default function Quiz({
           </div>
         )}
         {isAnswerRevealed && (
-          <div className="flex justify-center w-full mb-4 md:mb-0">
+          <div className="flex flex-grow flex-shrink justify-center w-full mb-4 md:mb-0 basis-52">
             {question.choices.map((choice, index) => (
               <div
                 key={choice.id}
-                className="mx-1 h-36 md:h-48 w-16 md:w-24 flex flex-col items-stretch justify-end"
+                className="mx-1 h-36 md:h-48 w-16 md:w-24 flex flex-col flex-shrink items-stretch justify-end"
               >
                 <div
                   className={`flex-grow relative ${
@@ -386,7 +386,7 @@ export default function Quiz({
               >
                 <div className="flex-grow">{choice.body}</div>
                 {isAnswerRevealed && (
-                  <div className="flex-shrink-0 ml-2">
+                  <div className="flex-shrink-0">
                     {choice.is_correct ? <CheckIcon /> : <CrossIcon />}
                   </div>
                 )}

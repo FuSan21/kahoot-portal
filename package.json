@@ -24,6 +24,7 @@
     "react-confetti": "^6.1.0",
     "react-countdown-circle-timer": "^3.2.1",
     "react-dom": "19.0.0-rc-02c0e824-20241028",
+    "react-resizable-panels": "^2.1.6",
     "react-use": "^17.5.1",
     "sonner": "^1.7.0"
   },

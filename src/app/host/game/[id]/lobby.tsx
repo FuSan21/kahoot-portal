@@ -54,53 +54,55 @@ export default function Lobby({
 
   return (
     <div className="bg-green-500 flex-grow flex flex-col items-center justify-center">
-      <div className="flex flex-col md:flex-row justify-between m-auto bg-black p-4 md:p-12 w-full max-w-4xl">
-        <div className="flex flex-col justify-between mt-4 md:mt-0">
-          <div className="pl-0 md:pl-4 flex justify-center">
-            <Canvas
-              text={gameLink}
-              options={{
-                errorCorrectionLevel: "M",
-                margin: 3,
-                scale: 4,
-                width: 200,
-              }}
-            />
+      <div className="flex flex-col m-auto bg-black p-4 md:p-12 w-full max-w-4xl">
+        <div className="flex flex-wrap justify-center gap-8">
+          <div className="flex flex-col justify-between">
+            <div className="flex justify-center">
+              <Canvas
+                text={gameLink}
+                options={{
+                  errorCorrectionLevel: "M",
+                  margin: 3,
+                  scale: 4,
+                  width: 200,
+                }}
+              />
+            </div>
+            <div className="text-white text-center mt-4">
+              <button onClick={onClickCopyGameLink}>Copy Game Link</button>
+            </div>
           </div>
-          <div className="text-white text-center mt-4 md:mt-0">
-            <button onClick={onClickCopyGameLink}>Copy Game Link</button>
+          <div className="w-96">
+            <div className="max-h-60 overflow-y-auto bg-white rounded-lg shadow">
+              {participants.map((participant) => (
+                <div
+                  key={participant.id}
+                  className="flex items-center p-2 border-b border-gray-200 last:border-b-0"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={participant.profile?.avatar_url || "/default.png"}
+                    alt={participant.nickname}
+                    className="w-10 h-10 rounded-full mr-3"
+                  />
+                  <span className="text-sm md:text-base lg:text-lg">
+                    {participant.nickname}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <button
+              className={`mt-4 mx-auto py-2 px-6 md:py-4 md:px-12 block text-black w-full md:w-auto ${
+                canStartGame
+                  ? "bg-white hover:bg-gray-200"
+                  : "bg-gray-400 cursor-not-allowed"
+              }`}
+              onClick={onClickStartGame}
+              disabled={!canStartGame}
+            >
+              Start Game
+            </button>
           </div>
-        </div>
-        <div className="w-full md:w-96 mb-4 md:mb-0">
-          <div className="max-h-60 overflow-y-auto bg-white rounded-lg shadow">
-            {participants.map((participant) => (
-              <div
-                key={participant.id}
-                className="flex items-center p-2 border-b border-gray-200 last:border-b-0"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={participant.profile?.avatar_url || "/default.png"}
-                  alt={participant.nickname}
-                  className="w-10 h-10 rounded-full mr-3"
-                />
-                <span className="text-sm md:text-base lg:text-lg">
-                  {participant.nickname}
-                </span>
-              </div>
-            ))}
-          </div>
-          <button
-            className={`mt-4 mx-auto py-2 px-6 md:py-4 md:px-12 block text-black w-full md:w-auto ${
-              canStartGame
-                ? "bg-white hover:bg-gray-200"
-                : "bg-gray-400 cursor-not-allowed"
-            }`}
-            onClick={onClickStartGame}
-            disabled={!canStartGame}
-          >
-            Start Game
-          </button>
         </div>
       </div>
 

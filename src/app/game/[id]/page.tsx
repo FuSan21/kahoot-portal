@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback, use } from "react";
+import { useEffect, useState, useCallback, useRef, use } from "react";
 import { User, RealtimeChannel } from "@supabase/supabase-js";
 import { Game, Participant, QuizSet, supabase } from "@/types/types";
 import { Screens } from "@/types/enums";
@@ -12,16 +12,18 @@ import { preloadQuizImages } from "@/utils/imagePreloader";
 import JitsiMeetSidebar from "@/app/components/JitsiMeetSidebar";
 import { generateJWT } from "@/app/auth/jitsi/generateJwt";
 
-export default function Home(
-  props: {
-    params: Promise<{ id: string }>;
-  }
-) {
+import JitsiIcon from "@/app/components/icons/JitsiIcon";
+import {
+  Panel,
+  PanelGroup,
+  PanelResizeHandle,
+  ImperativePanelHandle,
+} from "react-resizable-panels";
+
+export default function Home(props: { params: Promise<{ id: string }> }) {
   const params = use(props.params);
 
-  const {
-    id: gameId
-  } = params;
+  const { id: gameId } = params;
 
   const [user, setUser] = useState<User | null>(null);
   const [jwt, setJwt] = useState<string>("");
@@ -31,6 +33,11 @@ export default function Home(
   const [currentQuestionSequence, setCurrentQuestionSequence] = useState(0);
   const [isAnswerRevealed, setIsAnswerRevealed] = useState(false);
   const [preloadProgress, setPreloadProgress] = useState(0);
+  const panelRef = useRef<ImperativePanelHandle>(null);
+  const [isButtonTransition, setIsButtonTransition] = useState(false);
+  const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
+  const [isMeetingClosed, setIsMeetingClosed] = useState(false);
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -130,27 +137,27 @@ export default function Home(
     setParticipant(newParticipant);
   };
 
+  const fetchJWT = async () => {
+    if (!user || !user.user_metadata || !quizSet) {
+      return;
+    }
+    try {
+      const token = await generateJWT({
+        userId: user.id,
+        name: user.user_metadata.name,
+        avatar: user.user_metadata.avatar_url,
+        email: user.email || null,
+        moderator: false,
+        room: "*",
+      });
+
+      setJwt(token);
+    } catch (error) {
+      toast.error("Failed to generate JWT");
+    }
+  };
+
   useEffect(() => {
-    const fetchJWT = async () => {
-      if (!user || !user.user_metadata || !quizSet) {
-        return;
-      }
-      try {
-        const token = await generateJWT({
-          userId: user.id,
-          name: user.user_metadata.name,
-          avatar: user.user_metadata.avatar_url,
-          email: user.email || null,
-          moderator: false,
-          room: "*",
-        });
-
-        setJwt(token);
-      } catch (error) {
-        toast.error("Failed to generate JWT");
-      }
-    };
-
     fetchJWT();
   }, [user, quizSet]);
 
@@ -184,22 +191,85 @@ export default function Home(
     }
   };
 
+  const togglePanel = () => {
+    const panel = panelRef.current;
+    if (panel) {
+      setIsButtonTransition(true);
+      panel.isCollapsed() ? panel.expand() : panel.collapse();
+    }
+  };
+
   return (
-    <div className="flex flex-grow">
-      <div className="flex-grow bg-green-500 flex flex-col items-center justify-center">
+    <PanelGroup
+      autoSaveId="jitsi-panel-group"
+      direction="horizontal"
+      className="flex flex-grow relative"
+    >
+      <Panel
+        minSize={20}
+        className="bg-green-500 flex flex-col items-center justify-center"
+      >
         {renderScreen()}
+      </Panel>
+      <PanelResizeHandle className="coarse:flex-grow-0 coarse:flex-shrink-0 coarse:basis-2" />
+      <div className="relative">
+        <JitsiIcon
+          className={`absolute top-1/2 -translate-y-1/2 -left-10 w-10 h-10 
+            ${isMeetingClosed ? "text-red-500" : "text-white"} 
+            hover:${
+              isMeetingClosed ? "text-red-400" : "text-gray-300"
+            } cursor-pointer z-10 
+            transition-all duration-1000 ease-in-out transform
+            ${isPanelCollapsed ? "rotate-0" : "rotate-180"}`}
+          onClick={() => {
+            if (isMeetingClosed) {
+              setIsMeetingClosed(false);
+              setJwt("");
+              setTimeout(() => {
+                fetchJWT();
+              }, 0);
+            }
+            togglePanel();
+          }}
+        />
       </div>
-      <div className="w-[40vw] min-w-20 bg-gray-800 flex flex-col">
-        {jwt ? (
-          <JitsiMeetSidebar
-            jwt={jwt}
-            roomName={quizSet?.name || "Kahoot Portal"}
-            avatar={user?.user_metadata.avatar_url}
-          />
-        ) : (
-          <div>Loading meeting...</div>
-        )}
-      </div>
-    </div>
+      <Panel
+        ref={panelRef}
+        minSize={20}
+        defaultSize={25}
+        collapsible={true}
+        collapsedSize={0}
+        className={`bg-gray-800 ${
+          isButtonTransition ? "transition-all duration-300 ease-in-out" : ""
+        }`}
+        onCollapse={() => {
+          setIsPanelCollapsed(true);
+          setTimeout(() => setIsButtonTransition(false), 300);
+        }}
+        onExpand={() => {
+          setIsPanelCollapsed(false);
+          setTimeout(() => setIsButtonTransition(false), 300);
+        }}
+      >
+        <div className={`h-full ${isPanelCollapsed ? "invisible" : "visible"}`}>
+          {jwt ? (
+            <JitsiMeetSidebar
+              jwt={jwt}
+              roomName={quizSet?.id || "Kahoot Portal"}
+              onReadyToClose={() => {
+                if (panelRef.current && !panelRef.current.isCollapsed()) {
+                  setIsButtonTransition(true);
+                  panelRef.current.collapse();
+                }
+                setIsMeetingClosed(true);
+                toast.info("Meeting closed");
+              }}
+            />
+          ) : (
+            <div>Loading meeting...</div>
+          )}
+        </div>
+      </Panel>
+    </PanelGroup>
   );
 }

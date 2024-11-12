@@ -19,7 +19,7 @@ const ParticipantsList: React.FC<ParticipantsListProps> = ({
   isAnswerRevealed,
 }) => {
   return (
-    <div className="flex flex-col text-center">
+    <div className="flex flex-col text-center flex-1">
       <div className="text-xl md:text-3xl pb-2 md:pb-4">Participants</div>
       <div className="max-h-36 md:max-h-48 overflow-y-auto">
         {answers.map((answer) => {
