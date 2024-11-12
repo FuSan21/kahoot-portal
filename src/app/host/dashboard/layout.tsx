@@ -2,6 +2,7 @@ import SiteLogo from "@/app/host/dashboard/sitelogo.svg";
 import HomeIcon from "@/app/components/icons/HomeIcon";
 import HowToPlayIcon from "@/app/components/icons/HowToPlayIcon";
 import Image from "next/image";
+import Link from "next/link";
 
 const menuItems: {
   label: string;
@@ -29,9 +30,9 @@ export default function DashboardLayout({
     <div className="flex flex-col sm:flex-row h-full flex-grow">
       <nav className="w-full sm:w-64 bg-gray-50 border-r border-gray-200">
         <div className="flex justify-center items-center py-4 px-6">
-          <a href="/host/dashboard">
+          <Link href="/host/dashboard">
             <Image priority src={SiteLogo} alt="Kahoot Portal" />
-          </a>
+          </Link>
         </div>
 
         <div className="sm:mb-10">
@@ -39,14 +40,14 @@ export default function DashboardLayout({
             Main
           </h3>
           {menuItems.map((item) => (
-            <a
+            <Link
               href={item.href}
               key={item.href}
               className="flex items-center px-6 py-2.5 text-gray-500 hover:text-orange-600 group"
             >
               <div className="px-2">{item.icon}</div>
               <div className="flex-grow">{item.label}</div>
-            </a>
+            </Link>
           ))}
         </div>
       </nav>

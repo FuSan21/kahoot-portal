@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import { createClient } from "@/utils/supabase/server";
 import UserCard from "@/app/components/UserCard";
+import Link from "next/link";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,10 +27,10 @@ export default async function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <div className="min-h-screen flex flex-col">
-          <header className="h-16 px-2 flex justify-between border-b border-gray-200 items-center">
-            <a href="/">
+          <header className="h-16 px-2 flex justify-between border-b border-gray-200 items-center z-[99]">
+            <Link href="/">
               <h1>Kahoot Portal</h1>
-            </a>
+            </Link>
             {user && (
               <div className="relative">
                 <UserCard user={user} />

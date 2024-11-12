@@ -215,12 +215,13 @@ export default function Home(props: { params: Promise<{ id: string }> }) {
       <div className="relative">
         <JitsiIcon
           className={`absolute top-1/2 -translate-y-1/2 -left-10 w-10 h-10 
-            ${isMeetingClosed ? "text-red-500" : "text-white"} 
+            ${isMeetingClosed ? "bg-red-500" : "bg-sky-500"} 
             hover:${
-              isMeetingClosed ? "text-red-400" : "text-gray-300"
+              isMeetingClosed ? "bg-red-400" : "bg-sky-400"
             } cursor-pointer z-10 
             transition-all duration-1000 ease-in-out transform
-            ${isPanelCollapsed ? "rotate-0" : "rotate-180"}`}
+            ${isPanelCollapsed ? "rotate-0" : "rotate-180"} 
+            text-white rounded-full`}
           onClick={() => {
             if (isMeetingClosed) {
               setIsMeetingClosed(false);
