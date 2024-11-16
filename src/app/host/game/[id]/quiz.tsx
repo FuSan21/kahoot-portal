@@ -110,7 +110,9 @@ export default function Quiz({
   useEffect(() => {
     setIsAnswerRevealed(false);
     setHasShownChoices(false);
+  }, [question.id]);
 
+  useEffect(() => {
     const fetchAnswers = async () => {
       const participantIds = participants.map((p) => p.id);
       const { data, error } = await supabase
