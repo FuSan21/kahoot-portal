@@ -1,10 +1,11 @@
 import { signInWithGoogle } from "@/app/login/actions";
+import OneTapComponent from "@/app/login/OneTapComponent";
 
 export default async function LoginPage(props: {
   searchParams: Promise<{ redirect?: string }>;
 }) {
   const searchParams = await props.searchParams;
-  const redirectTo = await searchParams.redirect;
+  const redirectTo = searchParams.redirect;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -23,6 +24,7 @@ export default async function LoginPage(props: {
               Sign in with Google
             </button>
           </form>
+          <OneTapComponent redirectTo={redirectTo} />
         </div>
       </div>
     </div>
