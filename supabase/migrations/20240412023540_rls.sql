@@ -4,11 +4,12 @@ create or replace function add_question (
     "image" text,
     "order" int,
     choices json [] -- i.e. [{"body": "Postgres", "is_correct": true},{"body": "MySQL", "is_correct": false}]
-  ) returns void language plpgsql as $$
+  ) returns void language plpgsql
+set search_path = '' as $$
 declare question_id uuid;
 choice json;
 begin
-insert into questions(body, "image", "order", quiz_set_id)
+insert into public.questions(body, "image", "order", quiz_set_id)
 values (
     add_question.body,
     add_question."image",

@@ -1,4 +1,4 @@
-create or replace view game_results as
+create or replace view game_results with (security_invoker = on) as
 select participants.id as participant_id,
     participants.nickname,
     sum(answers.score) as total_score,
