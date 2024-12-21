@@ -134,3 +134,9 @@ port = 54327
 vector_port = 54328
 # Configure one of the supported backends: `postgres`, `bigquery`.
 backend = "postgres"
+
+[storage.buckets.quiz_images]
+public = true
+file_size_limit = "50MiB"
+allowed_mime_types = ["image/png", "image/jpeg", "image/jpg", "image/webp"]
+objects_path = "./quiz-image"

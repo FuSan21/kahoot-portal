@@ -1,6 +1,7 @@
 import SiteLogo from "@/app/host/dashboard/sitelogo.svg";
 import HomeIcon from "@/app/components/icons/HomeIcon";
 import HowToPlayIcon from "@/app/components/icons/HowToPlayIcon";
+import PlusIcon from "@/app/components/icons/PlusIcon";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -13,6 +14,11 @@ const menuItems: {
     label: "Home",
     href: "/host/dashboard",
     icon: <HomeIcon />,
+  },
+  {
+    label: "Create Quiz",
+    href: "/host/dashboard/create",
+    icon: <PlusIcon />,
   },
   {
     label: "How to Play",

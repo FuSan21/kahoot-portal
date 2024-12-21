@@ -1,10 +1,26 @@
+-- Create a dummy user in auth.users
+INSERT INTO auth.users (id, email)
+VALUES (
+    '00000000-0000-0000-0000-000000000000',
+    'dummy@example.com'
+  ) ON CONFLICT (id) DO NOTHING;
+-- create the profile for the dummy user
+INSERT INTO public.profiles (id)
+VALUES ('00000000-0000-0000-0000-000000000000') ON CONFLICT (id) DO NOTHING;
 -- Insert Bangladesh History Quiz into quiz_sets table
-INSERT INTO public.quiz_sets (id, name, description, image)
+INSERT INTO public.quiz_sets (
+    id,
+    name,
+    description,
+    image,
+    created_by
+  )
 VALUES (
     'c74f5d8c-a2d3-4b47-9b90-ec4c1e8f3b9f',
     'Bangladesh History Quiz',
     'A quiz to test your knowledge of Bangladesh history',
-    'featured.png'
+    'featured.png',
+    '00000000-0000-0000-0000-000000000000'
   );
 SELECT add_question (
     quiz_set_id => 'c74f5d8c-a2d3-4b47-9b90-ec4c1e8f3b9f'::uuid,
@@ -127,12 +143,19 @@ SELECT add_question (
     ]
   );
 -- Insert World Geography Quiz into quiz_sets table
-INSERT INTO public.quiz_sets (id, name, description, image)
+INSERT INTO public.quiz_sets (
+    id,
+    name,
+    description,
+    image,
+    created_by
+  )
 VALUES (
     'd75b8c7e-bfd3-4f47-8e90-bc3c3f3a9b6f',
     'World Geography Quiz',
     'A quiz to test your knowledge of world geography',
-    'featured.webp'
+    'featured.webp',
+    '00000000-0000-0000-0000-000000000000'
   );
 SELECT add_question (
     quiz_set_id => 'd75b8c7e-bfd3-4f47-8e90-bc3c3f3a9b6f'::uuid,
@@ -195,12 +218,19 @@ SELECT add_question (
     ]
   );
 -- Insert General Science Quiz into quiz_sets table
-INSERT INTO public.quiz_sets (id, name, description, image)
+INSERT INTO public.quiz_sets (
+    id,
+    name,
+    description,
+    image,
+    created_by
+  )
 VALUES (
     'e85b9d7f-c1d3-49a6-bdf3-5a0cfe1d13b0',
     'General Science Quiz',
     'Test your knowledge of general science',
-    'featured.jpg'
+    'featured.jpg',
+    '00000000-0000-0000-0000-000000000000'
   );
 SELECT add_question (
     quiz_set_id => 'e85b9d7f-c1d3-49a6-bdf3-5a0cfe1d13b0'::uuid,
@@ -263,12 +293,19 @@ SELECT add_question (
     ]
   );
 -- Insert Sports Trivia Quiz into quiz_sets table
-INSERT INTO public.quiz_sets (id, name, description, image)
+INSERT INTO public.quiz_sets (
+    id,
+    name,
+    description,
+    image,
+    created_by
+  )
 VALUES (
     'f93c9d7a-ecd1-44c7-9c91-94f7c93a7e63',
     'Sports Trivia Quiz',
     'A quiz to test your sports knowledge',
-    'featured.webp'
+    'featured.webp',
+    '00000000-0000-0000-0000-000000000000'
   );
 SELECT add_question (
     quiz_set_id => 'f93c9d7a-ecd1-44c7-9c91-94f7c93a7e63'::uuid,

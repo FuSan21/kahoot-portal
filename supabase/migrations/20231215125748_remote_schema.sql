@@ -1,7 +1,8 @@
 create table if not exists public.quiz_sets (
     id uuid default gen_random_uuid() not null primary key,
     created_at timestamp with time zone default now() not null,
-    created_by uuid references public.profiles(id) on delete cascade on update cascade,
+    created_by uuid references public.profiles(id) on delete cascade on update cascade not null,
+    is_public boolean default true not null,
     name text not null,
     description text,
     "image" text
@@ -52,5 +53,3 @@ alter publication supabase_realtime
 add table games;
 alter publication supabase_realtime
 add table participants;
-insert into storage.buckets (id, name, public)
-values ('quiz_images', 'quiz_images', true);

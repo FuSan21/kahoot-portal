@@ -12,38 +12,45 @@
     "@jitsi/react-sdk": "^1.4.0",
     "@mdx-js/loader": "^3.1.0",
     "@mdx-js/react": "^3.1.0",
-    "@next/mdx": "15.0.3",
+    "@next/mdx": "15.1.2",
     "@supabase/ssr": "^0.5.2",
-    "@supabase/supabase-js": "^2.46.1",
+    "@supabase/supabase-js": "^2.47.10",
     "@types/mdx": "^2.0.13",
     "google-one-tap": "^1.0.6",
     "jsonwebtoken": "^9.0.2",
-    "next": "15.0.3",
+    "next": "^15.1.2",
     "next-qrcode": "^2.5.1",
-    "react": "19.0.0-rc-02c0e824-20241028",
+    "react": "^19.0.0",
     "react-confetti": "^6.1.0",
     "react-countdown-circle-timer": "^3.2.1",
-    "react-dom": "19.0.0-rc-02c0e824-20241028",
+    "react-dom": "^19.0.0",
     "react-resizable-panels": "^2.1.7",
-    "react-use": "^17.5.1",
-    "sonner": "^1.7.0"
+    "react-use": "^17.6.0",
+    "sonner": "^1.7.1"
   },
   "devDependencies": {
     "@types/google-one-tap": "^1.2.6",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^22",
-    "@types/react": "npm:types-react@19.0.0-rc.1",
-    "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "autoprefixer": "^10.4.20",
     "eslint": "^9",
-    "eslint-config-next": "15.0.3",
+    "eslint-config-next": "^15.1.2",
     "postcss": "^8.4.49",
-    "supabase": "^1.223.10",
-    "tailwindcss": "^3.4.15",
+    "supabase": "^2.1.1",
+    "tailwindcss": "^3.4.17",
     "typescript": "^5"
   },
   "overrides": {
-    "@types/react": "npm:types-react@19.0.0-rc.1",
-    "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1"
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@jitsi/react-sdk": {
+      "react": "^19.0.0",
+      "react-dom": "^19.0.0"
+    },
+    "react-confetti": {
+      "react": "^19.0.0"
+    }
   }
 }

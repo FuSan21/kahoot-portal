@@ -22,7 +22,7 @@ export default function Home() {
       const { data, error } = await supabase
         .from("quiz_sets")
         .select(`*, questions(*, choices(*))`)
-        .or(`created_by.eq.${user?.id},created_by.is.null`)
+        .or(`is_public.eq.true,created_by.eq.${user?.id}`)
         .order("created_at", { ascending: false });
       if (error) {
         toast.error("Failed to fetch quiz sets");

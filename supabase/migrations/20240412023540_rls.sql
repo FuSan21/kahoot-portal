@@ -1,14 +1,20 @@
 create or replace function add_question (
     quiz_set_id uuid,
     body text,
-    "image" text,
     "order" int,
-    choices json [] -- i.e. [{"body": "Postgres", "is_correct": true},{"body": "MySQL", "is_correct": false}]
-  ) returns void language plpgsql
+    choices json [],
+    "image" text default null
+  ) returns void language plpgsql security definer
 set search_path = '' as $$
 declare question_id uuid;
 choice json;
-begin
+creator_id uuid;
+begin -- First verify the caller owns this quiz_set
+select created_by into creator_id
+from public.quiz_sets
+where id = quiz_set_id;
+if creator_id != auth.uid() then raise exception 'Not authorized to add questions to this quiz set';
+end if;
 insert into public.questions(body, "image", "order", quiz_set_id)
 values (
     add_question.body,
@@ -26,7 +32,7 @@ values (
   );
 end loop;
 end;
-$$ security invoker;
+$$;
 alter table public.quiz_sets enable row level security;
 create policy "Quiz sets are viewable by everyone" on public.quiz_sets for
 select using (true);
@@ -63,3 +69,27 @@ add column choice_id uuid references public.choices(id) on delete
 set null on update cascade;
 alter publication supabase_realtime
 add table public.answers;
+create policy "Users can create their own quiz sets" on public.quiz_sets for
+insert with check (created_by = auth.uid());
+create policy "Users can update their own quiz sets" on public.quiz_sets for
+update using (created_by = auth.uid());
+create policy "Users can delete their own quiz sets" on public.quiz_sets for delete using (created_by = auth.uid());
+create policy "Users can insert questions" on public.questions for
+insert with check (
+    exists (
+      select 1
+      from public.quiz_sets
+      where id = quiz_set_id
+        and created_by = auth.uid()
+    )
+  );
+create policy "Users can insert choices" on public.choices for
+insert with check (
+    exists (
+      select 1
+      from public.questions q
+        join public.quiz_sets qs on q.quiz_set_id = qs.id
+      where q.id = question_id
+        and qs.created_by = auth.uid()
+    )
+  );

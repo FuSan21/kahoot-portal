@@ -44,6 +44,11 @@ Access /host to join as a host.
 
 [read more on generating types](https://supabase.com/docs/guides/api/rest/generating-types)
 
+## Seed dataabse
+
+`supabase db reset --local`
+`supabase seed buckets --local`
+
 ## Contributing
 
 We welcome contributions from the community! If you'd like to contribute, please follow these guidelines:

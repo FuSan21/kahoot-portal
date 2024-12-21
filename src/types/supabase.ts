@@ -243,26 +243,29 @@ export type Database = {
       quiz_sets: {
         Row: {
           created_at: string
-          created_by: string | null
+          created_by: string
           description: string | null
           id: string
           image: string | null
+          is_public: boolean
           name: string
         }
         Insert: {
           created_at?: string
-          created_by?: string | null
+          created_by: string
           description?: string | null
           id?: string
           image?: string | null
+          is_public?: boolean
           name: string
         }
         Update: {
           created_at?: string
-          created_by?: string | null
+          created_by?: string
           description?: string | null
           id?: string
           image?: string | null
+          is_public?: boolean
           name?: string
         }
         Relationships: [
@@ -293,9 +296,9 @@ export type Database = {
         Args: {
           quiz_set_id: string
           body: string
-          image: string
           order: number
           choices: Json[]
+          image?: string
         }
         Returns: undefined
       }
