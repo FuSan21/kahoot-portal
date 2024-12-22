@@ -15,7 +15,7 @@ const INITIAL_QUESTION: QuizQuestion = {
   body: "",
   image: null,
   choices: [
-    { ...INITIAL_CHOICE, is_correct: true },
+    { ...INITIAL_CHOICE },
     { ...INITIAL_CHOICE },
     { ...INITIAL_CHOICE },
     { ...INITIAL_CHOICE },
@@ -70,7 +70,7 @@ export default function QuizForm() {
     ].choices.map((choice, idx) => ({
       ...choice,
       body: idx === choiceIndex ? body : choice.body,
-      is_correct: idx === choiceIndex,
+      is_correct: choice.is_correct,
     }));
     setFormData({ ...formData, questions: newQuestions });
   };
@@ -161,7 +161,13 @@ export default function QuizForm() {
                       type="radio"
                       name={`correct-${qIndex}`}
                       checked={choice.is_correct}
-                      onChange={() => updateChoice(qIndex, cIndex, choice.body)}
+                      onChange={() => {
+                        const newQuestions = [...formData.questions];
+                        newQuestions[qIndex].choices.forEach((c, idx) => {
+                          c.is_correct = idx === cIndex;
+                        });
+                        setFormData({ ...formData, questions: newQuestions });
+                      }}
                       required
                     />
                     <span>Correct</span>
