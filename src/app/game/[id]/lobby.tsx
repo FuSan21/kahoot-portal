@@ -40,19 +40,20 @@ export default function Lobby({
           { game_id: gameId, user_id: userId, nickname },
           {
             onConflict: "game_id,user_id",
-            ignoreDuplicates: true,
           }
         )
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) {
         toast.error(error.message);
         return;
       }
 
-      setParticipant(participantData);
-      onRegisterCompleted(participantData);
+      if (participantData) {
+        setParticipant(participantData);
+        onRegisterCompleted(participantData);
+      }
     };
 
     const channel = supabase
