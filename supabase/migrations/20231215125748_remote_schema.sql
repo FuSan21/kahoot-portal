@@ -46,7 +46,7 @@ create table if not exists public.answers (
     created_at timestamp with time zone default now() not null,
     participant_id uuid default auth.uid() not null references public.participants(id) on delete cascade on update cascade,
     question_id uuid not null references public.questions(id) on delete cascade on update cascade,
-    score smallint not null,
+    score smallint default 0 not null,
     unique (participant_id, question_id)
 );
 alter publication supabase_realtime

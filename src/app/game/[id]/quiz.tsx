@@ -106,21 +106,11 @@ export default function Quiz({
       return;
     }
 
-    const answerTime = Date.now() - questionStartTime;
-    let score = 0;
-
-    if (choice.is_correct) {
-      if (answerTime <= 3000) score = 3;
-      else if (answerTime <= 6000) score = 2;
-      else score = 1;
-    }
-
     const { error } = await supabase.from("answers").upsert(
       {
         participant_id: playerId,
         question_id: question.id,
         choice_id: choice.id,
-        score: score,
       },
       { onConflict: "participant_id,question_id" }
     );

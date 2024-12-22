@@ -24,7 +24,7 @@ export type Database = {
           id?: string
           participant_id?: string
           question_id: string
-          score: number
+          score?: number
         }
         Update: {
           choice_id?: string | null
