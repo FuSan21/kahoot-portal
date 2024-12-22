@@ -35,8 +35,17 @@ export default function Home(props: { params: Promise<{ id: string }> }) {
   const [preloadProgress, setPreloadProgress] = useState(0);
   const panelRef = useRef<ImperativePanelHandle>(null);
   const [isButtonTransition, setIsButtonTransition] = useState(false);
-  const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
-  const [isMeetingClosed, setIsMeetingClosed] = useState(false);
+  const [isPanelCollapsed, setIsPanelCollapsed] = useState(true);
+  const [isMeetingClosed, setIsMeetingClosed] = useState(true);
+
+  useEffect(() => {
+    const panel = panelRef.current;
+    if (panel) {
+      const isCollapsed = panel.getSize() === 0;
+      setIsPanelCollapsed(isCollapsed);
+      setIsMeetingClosed(isCollapsed);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -237,7 +246,7 @@ export default function Home(props: { params: Promise<{ id: string }> }) {
       <Panel
         ref={panelRef}
         minSize={20}
-        defaultSize={25}
+        defaultSize={0}
         collapsible={true}
         collapsedSize={0}
         className={`bg-gray-800 ${
