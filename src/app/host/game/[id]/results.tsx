@@ -40,7 +40,8 @@ export default function Results({
         .select(
           `
           *,
-          profiles:participants(profiles(avatar_url))
+          participants(user_id),
+          profiles:participants(user:profiles(avatar_url))
         `
         )
         .eq("game_id", gameId)
@@ -52,7 +53,11 @@ export default function Results({
 
       const formattedResults = data?.map((result) => ({
         ...result,
-        profiles: result.profiles?.[0] || null,
+        profiles: {
+          profiles: {
+            avatar_url: result.profiles?.[0]?.user?.avatar_url || null,
+          },
+        },
       }));
 
       setGameResults(formattedResults as DetailedGameResult[]);
