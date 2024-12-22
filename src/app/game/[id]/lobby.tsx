@@ -15,6 +15,8 @@ export default function Lobby({
 
   useEffect(() => {
     const registerParticipant = async () => {
+      if (participant) return;
+
       const { data: sessionData, error: sessionError } =
         await supabase.auth.getSession();
 
@@ -36,7 +38,10 @@ export default function Lobby({
         .from("participants")
         .upsert(
           { game_id: gameId, user_id: userId, nickname },
-          { onConflict: "game_id,user_id", ignoreDuplicates: false }
+          {
+            onConflict: "game_id,user_id",
+            ignoreDuplicates: true,
+          }
         )
         .select()
         .single();
@@ -50,8 +55,34 @@ export default function Lobby({
       onRegisterCompleted(participantData);
     };
 
+    const channel = supabase
+      .channel(`game_${gameId}_participant`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "participants",
+          filter: `game_id=eq.${gameId}`,
+        },
+        async (payload) => {
+          if (
+            payload.eventType === "DELETE" &&
+            payload.old.id === participant?.id
+          ) {
+            setParticipant(null);
+            await registerParticipant();
+          }
+        }
+      )
+      .subscribe();
+
     registerParticipant();
-  }, [gameId, onRegisterCompleted]);
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [gameId, onRegisterCompleted, participant]);
 
   return (
     <div className="bg-green-500 flex-grow flex flex-col items-center justify-center">
