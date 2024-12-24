@@ -70,9 +70,9 @@ export default function Results({ participant, gameId }: ResultsProps) {
   }, [gameId, participant.id]);
 
   return (
-    <div className="flex flex-col flex-grow items-center bg-green-500 p-4">
+    <div className="flex flex-col flex-grow  w-full items-center bg-green-500 p-4">
       {/* Personal Score Card */}
-      <div className="p-8 bg-black text-white rounded-lg mb-8 w-full max-w-2xl">
+      <div className="p-8 bg-black text-white rounded-lg mb-8 w-full max-w-2xl text-center">
         <h2 className="text-2xl pb-4">Hey {participant.nickname}！</h2>
         {personalResult ? (
           <>
