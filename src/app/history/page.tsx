@@ -17,6 +17,18 @@ export default function HistoryPage() {
   const supabase = createClient();
   const [user, setUser] = useState<any>(null);
 
+  const isCurrentMonth = (date: Date) => {
+    const now = new Date();
+    return (
+      date.getMonth() === now.getMonth() &&
+      date.getFullYear() === now.getFullYear()
+    );
+  };
+
+  const goToCurrentMonth = () => {
+    setCurrentDate(new Date());
+  };
+
   const goToPreviousMonth = () => {
     setCurrentDate((prev) => {
       const newDate = new Date(prev);
@@ -195,13 +207,23 @@ export default function HistoryPage() {
             >
               ←
             </button>
-            <h2 className="text-2xl font-bold text-white">
-              {currentDate.toLocaleString("default", {
-                month: "long",
-                year: "numeric",
-              })}{" "}
-              Leaderboard
-            </h2>
+            <div className="flex flex-col items-center">
+              <h2 className="text-2xl font-bold text-white">
+                {currentDate.toLocaleString("default", {
+                  month: "long",
+                  year: "numeric",
+                })}{" "}
+                Leaderboard
+              </h2>
+              {!isCurrentMonth(currentDate) && (
+                <button
+                  onClick={goToCurrentMonth}
+                  className="mt-2 text-white/80 hover:text-white text-sm bg-white/10 hover:bg-white/20 px-3 py-1 rounded-full transition duration-300"
+                >
+                  Back to Current Month
+                </button>
+              )}
+            </div>
             <button
               onClick={goToNextMonth}
               className="bg-white/20 hover:bg-white/30 text-white font-bold py-2 px-4 rounded-full transition duration-300"
