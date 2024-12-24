@@ -48,9 +48,17 @@ export default function Home(props: { params: Promise<{ id: string }> }) {
     if (panel) {
       const isCollapsed = panel.getSize() === 0;
       setIsPanelCollapsed(isCollapsed);
-      setIsMeetingClosed(isCollapsed);
+      // Only update meeting state if it's the initial load
+      if (isMeetingClosed === true && !isCollapsed) {
+        setIsMeetingClosed(false);
+        // Refresh JWT to ensure Jitsi loads properly
+        setJwt("");
+        setTimeout(() => {
+          fetchJWT();
+        }, 0);
+      }
     }
-  }, []);
+  }, [panelRef.current]); // Re-run when panel ref is available
 
   const fetchQuizSetData = useCallback(async () => {
     try {
@@ -364,7 +372,7 @@ export default function Home(props: { params: Promise<{ id: string }> }) {
         }}
       >
         <div className={`h-full ${isPanelCollapsed ? "invisible" : "visible"}`}>
-          {jwt ? (
+          {jwt && !isMeetingClosed ? (
             <JitsiMeetSidebar
               jwt={jwt}
               roomName={quizSet?.id || "Kahoot Portal"}

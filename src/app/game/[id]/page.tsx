@@ -43,9 +43,15 @@ export default function Home(props: { params: Promise<{ id: string }> }) {
     if (panel) {
       const isCollapsed = panel.getSize() === 0;
       setIsPanelCollapsed(isCollapsed);
-      setIsMeetingClosed(isCollapsed);
+      if (isMeetingClosed === true && !isCollapsed) {
+        setIsMeetingClosed(false);
+        setJwt("");
+        setTimeout(() => {
+          fetchJWT();
+        }, 0);
+      }
     }
-  }, []);
+  }, [panelRef.current]);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -262,7 +268,7 @@ export default function Home(props: { params: Promise<{ id: string }> }) {
         }}
       >
         <div className={`h-full ${isPanelCollapsed ? "invisible" : "visible"}`}>
-          {jwt ? (
+          {jwt && !isMeetingClosed ? (
             <JitsiMeetSidebar
               jwt={jwt}
               roomName={quizSet?.id || "Kahoot Portal"}
