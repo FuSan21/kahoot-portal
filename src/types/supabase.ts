@@ -57,6 +57,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "answers_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "quiz_history"
+            referencedColumns: ["participant_id"]
+          },
+          {
             foreignKeyName: "answers_question_id_fkey"
             columns: ["question_id"]
             isOneToOne: false
@@ -300,6 +307,7 @@ export type Database = {
       quiz_history: {
         Row: {
           game_id: string | null
+          participant_id: string | null
           played_at: string | null
           quiz_name: string | null
           total_score: number | null

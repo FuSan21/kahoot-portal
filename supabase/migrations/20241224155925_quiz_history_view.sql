@@ -4,6 +4,7 @@ select g.id as game_id,
     g.created_at as played_at,
     qs.name as quiz_name,
     p.user_id,
+    p.id as participant_id,
     (
         select coalesce(sum(score), 0)
         from answers a

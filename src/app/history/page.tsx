@@ -5,6 +5,7 @@ import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
 import { QuizResult, UserScore } from "@/types/quiz";
 import MonthlyLeaderboard from "@/app/components/MonthlyLeaderboard";
+import { useRouter } from "next/navigation";
 
 export default function HistoryPage() {
   const [results, setResults] = useState<QuizResult[]>([]);
@@ -16,6 +17,7 @@ export default function HistoryPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const supabase = createClient();
   const [user, setUser] = useState<any>(null);
+  const router = useRouter();
 
   const goToCurrentMonth = () => {
     setCurrentDate(new Date());
@@ -162,6 +164,10 @@ export default function HistoryPage() {
     }
   }
 
+  const handleQuizClick = (gameId: string) => {
+    router.push(`/game/${gameId}`);
+  };
+
   if (!user) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] bg-gradient-to-br from-sky-400 via-blue-500 to-indigo-600 text-white p-8 rounded-lg">
@@ -216,7 +222,8 @@ export default function HistoryPage() {
               {results.map((result) => (
                 <div
                   key={result.game_id}
-                  className="bg-gray-50 p-4 rounded-xl flex justify-between items-center hover:bg-gray-100 transition duration-300"
+                  onClick={() => handleQuizClick(result.game_id)}
+                  className="bg-gray-50 p-4 rounded-xl flex justify-between items-center hover:bg-gray-100 transition duration-300 cursor-pointer"
                 >
                   <div className="flex-grow">
                     <h3 className="text-lg font-medium text-gray-900">

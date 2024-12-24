@@ -3,6 +3,7 @@ export interface QuizResult {
   quiz_name: string;
   total_score: number;
   played_at: string;
+  participant_id?: string;
 }
 
 export interface UserScore {
