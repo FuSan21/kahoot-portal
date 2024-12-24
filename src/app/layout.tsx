@@ -9,7 +9,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Kahoots Portal",
-  description: "Kahoot Quiz Platform powered by Next.js 14 and Supabase",
+  description: "Kahoot Quiz Platform powered by Next.js 15 and Supabase",
 };
 
 export default async function RootLayout({
