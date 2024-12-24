@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { logout } from "@/app/auth/logout/actions";
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
+import Link from "next/link";
 
 export default function UserCard() {
   const [isOpen, setIsOpen] = useState(false);
@@ -54,6 +55,13 @@ export default function UserCard() {
                 <p className="font-semibold">{user.user_metadata.name}</p>
                 <p className="text-gray-500">{user.email}</p>
               </div>
+              <Link
+                href="/history"
+                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                onClick={() => setIsOpen(false)}
+              >
+                Quiz History
+              </Link>
               <form action={logout}>
                 <button
                   type="submit"
