@@ -1,3 +1,19 @@
+export interface QuizResult {
+  game_id: string;
+  quiz_name: string;
+  total_score: number;
+  played_at: string;
+}
+
+export interface UserScore {
+  user_id: string;
+  user_email: string;
+  full_name: string;
+  avatar_url: string;
+  total_score: number;
+  rank: number;
+}
+
 export interface QuizFormData {
   name: string;
   description: string;

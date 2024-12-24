@@ -176,6 +176,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "participants_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "quiz_history"
+            referencedColumns: ["game_id"]
+          },
+          {
             foreignKeyName: "participants_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -289,6 +296,24 @@ export type Database = {
           total_score: number | null
         }
         Relationships: []
+      }
+      quiz_history: {
+        Row: {
+          game_id: string | null
+          played_at: string | null
+          quiz_name: string | null
+          total_score: number | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "participants_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Functions: {
