@@ -3,19 +3,26 @@ CREATE OR REPLACE FUNCTION calculate_answer_score() RETURNS TRIGGER AS $$
 DECLARE is_correct_answer BOOLEAN;
 correct_choice_id UUID;
 answer_position INTEGER;
-BEGIN -- Get the correct choice for this question
+current_game_id UUID;
+BEGIN -- Get the game_id for this answer through the participant
+SELECT game_id INTO current_game_id
+FROM participants
+WHERE id = NEW.participant_id;
+-- Get the correct choice for this question
 SELECT id INTO correct_choice_id
 FROM choices
 WHERE question_id = NEW.question_id
     AND is_correct = true;
 -- Check if the answer is correct
 is_correct_answer := NEW.choice_id = correct_choice_id;
-IF is_correct_answer THEN -- Get the position of this answer among correct answers for this question
+IF is_correct_answer THEN -- Get the position of this answer among correct answers for this question IN THIS GAME
 SELECT COUNT(*) + 1 INTO answer_position
-FROM answers
-WHERE question_id = NEW.question_id
-    AND choice_id = correct_choice_id
-    AND created_at < NEW.created_at;
+FROM answers a
+    JOIN participants p ON p.id = a.participant_id
+WHERE a.question_id = NEW.question_id
+    AND a.choice_id = correct_choice_id
+    AND p.game_id = current_game_id
+    AND a.created_at < NEW.created_at;
 -- Assign score based on position (3 for 1st, 2 for 2nd, 1 for 3rd and later)
 NEW.score := CASE
     WHEN answer_position = 1 THEN 3
