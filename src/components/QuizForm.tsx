@@ -27,6 +27,7 @@ const INITIAL_FORM_DATA: QuizFormData = {
   description: "",
   coverImage: null,
   questions: [INITIAL_QUESTION],
+  is_public: true,
 };
 
 export default function QuizForm() {
@@ -99,6 +100,21 @@ export default function QuizForm() {
         />
       </div>
 
+      <div className="flex items-center space-x-2 mb-4">
+        <input
+          type="checkbox"
+          id="is_public"
+          checked={formData.is_public}
+          onChange={(e) =>
+            setFormData({ ...formData, is_public: e.target.checked })
+          }
+          className="h-4 w-4 text-blue-600"
+        />
+        <label htmlFor="is_public" className="text-sm text-gray-700">
+          Make this quiz public (visible to all users)
+        </label>
+      </div>
+
       <div>
         <label className="block mb-2">Cover Image</label>
         <input
@@ -158,7 +174,7 @@ export default function QuizForm() {
                   />
                   <label className="flex items-center space-x-2">
                     <input
-                      type="radio"
+                      type="checkbox"
                       name={`correct-${qIndex}`}
                       checked={choice.is_correct}
                       onChange={() => {
@@ -168,9 +184,10 @@ export default function QuizForm() {
                         });
                         setFormData({ ...formData, questions: newQuestions });
                       }}
+                      className="h-4 w-4 text-blue-600"
                       required
                     />
-                    <span>Correct</span>
+                    <span className="text-sm text-gray-700">Correct</span>
                   </label>
                 </div>
               ))}

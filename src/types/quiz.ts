@@ -3,6 +3,7 @@ export interface QuizFormData {
   description: string;
   coverImage: File | null;
   questions: QuizQuestion[];
+  is_public: boolean;
 }
 
 export interface QuizQuestion {

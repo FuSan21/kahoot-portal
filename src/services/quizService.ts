@@ -23,6 +23,7 @@ export async function createQuiz(formData: QuizFormData) {
       description: formData.description,
       created_by: user.id,
       image: formData.coverImage.name,
+      is_public: formData.is_public,
     })
     .select()
     .single();
