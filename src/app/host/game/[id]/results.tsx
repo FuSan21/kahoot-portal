@@ -11,6 +11,7 @@ import Confetti from "react-confetti";
 import useWindowSize from "react-use/lib/useWindowSize";
 import { toast } from "sonner";
 import MonthlyLeaderboard from "@/app/components/MonthlyLeaderboard";
+import GameLeaderboard from "@/app/components/GameLeaderboard";
 import { UserScore } from "@/types/quiz";
 
 interface DetailedGameResult extends GameResult {
@@ -143,81 +144,38 @@ export default function Results({
   }
 
   return (
-    <div className="flex flex-col flex-grow w-full items-center bg-green-500 p-4">
-      {/* Quiz Name Card */}
-      <div className="bg-gradient-to-br from-cyan-400 via-sky-500 to-blue-600 rounded-2xl shadow-xl overflow-hidden mb-8 w-full max-w-2xl">
-        <div className="backdrop-blur-sm bg-white/10 p-8 text-center">
-          <p className="text-xl font-bold mb-2 text-white">{quizSet.name}</p>
-        </div>
-      </div>
-
-      {/* Game Results */}
-      <div className="bg-gradient-to-br from-blue-400 via-sky-500 to-cyan-600 rounded-2xl shadow-xl overflow-hidden mb-8 w-full max-w-2xl">
-        <div className="backdrop-blur-sm bg-white/10 p-6">
-          <h3 className="text-xl text-white mb-4 text-center">
-            Game Leaderboard
-          </h3>
-          <div className="space-y-2">
-            {gameResults.map((gameResult, index) => (
-              <div
-                key={gameResult.participant_id}
-                className={`bg-white/10 backdrop-blur-sm p-4 rounded-xl flex justify-between items-center hover:bg-white/20 transition duration-300 ${
-                  index < 3 ? "shadow-xl font-bold" : ""
-                }`}
-              >
-                <div
-                  className={`pr-4 text-white ${
-                    index < 3 ? "text-3xl" : "text-l"
-                  }`}
-                >
-                  {index + 1}
-                </div>
-                <div className="flex items-center flex-grow">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={
-                      gameResult.profiles?.profiles?.avatar_url ||
-                      "/default-avatar.png"
-                    }
-                    alt={`${gameResult.nickname}'s avatar`}
-                    className="w-10 h-10 rounded-full mr-3"
-                  />
-                  <div
-                    className={`font-bold text-white ${
-                      index < 3 ? "text-xl sm:text-2xl" : "text-lg"
-                    }`}
-                  >
-                    {gameResult.nickname}
-                  </div>
-                </div>
-                <div className="pl-2 text-right">
-                  <div className="text-xl font-bold text-white">
-                    {gameResult.total_score}
-                  </div>
-                  <div className="text-sm text-white/80">
-                    ({gameResult.scores.join("+")})
-                  </div>
-                </div>
-              </div>
-            ))}
+    <div className="relative">
+      <Confetti
+        width={width}
+        height={height}
+        recycle={true}
+        style={{ position: "fixed", top: 0, left: 0, zIndex: 0 }}
+      />
+      <div className="flex flex-col flex-grow w-full items-center bg-green-500 p-4 relative z-10">
+        {/* Quiz Name Card */}
+        <div className="bg-gradient-to-br from-cyan-400 via-sky-500 to-blue-600 rounded-2xl shadow-xl overflow-hidden mb-8 w-full max-w-2xl">
+          <div className="backdrop-blur-sm bg-white/10 p-8 text-center">
+            <p className="text-xl font-bold mb-2 text-white">{quizSet.name}</p>
           </div>
         </div>
-      </div>
 
-      {/* Monthly Leaderboard */}
-      <div className="w-full max-w-2xl">
-        <MonthlyLeaderboard
-          monthlyLeaderboard={monthlyLeaderboard}
-          currentUserScore={null}
-          currentUserId=""
-          allowMonthNavigation={false}
-          currentDate={currentDate}
-          onPreviousMonth={() => {}}
-          onNextMonth={() => {}}
-          onCurrentMonth={() => {}}
-        />
+        {/* Game Results */}
+        <GameLeaderboard results={gameResults} />
+
+        {/* Monthly Leaderboard */}
+        <div className="w-full max-w-2xl">
+          <MonthlyLeaderboard
+            monthlyLeaderboard={monthlyLeaderboard}
+            currentUserScore={null}
+            currentUserId=""
+            allowMonthNavigation={false}
+            currentDate={currentDate}
+            onPreviousMonth={() => {}}
+            onNextMonth={() => {}}
+            onCurrentMonth={() => {}}
+          />
+        </div>
       </div>
-      <Confetti width={width} height={height} recycle={true} />
     </div>
   );
 }

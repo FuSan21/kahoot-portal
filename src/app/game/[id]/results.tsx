@@ -2,7 +2,10 @@ import React, { useEffect, useState } from "react";
 import { Participant, supabase } from "@/types/types";
 import { toast } from "sonner";
 import MonthlyLeaderboard from "@/app/components/MonthlyLeaderboard";
+import GameLeaderboard from "@/app/components/GameLeaderboard";
 import { UserScore } from "@/types/quiz";
+import Confetti from "react-confetti";
+import useWindowSize from "react-use/lib/useWindowSize";
 
 interface ResultsProps {
   participant: Participant;
@@ -30,6 +33,7 @@ export default function Results({ participant, gameId }: ResultsProps) {
     null
   );
   const [currentDate] = useState(new Date()); // We only show current month in results
+  const { width, height } = useWindowSize();
 
   useEffect(() => {
     const getResults = async () => {
@@ -169,100 +173,58 @@ export default function Results({ participant, gameId }: ResultsProps) {
   }, [participant.user_id, currentDate]);
 
   return (
-    <div className="flex flex-col flex-grow w-full items-center bg-green-500 p-4">
-      {/* Personal Score Card */}
-      <div className="bg-gradient-to-br from-cyan-400 via-sky-500 to-blue-600 rounded-2xl shadow-xl overflow-hidden mb-8 w-full max-w-2xl">
-        <div className="backdrop-blur-sm bg-white/10 p-8 text-center">
-          <h2 className="text-2xl pb-4 text-white">
-            Hey {participant.nickname}！
-          </h2>
-          {personalResult ? (
-            <>
-              <p className="text-xl font-bold mb-2 text-white">
-                Your final score: {personalResult.total_score} points
-              </p>
-              <p className="text-sm text-white/80">
-                ({personalResult.scores.join("+")})
-              </p>
-            </>
-          ) : (
-            <p className="text-white">Loading your score...</p>
-          )}
-          <p className="mt-4 text-white">Thanks for playing 🎉</p>
-        </div>
-      </div>
-
-      {/* Game Results */}
-      <div className="bg-gradient-to-br from-blue-400 via-sky-500 to-cyan-600 rounded-2xl shadow-xl overflow-hidden mb-8 w-full max-w-2xl">
-        <div className="backdrop-blur-sm bg-white/10 p-6">
-          <h3 className="text-xl text-white mb-4 text-center">
-            Game Leaderboard
-          </h3>
-          <div className="space-y-2">
-            {allResults.map((result, index) => (
-              <div
-                key={result.participant_id}
-                className={`bg-white/10 backdrop-blur-sm p-4 rounded-xl flex justify-between items-center hover:bg-white/20 transition duration-300 ${
-                  result.participant_id === participant.id
-                    ? "ring-2 ring-yellow-400"
-                    : ""
-                } ${index < 3 ? "shadow-xl font-bold" : ""}`}
-              >
-                <div
-                  className={`pr-4 text-white ${
-                    index < 3 ? "text-3xl" : "text-l"
-                  }`}
-                >
-                  {index + 1}
-                </div>
-                <div className="flex items-center flex-grow">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={
-                      result.profiles?.profiles?.avatar_url ||
-                      "/default-avatar.png"
-                    }
-                    alt={`${result.nickname}'s avatar`}
-                    className="w-10 h-10 rounded-full mr-3"
-                  />
-                  <div
-                    className={`font-bold text-white ${
-                      index < 3 ? "text-xl sm:text-2xl" : "text-lg"
-                    }`}
-                  >
-                    {result.nickname}
-                    {result.participant_id === participant.id && " (You)"}
-                  </div>
-                </div>
-                <div className="pl-2 text-right">
-                  <div className="text-xl font-bold text-white">
-                    {result.total_score}
-                  </div>
-                  <div className="text-sm text-white/80">
-                    ({result.scores.join("+")})
-                  </div>
-                </div>
-              </div>
-            ))}
+    <div className="relative">
+      <Confetti
+        width={width}
+        height={height}
+        recycle={true}
+        style={{ position: "fixed", top: 0, left: 0, zIndex: 0 }}
+      />
+      <div className="flex flex-col flex-grow w-full items-center bg-green-500 p-4 relative z-10">
+        {/* Personal Score Card */}
+        <div className="bg-gradient-to-br from-cyan-400 via-sky-500 to-blue-600 rounded-2xl shadow-xl overflow-hidden mb-8 w-full max-w-2xl">
+          <div className="backdrop-blur-sm bg-white/10 p-8 text-center">
+            <h2 className="text-2xl pb-4 text-white">
+              Hey {participant.nickname}！
+            </h2>
+            {personalResult ? (
+              <>
+                <p className="text-xl font-bold mb-2 text-white">
+                  Your final score: {personalResult.total_score} points
+                </p>
+                <p className="text-sm text-white/80">
+                  ({personalResult.scores.join("+")})
+                </p>
+              </>
+            ) : (
+              <p className="text-white">Loading your score...</p>
+            )}
+            <p className="mt-4 text-white">Thanks for playing 🎉</p>
           </div>
         </div>
-      </div>
 
-      {/* Monthly Leaderboard */}
-      {participant.user_id && (
-        <div className="w-full max-w-2xl">
-          <MonthlyLeaderboard
-            monthlyLeaderboard={monthlyLeaderboard}
-            currentUserScore={currentUserScore}
-            currentUserId={participant.user_id}
-            allowMonthNavigation={false}
-            currentDate={currentDate}
-            onPreviousMonth={() => {}}
-            onNextMonth={() => {}}
-            onCurrentMonth={() => {}}
-          />
-        </div>
-      )}
+        {/* Game Results */}
+        <GameLeaderboard
+          results={allResults}
+          currentParticipantId={participant.id}
+        />
+
+        {/* Monthly Leaderboard */}
+        {participant.user_id && (
+          <div className="w-full max-w-2xl">
+            <MonthlyLeaderboard
+              monthlyLeaderboard={monthlyLeaderboard}
+              currentUserScore={currentUserScore}
+              currentUserId={participant.user_id}
+              allowMonthNavigation={false}
+              currentDate={currentDate}
+              onPreviousMonth={() => {}}
+              onNextMonth={() => {}}
+              onCurrentMonth={() => {}}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
