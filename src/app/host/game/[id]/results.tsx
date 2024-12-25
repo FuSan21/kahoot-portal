@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import MonthlyLeaderboard from "@/app/components/MonthlyLeaderboard";
 import GameLeaderboard from "@/app/components/GameLeaderboard";
 import { UserScore } from "@/types/quiz";
+import SocialBonusReview from "@/app/components/SocialBonusReview";
 
 interface DetailedGameResult extends GameResult {
   scores: number[];
@@ -23,13 +24,18 @@ interface DetailedGameResult extends GameResult {
   } | null;
 }
 
+interface QuizSetWithSocial extends QuizSet {
+  social_share_link: string | null;
+  social_bonus_points: number | null;
+}
+
 export default function Results({
   quizSet,
   gameId,
   isAuthorized,
 }: {
   participants: Participant[];
-  quizSet: QuizSet;
+  quizSet: QuizSetWithSocial;
   gameId: string;
   isAuthorized: boolean;
 }) {
@@ -161,6 +167,12 @@ export default function Results({
 
         {/* Game Results */}
         <GameLeaderboard results={gameResults} />
+
+        {(quizSet?.social_bonus_points ?? 0) > 0 && (
+          <div className="w-full max-w-2xl mb-8">
+            <SocialBonusReview gameId={gameId} quizId={quizSet.id} />
+          </div>
+        )}
 
         {/* Monthly Leaderboard */}
         <div className="w-full max-w-2xl">

@@ -28,6 +28,7 @@ const INITIAL_FORM_DATA: QuizFormData = {
   coverImage: null,
   questions: [INITIAL_QUESTION],
   is_public: true,
+  social_bonus_points: 0,
 };
 
 export default function QuizForm() {
@@ -98,6 +99,30 @@ export default function QuizForm() {
           }
           className="w-full p-2 border rounded"
         />
+      </div>
+
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Social Media Bonus</h3>
+        <div>
+          <label className="block mb-2">Bonus Points</label>
+          <input
+            type="number"
+            min="0"
+            value={formData.social_bonus_points || 0}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                social_bonus_points: parseInt(e.target.value) || 0,
+              })
+            }
+            placeholder="Enter bonus points for sharing"
+            className="w-full p-2 border rounded"
+          />
+          <p className="text-sm text-gray-500 mt-1">
+            Points awarded when participants share on social media and get
+            approved
+          </p>
+        </div>
       </div>
 
       <div className="flex items-center space-x-2 mb-4">

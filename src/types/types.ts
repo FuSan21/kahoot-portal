@@ -36,6 +36,8 @@ export type Question = Database["public"]["Tables"]["questions"]["Row"] & {
 
 export type QuizSet = Database["public"]["Tables"]["quiz_sets"]["Row"] & {
   questions: Question[];
+  social_share_link?: string | null;
+  social_bonus_points?: number | null;
 };
 
 export type Answer = Database["public"]["Tables"]["answers"]["Row"];

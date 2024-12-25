@@ -24,6 +24,7 @@ export async function createQuiz(formData: QuizFormData) {
       created_by: user.id,
       image: formData.coverImage.name,
       is_public: formData.is_public,
+      social_bonus_points: formData.social_bonus_points || 0,
     })
     .select()
     .single();

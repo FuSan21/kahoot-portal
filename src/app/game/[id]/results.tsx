@@ -6,6 +6,7 @@ import GameLeaderboard from "@/app/components/GameLeaderboard";
 import { UserScore } from "@/types/quiz";
 import Confetti from "react-confetti";
 import useWindowSize from "react-use/lib/useWindowSize";
+import SocialBonusSubmission from "@/app/components/SocialBonusSubmission";
 
 interface ResultsProps {
   participant: Participant;
@@ -24,6 +25,20 @@ interface DetailedGameResult {
   } | null;
 }
 
+interface QuizDetails {
+  social_share_link: string | null;
+  social_bonus_points: number | null;
+}
+
+interface GameData {
+  quiz_set_id: string;
+}
+
+interface QuizData {
+  social_share_link: string | null;
+  social_bonus_points: number | null;
+}
+
 export default function Results({ participant, gameId }: ResultsProps) {
   const [personalResult, setPersonalResult] =
     useState<DetailedGameResult | null>(null);
@@ -32,8 +47,45 @@ export default function Results({ participant, gameId }: ResultsProps) {
   const [currentUserScore, setCurrentUserScore] = useState<UserScore | null>(
     null
   );
-  const [currentDate] = useState(new Date()); // We only show current month in results
+  const [currentDate] = useState(new Date());
   const { width, height } = useWindowSize();
+  const [quizDetails, setQuizDetails] = useState<QuizDetails | null>(null);
+
+  useEffect(() => {
+    const getQuizDetails = async () => {
+      const { data: gameData, error: gameError } = await supabase
+        .from("games")
+        .select("quiz_set_id")
+        .eq("id", gameId)
+        .single();
+
+      if (gameError || !gameData) {
+        console.error("Error fetching game:", gameError);
+        return;
+      }
+
+      const gameInfo = gameData as GameData;
+
+      const { data: quizData, error: quizError } = await supabase
+        .from("quiz_sets")
+        .select("social_share_link, social_bonus_points")
+        .eq("id", gameInfo.quiz_set_id)
+        .single();
+
+      if (quizError || !quizData) {
+        console.error("Error fetching quiz details:", quizError);
+        return;
+      }
+
+      const quiz = quizData as unknown as QuizData;
+      setQuizDetails({
+        social_share_link: quiz.social_share_link,
+        social_bonus_points: quiz.social_bonus_points,
+      });
+    };
+
+    getQuizDetails();
+  }, [gameId]);
 
   useEffect(() => {
     const getResults = async () => {
@@ -139,38 +191,15 @@ export default function Results({ participant, gameId }: ResultsProps) {
             rank: index + 1,
           }));
 
-        // Find current user's score
-        const currentUserScore =
-          sortedLeaderboard.find(
-            (score) => score.user_id === participant.user_id
-          ) || null;
-
-        if (currentUserScore) {
-          setCurrentUserScore(currentUserScore);
-
-          // Get top 9 users (leaving space for current user if needed)
-          const top = sortedLeaderboard.slice(0, 9);
-
-          // If current user is in top 9, show top 10
-          if (currentUserScore.rank <= 9) {
-            setMonthlyLeaderboard(sortedLeaderboard.slice(0, 10));
-          } else {
-            // If current user exists but not in top 9, show top 9 + current user
-            setMonthlyLeaderboard(top);
-          }
-        } else {
-          // If current user has no score, just show top 10
-          setMonthlyLeaderboard(sortedLeaderboard.slice(0, 10));
-        }
+        // Show top 10 for participant view
+        setMonthlyLeaderboard(sortedLeaderboard.slice(0, 10));
       } catch (error) {
         console.error("Error fetching monthly leaderboard:", error);
       }
     };
 
-    if (participant.user_id) {
-      fetchMonthlyLeaderboard();
-    }
-  }, [participant.user_id, currentDate]);
+    fetchMonthlyLeaderboard();
+  }, [currentDate]);
 
   return (
     <div className="relative">
@@ -202,6 +231,15 @@ export default function Results({ participant, gameId }: ResultsProps) {
             <p className="mt-4 text-white">Thanks for playing 🎉</p>
           </div>
         </div>
+
+        {/* Social Media Bonus */}
+        {(quizDetails?.social_bonus_points ?? 0) > 0 && quizDetails && (
+          <SocialBonusSubmission
+            gameId={gameId}
+            participantId={participant.id}
+            bonusPoints={quizDetails.social_bonus_points!}
+          />
+        )}
 
         {/* Game Results */}
         <GameLeaderboard

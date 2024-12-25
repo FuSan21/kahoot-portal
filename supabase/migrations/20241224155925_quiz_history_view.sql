@@ -9,6 +9,14 @@ select g.id as game_id,
         select coalesce(sum(score), 0)
         from answers a
         where a.participant_id = p.id
+    ) + COALESCE(
+        (
+            select qs.social_bonus_points
+            from social_bonus_submissions sbs
+            where sbs.participant_id = p.id
+                and sbs.is_approved = true
+            limit 1
+        ), 0
     ) as total_score
 from games g
     inner join participants p on p.game_id = g.id

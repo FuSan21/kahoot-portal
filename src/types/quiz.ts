@@ -21,6 +21,7 @@ export interface QuizFormData {
   coverImage: File | null;
   questions: QuizQuestion[];
   is_public: boolean;
+  social_bonus_points?: number;
 }
 
 export interface QuizQuestion {

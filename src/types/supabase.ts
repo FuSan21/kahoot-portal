@@ -263,6 +263,8 @@ export type Database = {
           image: string | null
           is_public: boolean
           name: string
+          social_bonus_points: number | null
+          social_share_link: string | null
         }
         Insert: {
           created_at?: string
@@ -272,6 +274,8 @@ export type Database = {
           image?: string | null
           is_public?: boolean
           name: string
+          social_bonus_points?: number | null
+          social_share_link?: string | null
         }
         Update: {
           created_at?: string
@@ -281,6 +285,8 @@ export type Database = {
           image?: string | null
           is_public?: boolean
           name?: string
+          social_bonus_points?: number | null
+          social_share_link?: string | null
         }
         Relationships: [
           {
@@ -289,6 +295,65 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_bonus_submissions: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          id: string
+          is_approved: boolean | null
+          participant_id: string
+          screenshot_urls: string[]
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          id?: string
+          is_approved?: boolean | null
+          participant_id: string
+          screenshot_urls?: string[]
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          id?: string
+          is_approved?: boolean | null
+          participant_id?: string
+          screenshot_urls?: string[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_bonus_submissions_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "social_bonus_submissions_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "game_results"
+            referencedColumns: ["participant_id"]
+          },
+          {
+            foreignKeyName: "social_bonus_submissions_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "participants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "social_bonus_submissions_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "quiz_history"
+            referencedColumns: ["participant_id"]
           },
         ]
       }
