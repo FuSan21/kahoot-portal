@@ -174,7 +174,7 @@ export default function QuizForm() {
                   />
                   <label className="flex items-center space-x-2">
                     <input
-                      type="checkbox"
+                      type="radio"
                       name={`correct-${qIndex}`}
                       checked={choice.is_correct}
                       onChange={() => {

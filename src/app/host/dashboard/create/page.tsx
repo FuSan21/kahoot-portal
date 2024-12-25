@@ -1,6 +1,6 @@
 "use client";
 
-import QuizForm from "@/components/QuizForm";
+import QuizForm from "@/app/components/QuizForm";
 
 export default function CreateQuizPage() {
   return (
