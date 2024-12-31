@@ -5,6 +5,15 @@ import { QuizFormData, QuizQuestion, QuizChoice } from "@/types/quiz";
 import { createQuiz } from "@/services/quizService";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FileUpload } from "@/components/ui/file-upload";
+import { cn } from "@/lib/utils";
 
 const INITIAL_CHOICE: QuizChoice = {
   body: "",
@@ -79,167 +88,173 @@ export default function QuizForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <label className="block mb-2">Quiz Name</label>
-        <input
-          type="text"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          className="w-full p-2 border rounded"
-          required
-        />
-      </div>
-
-      <div>
-        <label className="block mb-2">Description</label>
-        <textarea
-          value={formData.description}
-          onChange={(e) =>
-            setFormData({ ...formData, description: e.target.value })
-          }
-          className="w-full p-2 border rounded"
-        />
-      </div>
-
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Social Media Bonus</h3>
-        <div>
-          <label className="block mb-2">Bonus Points</label>
-          <input
-            type="number"
-            min="0"
-            value={formData.social_bonus_points || 0}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                social_bonus_points: parseInt(e.target.value) || 0,
-              })
-            }
-            placeholder="Enter bonus points for sharing"
-            className="w-full p-2 border rounded"
+        <div className="space-y-2">
+          <Label htmlFor="quiz-name">Quiz Name</Label>
+          <Input
+            id="quiz-name"
+            type="text"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            required
           />
-          <p className="text-sm text-gray-500 mt-1">
-            Points awarded when participants share on social media and get
-            approved
-          </p>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="description">Description</Label>
+          <Textarea
+            id="description"
+            value={formData.description}
+            onChange={(e) =>
+              setFormData({ ...formData, description: e.target.value })
+            }
+            className="min-h-[100px]"
+          />
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Social Media Bonus</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <Label htmlFor="bonus-points">Bonus Points</Label>
+            <Input
+              id="bonus-points"
+              type="number"
+              min="0"
+              value={formData.social_bonus_points || 0}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  social_bonus_points: parseInt(e.target.value) || 0,
+                })
+              }
+              placeholder="Enter bonus points for sharing"
+            />
+            <p className="text-sm text-muted-foreground">
+              Points awarded when participants share on social media and get
+              approved
+            </p>
+          </CardContent>
+        </Card>
+
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="is_public"
+            checked={formData.is_public}
+            onCheckedChange={(checked) =>
+              setFormData({ ...formData, is_public: checked as boolean })
+            }
+          />
+          <Label htmlFor="is_public" className="text-sm text-muted-foreground">
+            Make this quiz public (visible to all users)
+          </Label>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="cover-image">Cover Image</Label>
+          <FileUpload
+            value={formData.coverImage}
+            onChange={(file: File | null) =>
+              setFormData({ ...formData, coverImage: file })
+            }
+          />
         </div>
       </div>
 
-      <div className="flex items-center space-x-2 mb-4">
-        <input
-          type="checkbox"
-          id="is_public"
-          checked={formData.is_public}
-          onChange={(e) =>
-            setFormData({ ...formData, is_public: e.target.checked })
-          }
-          className="h-4 w-4 text-blue-600"
-        />
-        <label htmlFor="is_public" className="text-sm text-gray-700">
-          Make this quiz public (visible to all users)
-        </label>
-      </div>
-
-      <div>
-        <label className="block mb-2">Cover Image</label>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              coverImage: e.target.files?.[0] || null,
-            })
-          }
-          className="w-full p-2 border rounded"
-        />
-      </div>
-
       <div className="space-y-6">
-        <h2 className="text-xl font-bold">Questions</h2>
+        <h2 className="text-2xl font-bold">Questions</h2>
         {formData.questions.map((question, qIndex) => (
-          <div key={qIndex} className="p-4 border rounded space-y-4">
-            <div>
-              <label className="block mb-2">Question {qIndex + 1}</label>
-              <input
-                type="text"
-                value={question.body}
-                onChange={(e) =>
-                  updateQuestion(qIndex, { body: e.target.value })
-                }
-                className="w-full p-2 border rounded"
-                required
-              />
-            </div>
+          <Card key={qIndex}>
+            <CardHeader>
+              <CardTitle>Question {qIndex + 1}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Question Text</Label>
+                <Input
+                  type="text"
+                  value={question.body}
+                  onChange={(e) =>
+                    updateQuestion(qIndex, { body: e.target.value })
+                  }
+                  required
+                />
+              </div>
 
-            <div>
-              <label className="block mb-2">Question Image</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) =>
-                  updateQuestion(qIndex, { image: e.target.files?.[0] || null })
-                }
-                className="w-full p-2 border rounded"
-              />
-            </div>
+              <div className="space-y-2">
+                <Label>Question Image</Label>
+                <FileUpload
+                  value={question.image}
+                  onChange={(file: File | null) =>
+                    updateQuestion(qIndex, { image: file })
+                  }
+                />
+              </div>
 
-            <div className="space-y-4">
-              {question.choices.map((choice, cIndex) => (
-                <div key={cIndex} className="flex items-center space-x-2">
-                  <input
-                    type="text"
-                    value={choice.body}
-                    onChange={(e) =>
-                      updateChoice(qIndex, cIndex, e.target.value)
-                    }
-                    className="flex-grow p-2 border rounded"
-                    placeholder={`Choice ${cIndex + 1}`}
-                    required
-                  />
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="radio"
-                      name={`correct-${qIndex}`}
-                      checked={choice.is_correct}
-                      onChange={() => {
-                        const newQuestions = [...formData.questions];
-                        newQuestions[qIndex].choices.forEach((c, idx) => {
-                          c.is_correct = idx === cIndex;
-                        });
-                        setFormData({ ...formData, questions: newQuestions });
-                      }}
-                      className="h-4 w-4 text-blue-600"
-                      required
-                    />
-                    <span className="text-sm text-gray-700">Correct</span>
-                  </label>
-                </div>
-              ))}
-            </div>
-          </div>
+              <div className="space-y-4">
+                <Label>Choices</Label>
+                <RadioGroup
+                  value={question.choices
+                    .findIndex((c) => c.is_correct)
+                    .toString()}
+                  onValueChange={(value) => {
+                    const newQuestions = [...formData.questions];
+                    newQuestions[qIndex].choices.forEach((c, idx) => {
+                      c.is_correct = idx.toString() === value;
+                    });
+                    setFormData({ ...formData, questions: newQuestions });
+                  }}
+                >
+                  {question.choices.map((choice, cIndex) => (
+                    <div key={cIndex} className="flex items-center space-x-2">
+                      <Input
+                        type="text"
+                        value={choice.body}
+                        onChange={(e) =>
+                          updateChoice(qIndex, cIndex, e.target.value)
+                        }
+                        placeholder={`Choice ${cIndex + 1}`}
+                        required
+                        className="flex-grow"
+                      />
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem
+                          value={cIndex.toString()}
+                          id={`q${qIndex}-c${cIndex}`}
+                        />
+                        <Label
+                          htmlFor={`q${qIndex}-c${cIndex}`}
+                          className="text-sm"
+                        >
+                          Correct
+                        </Label>
+                      </div>
+                    </div>
+                  ))}
+                </RadioGroup>
+              </div>
+            </CardContent>
+          </Card>
         ))}
       </div>
 
-      <div className="space-x-2">
-        <button
+      <div className="flex space-x-2">
+        <Button
           type="button"
+          variant="secondary"
           onClick={() =>
             setFormData({
               ...formData,
               questions: [...formData.questions, { ...INITIAL_QUESTION }],
             })
           }
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
           Add Question
-        </button>
-        <button
-          type="submit"
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-        >
-          Create Quiz
-        </button>
+        </Button>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Creating..." : "Create Quiz"}
+        </Button>
       </div>
     </form>
   );
