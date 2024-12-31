@@ -322,11 +322,11 @@ export default function Home(props: { params: Promise<{ id: string }> }) {
     <PanelGroup
       autoSaveId="jitsi-panel-group"
       direction="horizontal"
-      className="flex flex-grow"
+      className="flex flex-1 min-h-0 relative"
     >
       <Panel
         minSize={20}
-        className="bg-background flex flex-col items-center justify-center"
+        className="bg-background flex flex-col items-center justify-center overflow-auto"
       >
         {renderScreen()}
       </Panel>
