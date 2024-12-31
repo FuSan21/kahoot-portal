@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { Participant, supabase } from "@/types/types";
 import { toast } from "sonner";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Loader2 } from "lucide-react";
 
 export default function Lobby({
   gameId,
@@ -86,34 +89,40 @@ export default function Lobby({
   }, [gameId, onRegisterCompleted, participant]);
 
   return (
-    <div className="bg-blue-500 flex-grow flex flex-col items-center justify-center">
-      <div className="bg-black p-12 mb-4">
-        {participant ? (
-          <div className="text-white max-w-md">
-            <h1 className="text-xl pb-4">Welcome {participant.nickname}！</h1>
-            <p>
+    <div className="h-full flex flex-col items-center justify-center bg-background p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>
+            {participant
+              ? `Welcome ${participant.nickname}!`
+              : "Joining the game..."}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {participant ? (
+            <p className="text-muted-foreground">
               You have been registered and your nickname should show up on the
               admin screen. Please sit back and wait until the game master
               starts the game.
             </p>
-          </div>
-        ) : (
-          <div className="text-white">Joining the game...</div>
-        )}
-      </div>
+          ) : (
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Connecting to game server...
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {preloadProgress < 100 && (
-        <div className="w-full max-w-md mt-4">
-          <div className="bg-white rounded-full h-4 overflow-hidden">
-            <div
-              className="bg-blue-500 h-full transition-all duration-300 ease-out"
-              style={{ width: `${preloadProgress}%` }}
-            ></div>
-          </div>
-          <p className="text-center text-white mt-2">
-            Preloading images: {Math.round(preloadProgress)}%
-          </p>
-        </div>
+        <Card className="w-full max-w-md mt-4">
+          <CardContent className="pt-6">
+            <Progress value={preloadProgress} className="mb-2" />
+            <p className="text-center text-sm text-muted-foreground">
+              Preloading images: {Math.round(preloadProgress)}%
+            </p>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

@@ -222,7 +222,7 @@ export default function Home(props: { params: Promise<{ id: string }> }) {
     >
       <Panel
         minSize={20}
-        className="bg-blue-500 flex flex-col items-center justify-center"
+        className="bg-background flex flex-col items-center justify-center"
       >
         {renderScreen()}
       </Panel>
