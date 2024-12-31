@@ -1,9 +1,7 @@
 import SiteLogo from "@/app/host/dashboard/sitelogo.svg";
-import HomeIcon from "@/app/components/icons/HomeIcon";
-import HowToPlayIcon from "@/app/components/icons/HowToPlayIcon";
-import PlusIcon from "@/app/components/icons/PlusIcon";
 import Image from "next/image";
 import Link from "next/link";
+import { Home, Plus, History, HelpCircle } from "lucide-react";
 
 const menuItems: {
   label: string;
@@ -13,17 +11,22 @@ const menuItems: {
   {
     label: "Home",
     href: "/host/dashboard",
-    icon: <HomeIcon />,
+    icon: <Home className="w-5 h-5" />,
   },
   {
     label: "Create Quiz",
     href: "/host/dashboard/create",
-    icon: <PlusIcon />,
+    icon: <Plus className="w-5 h-5" />,
+  },
+  {
+    label: "Quiz History",
+    href: "/host/dashboard/history",
+    icon: <History className="w-5 h-5" />,
   },
   {
     label: "How to Play",
     href: "/host/dashboard/how-to",
-    icon: <HowToPlayIcon />,
+    icon: <HelpCircle className="w-5 h-5" />,
   },
 ];
 

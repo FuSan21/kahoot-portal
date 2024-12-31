@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { logout } from "@/app/auth/logout/actions";
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
-import Link from "next/link";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -66,9 +65,6 @@ export default function UserCard() {
           <p className="text-sm text-muted-foreground">{user.email}</p>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <Link href="/history">Quiz History</Link>
-        </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <form action={logout} className="w-full">
             <button type="submit" className="w-full text-left">
