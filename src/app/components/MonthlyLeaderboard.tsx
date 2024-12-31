@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ChevronLeftIcon, ChevronRightIcon, CalendarIcon } from "lucide-react";
 import { UserScore } from "@/types/quiz";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface MonthlyLeaderboardProps {
   monthlyLeaderboard: UserScore[];
@@ -97,20 +98,17 @@ export default function MonthlyLeaderboard({
               </div>
 
               {/* Avatar */}
-              <div className="flex-shrink-0 h-10 w-10 rounded-full overflow-hidden bg-muted">
-                {score.avatar_url ? (
-                  <img
-                    src={score.avatar_url}
-                    alt={score.full_name || "User"}
-                    className="h-full w-full object-cover"
-                    draggable={false}
-                  />
-                ) : (
-                  <div className="h-full w-full flex items-center justify-center bg-primary/10 text-primary">
-                    {(score.full_name || "?")[0].toUpperCase()}
-                  </div>
-                )}
-              </div>
+              <Avatar className="h-10 w-10">
+                <AvatarImage
+                  src={score.avatar_url}
+                  alt={score.full_name || "User"}
+                  className="object-cover"
+                  draggable={false}
+                />
+                <AvatarFallback className="bg-primary/10 text-primary">
+                  {(score.full_name || "?")?.[0]?.toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
 
               {/* Name */}
               <div className="flex-grow min-w-0">
@@ -166,20 +164,17 @@ export default function MonthlyLeaderboard({
                   <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center font-bold">
                     {currentUserScore.rank}
                   </div>
-                  <div className="flex-shrink-0 h-10 w-10 rounded-full overflow-hidden bg-muted">
-                    {currentUserScore.avatar_url ? (
-                      <img
-                        src={currentUserScore.avatar_url}
-                        alt={currentUserScore.full_name || "User"}
-                        className="h-full w-full object-cover"
-                        draggable={false}
-                      />
-                    ) : (
-                      <div className="h-full w-full flex items-center justify-center bg-primary/10 text-primary">
-                        {(currentUserScore.full_name || "?")[0].toUpperCase()}
-                      </div>
-                    )}
-                  </div>
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage
+                      src={currentUserScore.avatar_url}
+                      alt={currentUserScore.full_name || "User"}
+                      className="object-cover"
+                      draggable={false}
+                    />
+                    <AvatarFallback className="bg-primary/10 text-primary">
+                      {(currentUserScore.full_name || "?")?.[0]?.toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
                   <div className="flex-grow min-w-0">
                     <div className="font-medium truncate">
                       {currentUserScore.full_name || "Anonymous"}

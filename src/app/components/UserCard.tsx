@@ -46,7 +46,7 @@ export default function UserCard() {
           <div className="flex items-center space-x-2">
             <Avatar>
               <AvatarImage
-                src={user.user_metadata.avatar_url || "/default-avatar.png"}
+                src={user.user_metadata.avatar_url}
                 alt={user.user_metadata.name}
               />
               <AvatarFallback>
