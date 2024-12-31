@@ -1,15 +1,31 @@
 import { QUESTION_ANSWER_TIME, TIME_TIL_CHOICE_REVEAL } from "@/constants";
-import { Choice, Question, supabase, Game } from "@/types/types";
+import {
+  Choice,
+  Question,
+  supabase,
+  Game,
+  Participant,
+  Answer,
+} from "@/types/types";
 import CheckIcon from "@/app/components/icons/CheckIcon";
 import CrossIcon from "@/app/components/icons/CrossIcon";
 import { getPreloadedImage } from "@/utils/imagePreloader";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
 import {
   ColorFormat,
   CountdownCircleTimer,
 } from "react-countdown-circle-timer";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import ParticipantsList from "@/components/ParticipantsList";
 
 export default function Quiz({
   question: question,
@@ -27,20 +43,20 @@ export default function Quiz({
   gameId: string;
 }) {
   const [chosenChoice, setChosenChoice] = useState<Choice | null>(null);
-
   const [hasShownChoices, setHasShownChoices] = useState(false);
-
   const [questionStartTime, setQuestionStartTime] = useState<number | null>(
     null
   );
+  const [answers, setAnswers] = useState<Answer[]>([]);
+  const [participants, setParticipants] = useState<Participant[]>([]);
 
   useEffect(() => {
     setChosenChoice(null);
     setHasShownChoices(false);
+    setAnswers([]);
   }, [question.id]);
 
   useEffect(() => {
-    // Fetch current game state on mount
     const fetchGameState = async () => {
       const { data, error } = await supabase
         .from("games")
@@ -98,7 +114,127 @@ export default function Quiz({
     };
   }, [gameId]);
 
+  useEffect(() => {
+    const fetchAnswers = async () => {
+      const { data, error } = await supabase
+        .from("answers")
+        .select("*, choices(*)")
+        .eq("question_id", question.id);
+
+      if (error) {
+        console.error("Error fetching answers:", error);
+        toast.error("Failed to fetch answers");
+      } else if (data) {
+        setAnswers(data);
+        const userAnswer = data.find((a) => a.participant_id === playerId);
+        if (userAnswer) {
+          setChosenChoice(userAnswer.choices);
+        }
+      }
+    };
+
+    fetchAnswers();
+
+    const subscription = supabase
+      .channel(`answers_${question.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "answers",
+          filter: `question_id=eq.${question.id}`,
+        },
+        (payload) => {
+          if (
+            payload.eventType === "INSERT" ||
+            payload.eventType === "UPDATE"
+          ) {
+            const newAnswer = payload.new as Answer;
+            setAnswers((prevAnswers) => {
+              const existingAnswerIndex = prevAnswers.findIndex(
+                (a) => a.participant_id === newAnswer.participant_id
+              );
+              if (existingAnswerIndex !== -1) {
+                const newAnswers = [...prevAnswers];
+                newAnswers[existingAnswerIndex] = newAnswer;
+                return newAnswers;
+              }
+              return [...prevAnswers, newAnswer];
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [question.id, playerId]);
+
+  useEffect(() => {
+    const fetchParticipants = async () => {
+      const { data, error } = await supabase
+        .from("participants")
+        .select("*, profile:profiles(avatar_url)")
+        .eq("game_id", gameId);
+
+      if (error) {
+        console.error("Error fetching participants:", error);
+        toast.error("Failed to fetch participants");
+      } else {
+        setParticipants(data || []);
+      }
+    };
+
+    fetchParticipants();
+
+    const subscription = supabase
+      .channel(`participants_${gameId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "participants",
+          filter: `game_id=eq.${gameId}`,
+        },
+        async (payload) => {
+          if (payload.eventType === "INSERT") {
+            const { data: profileData } = await supabase
+              .from("profiles")
+              .select("avatar_url")
+              .eq("id", payload.new.user_id)
+              .single();
+
+            setParticipants((current) => [
+              ...current,
+              {
+                ...payload.new,
+                profile: {
+                  avatar_url: profileData?.avatar_url || null,
+                },
+              } as Participant,
+            ]);
+          } else if (payload.eventType === "DELETE") {
+            setParticipants((current) =>
+              current.filter((p) => p.id !== payload.old.id)
+            );
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [gameId]);
+
   const answer = async (choice: Choice) => {
+    if (chosenChoice) {
+      return;
+    }
+
     setChosenChoice(choice);
 
     if (!questionStartTime) {
@@ -117,45 +253,85 @@ export default function Quiz({
 
     if (error) {
       toast.error(error.message);
+      setChosenChoice(null);
+    }
+  };
+
+  const getChoiceColor = (index: number, isBackground = false) => {
+    switch (index) {
+      case 0:
+        return isBackground
+          ? "bg-red-100 dark:bg-red-900/20"
+          : "bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/40";
+      case 1:
+        return isBackground
+          ? "bg-blue-100 dark:bg-blue-900/20"
+          : "bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/30 dark:hover:bg-blue-900/40";
+      case 2:
+        return isBackground
+          ? "bg-yellow-100 dark:bg-yellow-900/20"
+          : "bg-yellow-100 hover:bg-yellow-200 dark:bg-yellow-900/30 dark:hover:bg-yellow-900/40";
+      default:
+        return isBackground
+          ? "bg-green-100 dark:bg-green-900/20"
+          : "bg-green-100 hover:bg-green-200 dark:bg-green-900/30 dark:hover:bg-green-900/40";
+    }
+  };
+
+  const getChoiceTextColor = (index: number) => {
+    switch (index) {
+      case 0:
+        return "text-red-700 dark:text-red-300";
+      case 1:
+        return "text-blue-700 dark:text-blue-300";
+      case 2:
+        return "text-yellow-700 dark:text-yellow-300";
+      default:
+        return "text-green-700 dark:text-green-300";
     }
   };
 
   return (
-    <div className="flex flex-col flex-grow items-stretch bg-slate-900 overflow-auto w-full">
-      <div className="text-center py-4 flex-shrink-0">
-        <h2 className="pb-4 text-3xl bg-white font-bold mx-auto my-12 p-4 rounded inline-block max-w-[80%]">
-          {question.body}
-        </h2>
-        {question.image && (
-          <div className="w-full mx-auto">
-            <Image
-              src={
-                getPreloadedImage(`${quiz}/${question.image}`) ||
-                `/api/getImage?path=${quiz}/${question.image}`
-              }
-              alt={question.body}
-              width={400}
-              height={400}
-              className="w-full h-auto max-h-[30vh] object-contain"
-            />
-          </div>
-        )}
-      </div>
+    <div className="flex flex-col flex-grow items-stretch bg-background overflow-auto w-full">
+      <Card className="m-4 shadow-lg">
+        <CardHeader>
+          <CardTitle className="text-3xl text-center">
+            {question.body}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {question.image && (
+            <div className="w-full mx-auto mb-4">
+              <Image
+                src={
+                  getPreloadedImage(`${quiz}/${question.image}`) ||
+                  `/api/getImage?path=${quiz}/${question.image}`
+                }
+                alt={question.body}
+                width={400}
+                height={400}
+                className="w-full h-auto max-h-[30vh] object-contain rounded-lg"
+              />
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-      <div className="flex-grow flex flex-col justify-center items-center min-h-0">
+      <div className="flex-grow flex flex-col justify-center items-center min-h-0 p-4">
         {!isAnswerRevealed && chosenChoice && (
-          <div className="text-white text-2xl text-center p-4">
-            Wait for others to answer...
-          </div>
+          <Card className="w-full max-w-md mb-4">
+            <CardContent className="pt-6">
+              <p className="text-xl text-center text-muted-foreground">
+                Wait for others to answer...
+              </p>
+            </CardContent>
+          </Card>
         )}
 
-        {!hasShownChoices && !isAnswerRevealed && (
-          <div className="text-transparent">
+        {!hasShownChoices && questionStartTime && (
+          <div className="text-center mb-8">
             <CountdownCircleTimer
               key={questionStartTime}
-              onComplete={() => {
-                setHasShownChoices(true);
-              }}
               isPlaying={questionStartTime !== null}
               duration={TIME_TIL_CHOICE_REVEAL / 1000}
               initialRemainingTime={
@@ -169,74 +345,77 @@ export default function Quiz({
                     )
                   : TIME_TIL_CHOICE_REVEAL / 1000
               }
-              colors={["#fff", "#fff", "#fff", "#fff"]}
-              trailColor={"transparent" as ColorFormat}
+              colors={["#004777", "#F7B801", "#A30000", "#A30000"]}
               colorsTime={[7, 5, 2, 0]}
+              size={120}
+              strokeWidth={8}
+              onComplete={() => {
+                setHasShownChoices(true);
+              }}
             >
-              {({ remainingTime }) => remainingTime}
+              {({ remainingTime }) => (
+                <div className="text-2xl font-bold">
+                  {Math.ceil(remainingTime)}
+                </div>
+              )}
             </CountdownCircleTimer>
           </div>
         )}
 
-        {hasShownChoices && !isAnswerRevealed && !chosenChoice && (
-          <div className="w-full max-w-4xl px-4">
-            <div className="flex justify-between flex-wrap">
-              {question.choices.map((choice, index) => (
-                <div key={choice.id} className="w-1/2 p-1 flex">
-                  <button
-                    onClick={() => answer(choice)}
-                    disabled={chosenChoice !== null || isAnswerRevealed}
-                    className={`px-4 py-6 w-full text-xl rounded text-white flex justify-between items-center md:text-2xl md:font-bold
-                    ${
-                      index === 0
-                        ? "bg-red-500"
-                        : index === 1
-                        ? "bg-blue-500"
-                        : index === 2
-                        ? "bg-yellow-500"
-                        : "bg-green-500"
-                    }
-                    ${
-                      isAnswerRevealed && !choice.is_correct ? "opacity-60" : ""
-                    }
-                   `}
-                  >
-                    <div className="flex-grow">{choice.body}</div>
-                    {isAnswerRevealed && (
-                      <div className="flex-shrink-0 ml-2">
-                        {choice.is_correct && <CheckIcon />}
-                        {!choice.is_correct && <CrossIcon />}
-                      </div>
-                    )}
-                  </button>
-                </div>
-              ))}
-            </div>
+        {hasShownChoices && !chosenChoice && !isAnswerRevealed && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-4xl">
+            {question.choices.map((choice, index) => (
+              <button
+                key={choice.id}
+                onClick={() => answer(choice)}
+                className={cn(
+                  "p-6 rounded-lg text-lg font-semibold transition-all",
+                  getChoiceColor(index)
+                )}
+              >
+                {choice.body}
+              </button>
+            ))}
           </div>
         )}
 
         {isAnswerRevealed && (
-          <div className="text-center">
-            <h2 className="text-white text-2xl text-center pb-2">
-              {chosenChoice?.is_correct ? "Correct" : "Incorrect"}
-            </h2>
-            <div
-              className={`text-white rounded-full p-4 inline-block ${
-                chosenChoice?.is_correct ? "bg-green-500" : "bg-red-500"
-              }`}
-            >
-              {chosenChoice?.is_correct && <CheckIcon />}
-              {!chosenChoice?.is_correct && <CrossIcon />}
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-4xl">
+            {question.choices.map((choice, index) => (
+              <div
+                key={choice.id}
+                className={cn(
+                  "p-6 rounded-lg text-lg font-semibold flex items-center justify-between",
+                  getChoiceColor(index),
+                  choice.is_correct &&
+                    "ring-2 ring-green-500 ring-offset-2 ring-offset-background"
+                )}
+              >
+                <span>{choice.body}</span>
+                {choice.is_correct ? (
+                  <CheckIcon className="h-4 w-4 text-green-500" />
+                ) : chosenChoice?.id === choice.id ? (
+                  <CrossIcon className="h-4 w-4 text-red-500" />
+                ) : null}
+              </div>
+            ))}
           </div>
         )}
       </div>
 
-      <div className="flex text-white py-2 px-4 items-center bg-black flex-shrink-0">
-        <div className="text-2xl">
-          {question.order + 1}/{questionCount}
-        </div>
-      </div>
+      <Card className="m-4 mt-auto">
+        <CardContent className="py-3">
+          <div className="text-lg font-medium mb-4">
+            Question {question.order + 1}/{questionCount}
+          </div>
+          <ParticipantsList
+            participants={participants}
+            answers={answers}
+            question={question}
+            isAnswerRevealed={isAnswerRevealed}
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 }
