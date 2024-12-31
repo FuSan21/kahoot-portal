@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
+import "@/app/globals.css";
 import { Toaster } from "sonner";
+import { Providers } from "@/app/providers";
 import UserCard from "@/app/components/UserCard";
 import Link from "next/link";
 
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
   description: "Kahoot Quiz Platform powered by Next.js 15 and Supabase",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -20,14 +21,21 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} min-h-screen flex flex-col`}>
-        <header className="h-16 px-2 flex justify-between border-b border-gray-200 items-center z-[99]">
-          <Link href="/">
-            <h1>Kahoot Portal</h1>
+        <header className="h-16 px-4 flex justify-between items-center border-b border-gray-200 bg-white">
+          <Link
+            href="/"
+            className="text-xl font-semibold text-gray-800 hover:text-gray-600"
+          >
+            Kahoot Portal
           </Link>
           <UserCard />
         </header>
-        <main className="flex-grow flex flex-col">{children}</main>
-        <Toaster richColors />
+        <main className="flex-grow flex flex-col">
+          <Providers>
+            {children}
+            <Toaster richColors />
+          </Providers>
+        </main>
       </body>
     </html>
   );

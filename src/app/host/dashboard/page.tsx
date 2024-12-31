@@ -79,7 +79,7 @@ export default function Home() {
           </div>
           <div className="p-4 bg-gray-50 mt-auto">
             <button
-              className="bg-green-500 text-white py-2 px-4 rounded w-full hover:bg-green-600 transition-colors"
+              className="bg-blue-500 text-white py-2 px-4 rounded w-full hover:bg-indigo-600 transition-colors"
               onClick={() => startGame(quizSet.id)}
             >
               Start Game

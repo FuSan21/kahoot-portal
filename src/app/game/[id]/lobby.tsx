@@ -86,7 +86,7 @@ export default function Lobby({
   }, [gameId, onRegisterCompleted, participant]);
 
   return (
-    <div className="bg-green-500 flex-grow flex flex-col items-center justify-center">
+    <div className="bg-blue-500 flex-grow flex flex-col items-center justify-center">
       <div className="bg-black p-12 mb-4">
         {participant ? (
           <div className="text-white max-w-md">

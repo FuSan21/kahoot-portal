@@ -53,7 +53,7 @@ export default function Lobby({
   }
 
   return (
-    <div className="bg-green-500 flex-grow flex flex-col items-center justify-center">
+    <div className="bg-blue-500 flex-grow flex flex-col items-center justify-center">
       <div className="flex flex-col m-auto bg-black p-4 md:p-12 w-full max-w-4xl">
         <div className="flex flex-wrap justify-center gap-8">
           <div className="flex flex-col justify-between">

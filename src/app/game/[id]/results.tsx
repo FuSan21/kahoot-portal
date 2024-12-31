@@ -209,7 +209,7 @@ export default function Results({ participant, gameId }: ResultsProps) {
         recycle={true}
         style={{ position: "fixed", top: 0, left: 0, zIndex: 0 }}
       />
-      <div className="flex flex-col flex-grow w-full items-center bg-green-500 p-4 relative z-10">
+      <div className="flex flex-col flex-grow w-full items-center bg-blue-500 p-4 relative z-10">
         {/* Personal Score Card */}
         <div className="bg-gradient-to-br from-cyan-400 via-sky-500 to-blue-600 rounded-2xl shadow-xl overflow-hidden mb-8 w-full max-w-2xl">
           <div className="backdrop-blur-sm bg-white/10 p-8 text-center">
