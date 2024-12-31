@@ -6,6 +6,10 @@ import Link from "next/link";
 import { QuizResult, UserScore } from "@/types/quiz";
 import MonthlyLeaderboard from "@/app/components/MonthlyLeaderboard";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { CalendarIcon, Trophy } from "lucide-react";
 
 export default function DashboardHistoryPage() {
   const [results, setResults] = useState<QuizResult[]>([]);
@@ -170,79 +174,101 @@ export default function DashboardHistoryPage() {
 
   if (!user) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] bg-gradient-to-br from-sky-400 via-blue-500 to-indigo-600 text-white p-8 rounded-lg">
-        <h1 className="text-3xl font-bold mb-4">
-          Please log in to view your quiz history
-        </h1>
-        <Link
-          href="/login"
-          className="text-white hover:text-gray-200 bg-white/20 px-6 py-2 rounded-full transition duration-300 hover:bg-white/30"
-        >
-          Go to Login
-        </Link>
-      </div>
+      <Card className="max-w-lg mx-auto">
+        <CardHeader>
+          <CardTitle className="text-center">Authentication Required</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4 text-center">
+          <p className="text-muted-foreground">
+            Please log in to view your quiz history
+          </p>
+          <Button asChild>
+            <Link href="/login">Go to Login</Link>
+          </Button>
+        </CardContent>
+      </Card>
     );
   }
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6 text-gray-800">Quiz History</h1>
-        <div className="text-gray-500 animate-pulse">Loading history...</div>
+      <div className="space-y-4">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-[200px] w-full" />
+        <div className="space-y-2">
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-24 w-full" />
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-8">
+    <div className="space-y-8">
       {/* Monthly Leaderboard Component */}
-      <MonthlyLeaderboard
-        monthlyLeaderboard={monthlyLeaderboard}
-        currentUserScore={currentUserScore}
-        currentUserId={user.id}
-        allowMonthNavigation={true}
-        currentDate={currentDate}
-        onPreviousMonth={goToPreviousMonth}
-        onNextMonth={goToNextMonth}
-        onCurrentMonth={goToCurrentMonth}
-      />
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-2xl font-bold">
+            <div className="flex items-center gap-2">
+              <Trophy className="h-6 w-6" />
+              Monthly Leaderboard
+            </div>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <MonthlyLeaderboard
+            monthlyLeaderboard={monthlyLeaderboard}
+            currentUserScore={currentUserScore}
+            currentUserId={user.id}
+            allowMonthNavigation={true}
+            currentDate={currentDate}
+            onPreviousMonth={goToPreviousMonth}
+            onNextMonth={goToNextMonth}
+            onCurrentMonth={goToCurrentMonth}
+          />
+        </CardContent>
+      </Card>
 
       {/* Quiz History Section */}
-      <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-        <div className="p-6">
-          <h1 className="text-2xl font-bold mb-6 text-gray-800">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold flex items-center gap-2">
+            <CalendarIcon className="h-6 w-6" />
             Your Quiz History
-          </h1>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
           {results.length === 0 ? (
-            <div className="text-gray-500 text-center py-4">
+            <p className="text-center text-muted-foreground py-4">
               No quizzes played yet
-            </div>
+            </p>
           ) : (
             <div className="space-y-2">
               {results.map((result) => (
-                <div
+                <Card
                   key={result.game_id}
+                  className="cursor-pointer transition-colors hover:bg-muted/50"
                   onClick={() => handleQuizClick(result.game_id)}
-                  className="bg-gray-50 p-4 rounded-xl flex justify-between items-center hover:bg-gray-100 transition duration-300 cursor-pointer"
                 >
-                  <div className="flex-grow">
-                    <h3 className="text-lg font-medium text-gray-900">
-                      {result.quiz_name}
-                    </h3>
-                    <p className="text-sm text-gray-500">
-                      {new Date(result.played_at).toLocaleDateString()} at{" "}
-                      {new Date(result.played_at).toLocaleTimeString()}
-                    </p>
-                  </div>
-                  <div className="text-lg font-bold text-sky-600 bg-sky-100 px-4 py-1 rounded-full">
-                    {result.total_score} pts
-                  </div>
-                </div>
+                  <CardContent className="flex items-center justify-between p-4">
+                    <div>
+                      <h3 className="font-medium">{result.quiz_name}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {new Date(result.played_at).toLocaleDateString()} at{" "}
+                        {new Date(result.played_at).toLocaleTimeString()}
+                      </p>
+                    </div>
+                    <div className="text-lg font-bold bg-primary/10 text-primary px-4 py-1 rounded-full">
+                      {result.total_score} pts
+                    </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           )}
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
