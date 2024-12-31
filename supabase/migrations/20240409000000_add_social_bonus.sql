@@ -5,13 +5,14 @@ ADD COLUMN social_share_link text,
 -- Create a new storage bucket for social media screenshots
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('social_screenshots', 'social_screenshots', true) ON CONFLICT (id) DO NOTHING;
--- Add social media bonus submission table
+-- Create social bonus submissions table
 CREATE TABLE IF NOT EXISTS public.social_bonus_submissions (
     id uuid DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
     participant_id uuid NOT NULL REFERENCES public.participants(id) ON DELETE CASCADE ON UPDATE CASCADE,
     screenshot_urls text [] NOT NULL DEFAULT '{}',
-    is_approved boolean DEFAULT false,
+    is_approved boolean,
     approved_at timestamp with time zone,
     approved_by uuid REFERENCES public.profiles(id) ON DELETE
     SET NULL ON UPDATE CASCADE
@@ -72,3 +73,26 @@ SELECT TO authenticated USING (
                 AND qs.created_by = auth.uid()
         )
     );
+-- Create function to get social bonus submissions for a game
+CREATE OR REPLACE FUNCTION get_game_social_bonus_submissions(_game_id uuid) RETURNS TABLE (
+        id uuid,
+        participant_id uuid,
+        screenshot_urls text [],
+        is_approved boolean,
+        created_at timestamptz,
+        updated_at timestamptz,
+        participant_nickname text
+    ) AS $$ BEGIN RETURN QUERY
+SELECT s.id,
+    s.participant_id,
+    s.screenshot_urls,
+    s.is_approved,
+    s.created_at,
+    s.updated_at,
+    p.nickname as participant_nickname
+FROM social_bonus_submissions s
+    INNER JOIN participants p ON s.participant_id = p.id
+WHERE p.game_id = _game_id
+ORDER BY s.created_at DESC;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
