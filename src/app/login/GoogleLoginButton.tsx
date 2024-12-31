@@ -35,7 +35,7 @@ export default function GoogleLoginButton({
   };
 
   return (
-    <div className="w-full max-w-[300px] mx-auto">
+    <div className="flex justify-center">
       <GoogleLogin
         auto_select
         use_fedcm_for_prompt
@@ -48,9 +48,11 @@ export default function GoogleLoginButton({
         useOneTap
         type="standard"
         theme="outline"
-        width="300"
+        size="large"
         text="signin_with"
         shape="rectangular"
+        width="300"
+        locale="en"
       />
     </div>
   );

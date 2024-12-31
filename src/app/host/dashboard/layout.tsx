@@ -5,6 +5,7 @@ import { Home, Plus, History, HelpCircle, Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Header } from "@/components/Header";
 
 const menuItems: {
   label: string;
@@ -72,25 +73,28 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen">
-      {/* Sidebar for desktop */}
-      <aside className="hidden lg:flex w-64 border-r bg-background">
-        <Sidebar className="w-full" />
-      </aside>
+    <div className="min-h-full flex flex-col">
+      <Header />
+      <div className="flex-1 flex">
+        {/* Sidebar for desktop */}
+        <aside className="hidden lg:flex w-64 border-r bg-background">
+          <Sidebar className="w-full" />
+        </aside>
 
-      {/* Sheet for mobile */}
-      <Sheet>
-        <SheetTrigger asChild className="lg:hidden absolute left-4 top-4">
-          <Button variant="outline" size="icon">
-            <Menu className="h-5 w-5" />
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="left" className="w-64 p-0">
-          <Sidebar />
-        </SheetContent>
-      </Sheet>
+        {/* Sheet for mobile */}
+        <Sheet>
+          <SheetTrigger asChild className="lg:hidden absolute left-4 top-4">
+            <Button variant="outline" size="icon">
+              <Menu className="h-5 w-5" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-64 p-0">
+            <Sidebar />
+          </SheetContent>
+        </Sheet>
 
-      <main className="flex-1 p-8">{children}</main>
+        <main className="flex-1 p-8">{children}</main>
+      </div>
     </div>
   );
 }
