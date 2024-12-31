@@ -10,10 +10,11 @@ import {
 import Confetti from "react-confetti";
 import useWindowSize from "react-use/lib/useWindowSize";
 import { toast } from "sonner";
-import MonthlyLeaderboard from "@/app/components/MonthlyLeaderboard";
-import GameLeaderboard from "@/app/components/GameLeaderboard";
+import MonthlyLeaderboard from "@/components/MonthlyLeaderboard";
+import GameLeaderboard from "@/components/GameLeaderboard";
 import { UserScore } from "@/types/quiz";
 import SocialBonusReview from "@/app/components/SocialBonusReview";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface DetailedGameResult extends GameResult {
   scores: number[];
@@ -42,7 +43,7 @@ export default function Results({
   const [gameResults, setGameResults] = useState<DetailedGameResult[]>([]);
   const { width, height } = useWindowSize();
   const [monthlyLeaderboard, setMonthlyLeaderboard] = useState<UserScore[]>([]);
-  const [currentDate] = useState(new Date()); // We only show current month in results
+  const [currentDate] = useState(new Date());
 
   useEffect(() => {
     const getResults = async () => {
@@ -150,24 +151,27 @@ export default function Results({
   }
 
   return (
-    <div className="relative">
+    <div className="relative min-h-screen bg-background">
       <Confetti
         width={width}
         height={height}
         recycle={true}
         style={{ position: "fixed", top: 0, left: 0, zIndex: 0 }}
       />
-      <div className="flex flex-col flex-grow w-full items-center bg-blue-500 p-4 relative z-10">
+      <div className="flex flex-col items-center p-4 relative z-10 max-w-7xl mx-auto">
         {/* Quiz Name Card */}
-        <div className="bg-gradient-to-br from-cyan-400 via-sky-500 to-blue-600 rounded-2xl shadow-xl overflow-hidden mb-8 w-full max-w-2xl">
-          <div className="backdrop-blur-sm bg-white/10 p-8 text-center">
-            <p className="text-xl font-bold mb-2 text-white">{quizSet.name}</p>
-          </div>
-        </div>
+        <Card className="w-full max-w-2xl mb-8">
+          <CardHeader>
+            <CardTitle className="text-3xl text-center">
+              {quizSet.name}
+            </CardTitle>
+          </CardHeader>
+        </Card>
 
         {/* Game Results */}
         <GameLeaderboard results={gameResults} />
 
+        {/* Social Bonus Review */}
         {(quizSet?.social_bonus_points ?? 0) > 0 && (
           <div className="w-full max-w-2xl mb-8">
             <SocialBonusReview gameId={gameId} quizId={quizSet.id} />
@@ -175,18 +179,16 @@ export default function Results({
         )}
 
         {/* Monthly Leaderboard */}
-        <div className="w-full max-w-2xl">
-          <MonthlyLeaderboard
-            monthlyLeaderboard={monthlyLeaderboard}
-            currentUserScore={null}
-            currentUserId=""
-            allowMonthNavigation={false}
-            currentDate={currentDate}
-            onPreviousMonth={() => {}}
-            onNextMonth={() => {}}
-            onCurrentMonth={() => {}}
-          />
-        </div>
+        <MonthlyLeaderboard
+          monthlyLeaderboard={monthlyLeaderboard}
+          currentUserScore={null}
+          currentUserId=""
+          allowMonthNavigation={false}
+          currentDate={currentDate}
+          onPreviousMonth={() => {}}
+          onNextMonth={() => {}}
+          onCurrentMonth={() => {}}
+        />
       </div>
     </div>
   );

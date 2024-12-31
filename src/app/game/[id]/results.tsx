@@ -1,22 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { Participant, supabase } from "@/types/types";
-import { toast } from "sonner";
-import MonthlyLeaderboard from "@/app/components/MonthlyLeaderboard";
-import GameLeaderboard from "@/app/components/GameLeaderboard";
-import { UserScore } from "@/types/quiz";
+import {
+  Answer,
+  GameResult,
+  Participant,
+  Question,
+  QuizSet,
+  supabase,
+} from "@/types/types";
 import Confetti from "react-confetti";
 import useWindowSize from "react-use/lib/useWindowSize";
+import { toast } from "sonner";
+import MonthlyLeaderboard from "@/components/MonthlyLeaderboard";
+import GameLeaderboard from "@/components/GameLeaderboard";
+import { UserScore } from "@/types/quiz";
 import SocialBonusSubmission from "@/app/components/SocialBonusSubmission";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-interface ResultsProps {
-  participant: Participant;
-  gameId: string;
-}
-
-interface DetailedGameResult {
-  participant_id: string;
-  nickname: string;
-  total_score: number;
+interface DetailedGameResult extends GameResult {
   scores: number[];
   profiles: {
     profiles: {
@@ -26,17 +26,14 @@ interface DetailedGameResult {
 }
 
 interface QuizDetails {
+  name: string;
   social_share_link: string | null;
   social_bonus_points: number | null;
 }
 
-interface GameData {
-  quiz_set_id: string;
-}
-
-interface QuizData {
-  social_share_link: string | null;
-  social_bonus_points: number | null;
+interface ResultsProps {
+  participant: Participant;
+  gameId: string;
 }
 
 export default function Results({ participant, gameId }: ResultsProps) {
@@ -64,12 +61,10 @@ export default function Results({ participant, gameId }: ResultsProps) {
         return;
       }
 
-      const gameInfo = gameData as GameData;
-
       const { data: quizData, error: quizError } = await supabase
         .from("quiz_sets")
-        .select("social_share_link, social_bonus_points")
-        .eq("id", gameInfo.quiz_set_id)
+        .select("name, social_share_link, social_bonus_points")
+        .eq("id", gameData.quiz_set_id)
         .single();
 
       if (quizError || !quizData) {
@@ -77,11 +72,7 @@ export default function Results({ participant, gameId }: ResultsProps) {
         return;
       }
 
-      const quiz = quizData as unknown as QuizData;
-      setQuizDetails({
-        social_share_link: quiz.social_share_link,
-        social_bonus_points: quiz.social_bonus_points,
-      });
+      setQuizDetails(quizData);
     };
 
     getQuizDetails();
@@ -89,8 +80,7 @@ export default function Results({ participant, gameId }: ResultsProps) {
 
   useEffect(() => {
     const getResults = async () => {
-      // Fetch all results
-      const { data: allData, error: allError } = await supabase
+      const { data, error } = await supabase
         .from("game_results")
         .select(
           `
@@ -102,31 +92,25 @@ export default function Results({ participant, gameId }: ResultsProps) {
         .eq("game_id", gameId)
         .order("total_score", { ascending: false });
 
-      if (allError) {
-        return toast.error(allError.message);
+      if (error) {
+        return toast.error(error.message);
       }
 
-      if (allData) {
-        const formattedResults = allData.map((result) => ({
-          participant_id: result.participant_id!,
-          nickname: result.nickname!,
-          total_score: result.total_score || 0,
-          scores: result.scores || [],
+      const formattedResults = data?.map((result) => ({
+        ...result,
+        profiles: {
           profiles: {
-            profiles: {
-              avatar_url: result.profiles?.[0]?.user?.avatar_url || null,
-            },
+            avatar_url: result.profiles?.[0]?.user?.avatar_url || null,
           },
-        }));
-        setAllResults(formattedResults);
+        },
+      }));
 
-        // Find personal result
-        const personal = formattedResults.find(
-          (r) => r.participant_id === participant.id
-        );
-        if (personal) {
-          setPersonalResult(personal);
-        }
+      setAllResults(formattedResults as DetailedGameResult[]);
+      const personal = formattedResults?.find(
+        (r) => r.participant_id === participant.id
+      );
+      if (personal) {
+        setPersonalResult(personal as DetailedGameResult);
       }
     };
     getResults();
@@ -191,54 +175,65 @@ export default function Results({ participant, gameId }: ResultsProps) {
             rank: index + 1,
           }));
 
-        // Show top 10 for participant view
+        // Show top 10 for player view
         setMonthlyLeaderboard(sortedLeaderboard.slice(0, 10));
+
+        // Find current user's score
+        if (participant.user_id) {
+          const userScore = sortedLeaderboard.find(
+            (score) => score.user_id === participant.user_id
+          );
+          if (userScore) {
+            setCurrentUserScore(userScore);
+          }
+        }
       } catch (error) {
         console.error("Error fetching monthly leaderboard:", error);
       }
     };
 
     fetchMonthlyLeaderboard();
-  }, [currentDate]);
+  }, [currentDate, participant.user_id]);
 
   return (
-    <div className="relative">
+    <div className="relative min-h-screen bg-background">
       <Confetti
         width={width}
         height={height}
         recycle={true}
         style={{ position: "fixed", top: 0, left: 0, zIndex: 0 }}
       />
-      <div className="flex flex-col flex-grow w-full items-center bg-blue-500 p-4 relative z-10">
-        {/* Personal Score Card */}
-        <div className="bg-gradient-to-br from-cyan-400 via-sky-500 to-blue-600 rounded-2xl shadow-xl overflow-hidden mb-8 w-full max-w-2xl">
-          <div className="backdrop-blur-sm bg-white/10 p-8 text-center">
-            <h2 className="text-2xl pb-4 text-white">
-              Hey {participant.nickname}！
-            </h2>
-            {personalResult ? (
-              <>
-                <p className="text-xl font-bold mb-2 text-white">
-                  Your final score: {personalResult.total_score} points
-                </p>
-                <p className="text-sm text-white/80">
-                  ({personalResult.scores.join("+")})
-                </p>
-              </>
-            ) : (
-              <p className="text-white">Loading your score...</p>
-            )}
-            <p className="mt-4 text-white">Thanks for playing 🎉</p>
-          </div>
-        </div>
+      <div className="flex flex-col items-center p-4 relative z-10 max-w-7xl mx-auto">
+        {/* Quiz Name and Personal Score */}
+        <Card className="w-full max-w-2xl mb-8">
+          <CardHeader>
+            <CardTitle className="text-3xl text-center">
+              {quizDetails?.name || "Quiz Results"}
+            </CardTitle>
+          </CardHeader>
+          {personalResult && (
+            <CardContent>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-primary">
+                  {personalResult.total_score} points
+                </div>
+                <div className="text-sm text-muted-foreground mt-1">
+                  Your Score
+                </div>
+              </div>
+            </CardContent>
+          )}
+        </Card>
 
         {/* Social Media Bonus */}
         {(quizDetails?.social_bonus_points ?? 0) > 0 && quizDetails && (
-          <SocialBonusSubmission
-            gameId={gameId}
-            participantId={participant.id}
-            bonusPoints={quizDetails.social_bonus_points!}
-          />
+          <div className="w-full max-w-2xl mb-8">
+            <SocialBonusSubmission
+              gameId={gameId}
+              participantId={participant.id}
+              bonusPoints={quizDetails.social_bonus_points!}
+            />
+          </div>
         )}
 
         {/* Game Results */}
@@ -249,18 +244,16 @@ export default function Results({ participant, gameId }: ResultsProps) {
 
         {/* Monthly Leaderboard */}
         {participant.user_id && (
-          <div className="w-full max-w-2xl">
-            <MonthlyLeaderboard
-              monthlyLeaderboard={monthlyLeaderboard}
-              currentUserScore={currentUserScore}
-              currentUserId={participant.user_id}
-              allowMonthNavigation={false}
-              currentDate={currentDate}
-              onPreviousMonth={() => {}}
-              onNextMonth={() => {}}
-              onCurrentMonth={() => {}}
-            />
-          </div>
+          <MonthlyLeaderboard
+            monthlyLeaderboard={monthlyLeaderboard}
+            currentUserScore={currentUserScore}
+            currentUserId={participant.user_id}
+            allowMonthNavigation={false}
+            currentDate={currentDate}
+            onPreviousMonth={() => {}}
+            onNextMonth={() => {}}
+            onCurrentMonth={() => {}}
+          />
         )}
       </div>
     </div>
