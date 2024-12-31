@@ -7,7 +7,7 @@ import { QuizResult, UserScore } from "@/types/quiz";
 import MonthlyLeaderboard from "@/app/components/MonthlyLeaderboard";
 import { useRouter } from "next/navigation";
 
-export default function HistoryPage() {
+export default function DashboardHistoryPage() {
   const [results, setResults] = useState<QuizResult[]>([]);
   const [monthlyLeaderboard, setMonthlyLeaderboard] = useState<UserScore[]>([]);
   const [currentUserScore, setCurrentUserScore] = useState<UserScore | null>(

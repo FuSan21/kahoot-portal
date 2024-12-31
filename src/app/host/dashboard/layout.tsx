@@ -1,7 +1,10 @@
 import SiteLogo from "@/app/host/dashboard/sitelogo.svg";
 import Image from "next/image";
 import Link from "next/link";
-import { Home, Plus, History, HelpCircle } from "lucide-react";
+import { Home, Plus, History, HelpCircle, Menu } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const menuItems: {
   label: string;
@@ -30,38 +33,64 @@ const menuItems: {
   },
 ];
 
+interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
+  className?: string;
+}
+
+function Sidebar({ className }: SidebarProps) {
+  return (
+    <div className={cn("pb-12", className)}>
+      <div className="flex justify-center items-center py-4 px-6">
+        <Link href="/host/dashboard">
+          <Image priority src={SiteLogo} alt="Kahoot Portal" />
+        </Link>
+      </div>
+      <div className="px-3 py-2">
+        <h3 className="mx-3 mb-2 text-xs text-muted-foreground uppercase tracking-widest">
+          Main
+        </h3>
+        <div className="space-y-1">
+          {menuItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+            >
+              <div className="mr-2">{item.icon}</div>
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col sm:flex-row h-full flex-grow">
-      <nav className="w-full sm:w-64 bg-gray-50 border-r border-gray-200">
-        <div className="flex justify-center items-center py-4 px-6">
-          <Link href="/host/dashboard">
-            <Image priority src={SiteLogo} alt="Kahoot Portal" />
-          </Link>
-        </div>
+    <div className="flex min-h-screen">
+      {/* Sidebar for desktop */}
+      <aside className="hidden lg:flex w-64 border-r bg-background">
+        <Sidebar className="w-full" />
+      </aside>
 
-        <div className="sm:mb-10">
-          <h3 className="mx-6 mb-2 text-xs text-gray-400 uppercase tracking-widest">
-            Main
-          </h3>
-          {menuItems.map((item) => (
-            <Link
-              href={item.href}
-              key={item.href}
-              className="flex items-center px-6 py-2.5 text-gray-500 hover:text-orange-600 group"
-            >
-              <div className="px-2">{item.icon}</div>
-              <div className="flex-grow">{item.label}</div>
-            </Link>
-          ))}
-        </div>
-      </nav>
+      {/* Sheet for mobile */}
+      <Sheet>
+        <SheetTrigger asChild className="lg:hidden absolute left-4 top-4">
+          <Button variant="outline" size="icon">
+            <Menu className="h-5 w-5" />
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="w-64 p-0">
+          <Sidebar />
+        </SheetContent>
+      </Sheet>
 
-      <main className="p-2 sm:p-10 flex-grow">{children}</main>
+      <main className="flex-1 p-8">{children}</main>
     </div>
   );
 }
