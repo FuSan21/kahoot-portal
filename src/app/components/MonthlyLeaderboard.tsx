@@ -1,4 +1,7 @@
-import Image from "next/image";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { ChevronLeftIcon, ChevronRightIcon, CalendarIcon } from "lucide-react";
 import { UserScore } from "@/types/quiz";
 
 interface MonthlyLeaderboardProps {
@@ -22,6 +25,11 @@ export default function MonthlyLeaderboard({
   onNextMonth,
   onCurrentMonth,
 }: MonthlyLeaderboardProps) {
+  const monthYear = currentDate.toLocaleString("default", {
+    month: "long",
+    year: "numeric",
+  });
+
   const isCurrentMonth = (date: Date) => {
     const now = new Date();
     return (
@@ -31,112 +39,160 @@ export default function MonthlyLeaderboard({
   };
 
   return (
-    <div className="bg-gradient-to-br from-sky-400 via-blue-500 to-indigo-600 rounded-2xl shadow-xl overflow-hidden">
-      <div className="backdrop-blur-sm bg-white/10 p-6">
-        <div className="flex items-center justify-between mb-6">
+    <Card className="w-full">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-2xl font-bold flex items-center gap-2">
+            <CalendarIcon className="h-6 w-6" />
+            Monthly Leaderboard
+          </CardTitle>
           {allowMonthNavigation && (
-            <button
-              onClick={onPreviousMonth}
-              className="bg-white/20 hover:bg-white/30 text-white font-bold py-2 px-4 rounded-full transition duration-300"
-            >
-              ←
-            </button>
-          )}
-          <div className="flex flex-col items-center">
-            <h2 className="text-2xl font-bold text-white">
-              {currentDate.toLocaleString("default", {
-                month: "long",
-                year: "numeric",
-              })}{" "}
-              Leaderboard
-            </h2>
-            {allowMonthNavigation && !isCurrentMonth(currentDate) && (
-              <button
-                onClick={onCurrentMonth}
-                className="mt-2 text-white/80 hover:text-white text-sm bg-white/10 hover:bg-white/20 px-3 py-1 rounded-full transition duration-300"
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={onPreviousMonth}
+                className="h-8 w-8"
               >
-                Back to Current Month
-              </button>
-            )}
-          </div>
-          {allowMonthNavigation && (
-            <button
-              onClick={onNextMonth}
-              className="bg-white/20 hover:bg-white/30 text-white font-bold py-2 px-4 rounded-full transition duration-300"
-            >
-              →
-            </button>
+                <ChevronLeftIcon className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onCurrentMonth}
+                className="h-8"
+                disabled={isCurrentMonth(currentDate)}
+              >
+                Current
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={onNextMonth}
+                className="h-8 w-8"
+              >
+                <ChevronRightIcon className="h-4 w-4" />
+              </Button>
+            </div>
           )}
         </div>
-
-        <div className="space-y-2">
-          {monthlyLeaderboard.map((userScore, index) => (
+        <p className="text-muted-foreground">{monthYear}</p>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          {monthlyLeaderboard.map((score) => (
             <div
-              key={userScore.user_id}
-              className={`bg-white/10 backdrop-blur-sm p-4 rounded-xl flex justify-between items-center hover:bg-white/20 transition duration-300 ${
-                userScore.user_id === currentUserId
-                  ? "ring-2 ring-yellow-400"
-                  : ""
-              }`}
+              key={score.user_id}
+              className={cn(
+                "flex items-center gap-4 p-4 rounded-lg transition-colors",
+                currentUserId === score.user_id
+                  ? "bg-primary/10"
+                  : "bg-muted/50",
+                "relative overflow-hidden"
+              )}
             >
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white/20 text-white font-bold">
-                  {userScore.rank}
-                </div>
-                <div className="relative w-10 h-10 rounded-full overflow-hidden bg-white/20">
-                  <Image
-                    src={userScore.avatar_url}
-                    alt={userScore.full_name}
-                    fill
-                    className="object-cover"
+              {/* Rank */}
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center font-bold">
+                {score.rank}
+              </div>
+
+              {/* Avatar */}
+              <div className="flex-shrink-0 h-10 w-10 rounded-full overflow-hidden bg-muted">
+                {score.avatar_url ? (
+                  <img
+                    src={score.avatar_url}
+                    alt={score.full_name || "User"}
+                    className="h-full w-full object-cover"
+                    draggable={false}
                   />
+                ) : (
+                  <div className="h-full w-full flex items-center justify-center bg-primary/10 text-primary">
+                    {(score.full_name || "?")[0].toUpperCase()}
+                  </div>
+                )}
+              </div>
+
+              {/* Name */}
+              <div className="flex-grow min-w-0">
+                <div className="font-medium truncate">
+                  {score.full_name || "Anonymous"}
                 </div>
-                <span className="text-lg text-white font-medium">
-                  {userScore.full_name}
-                </span>
               </div>
-              <div className="text-lg font-bold text-white">
-                {userScore.total_score} pts
+
+              {/* Total Score */}
+              <div className="flex-shrink-0 text-lg font-bold bg-primary/10 text-primary px-4 py-1 rounded-full">
+                {score.total_score} pts
               </div>
+
+              {/* Medal for top 3 */}
+              {score.rank <= 3 && (
+                <div
+                  className={cn(
+                    "absolute -right-8 top-0 w-24 h-6 rotate-45 flex items-center justify-center text-white text-xs",
+                    score.rank === 1
+                      ? "bg-yellow-500"
+                      : score.rank === 2
+                      ? "bg-gray-400"
+                      : "bg-amber-600"
+                  )}
+                >
+                  {score.rank === 1 ? "1st" : score.rank === 2 ? "2nd" : "3rd"}
+                </div>
+              )}
             </div>
           ))}
 
-          {currentUserScore && currentUserScore.rank > 9 && (
-            <>
-              <div className="text-center text-white/70 py-2">
-                <div className="text-2xl">•••</div>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm p-4 rounded-xl flex justify-between items-center hover:bg-white/20 transition duration-300 ring-2 ring-yellow-400">
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white/20 text-white font-bold">
+          {/* Current User Score (if not in top 10) */}
+          {currentUserScore &&
+            !monthlyLeaderboard.some(
+              (score) => score.user_id === currentUserScore.user_id
+            ) && (
+              <>
+                <div className="relative py-2">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-muted" />
+                  </div>
+                  <div className="relative flex justify-center">
+                    <span className="bg-background px-2 text-xs text-muted-foreground">
+                      Your Position
+                    </span>
+                  </div>
+                </div>
+                <div
+                  className={cn(
+                    "flex items-center gap-4 p-4 rounded-lg bg-primary/10"
+                  )}
+                >
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center font-bold">
                     {currentUserScore.rank}
                   </div>
-                  <div className="relative w-10 h-10 rounded-full overflow-hidden bg-white/20">
-                    <Image
-                      src={currentUserScore.avatar_url}
-                      alt={currentUserScore.full_name}
-                      fill
-                      className="object-cover"
-                    />
+                  <div className="flex-shrink-0 h-10 w-10 rounded-full overflow-hidden bg-muted">
+                    {currentUserScore.avatar_url ? (
+                      <img
+                        src={currentUserScore.avatar_url}
+                        alt={currentUserScore.full_name || "User"}
+                        className="h-full w-full object-cover"
+                        draggable={false}
+                      />
+                    ) : (
+                      <div className="h-full w-full flex items-center justify-center bg-primary/10 text-primary">
+                        {(currentUserScore.full_name || "?")[0].toUpperCase()}
+                      </div>
+                    )}
                   </div>
-                  <span className="text-lg text-white font-medium">
-                    {currentUserScore.full_name}
-                  </span>
+                  <div className="flex-grow min-w-0">
+                    <div className="font-medium truncate">
+                      {currentUserScore.full_name || "Anonymous"}
+                    </div>
+                  </div>
+                  <div className="flex-shrink-0 text-lg font-bold bg-primary/10 text-primary px-4 py-1 rounded-full">
+                    {currentUserScore.total_score} pts
+                  </div>
                 </div>
-                <div className="text-lg font-bold text-white">
-                  {currentUserScore.total_score} pts
-                </div>
-              </div>
-            </>
-          )}
-
-          {monthlyLeaderboard.length === 0 && (
-            <div className="text-white/70 text-center py-4">
-              No scores for this month
-            </div>
-          )}
+              </>
+            )}
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

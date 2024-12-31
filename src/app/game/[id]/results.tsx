@@ -10,7 +10,7 @@ import {
 import Confetti from "react-confetti";
 import useWindowSize from "react-use/lib/useWindowSize";
 import { toast } from "sonner";
-import MonthlyLeaderboard from "@/components/MonthlyLeaderboard";
+import MonthlyLeaderboard from "@/app/components/MonthlyLeaderboard";
 import GameLeaderboard from "@/components/GameLeaderboard";
 import { UserScore } from "@/types/quiz";
 import SocialBonusSubmission from "@/app/components/SocialBonusSubmission";
@@ -133,54 +133,35 @@ export default function Results({ participant, gameId }: ResultsProps) {
           59
         );
 
-        const { data, error } = await supabase
-          .from("quiz_history")
-          .select(
-            `
-            user_id,
-            users:user_id (
-              email,
-              full_name,
-              avatar_url
-            ),
-            total_score
-          `
-          )
-          .gte("played_at", startOfMonth.toISOString())
-          .lte("played_at", endOfMonth.toISOString());
-
-        if (error) throw error;
-
-        // Calculate total score per user
-        const userScores: { [key: string]: UserScore } = {};
-        data.forEach((item: any) => {
-          if (!userScores[item.user_id]) {
-            userScores[item.user_id] = {
-              user_id: item.user_id,
-              user_email: item.users?.email || "Unknown User",
-              full_name: item.users?.full_name || "Unknown User",
-              avatar_url: item.users?.avatar_url || "/default-avatar.png",
-              total_score: 0,
-              rank: 1,
-            };
+        // Get all quiz history for the month
+        const { data: historyData, error: historyError } = await supabase.rpc(
+          "get_monthly_leaderboard",
+          {
+            start_date: startOfMonth.toISOString(),
+            end_date: endOfMonth.toISOString(),
           }
-          userScores[item.user_id].total_score += item.total_score || 0;
-        });
+        );
 
-        // Convert to array, sort by score, and add ranks
-        const sortedLeaderboard = Object.values(userScores)
-          .sort((a, b) => b.total_score - a.total_score)
-          .map((score, index) => ({
-            ...score,
+        if (historyError) throw historyError;
+
+        // Format the data into UserScore objects
+        const leaderboard = (historyData || []).map(
+          (item: any, index: number) => ({
+            user_id: item.user_id,
+            user_email: item.email || "Unknown User",
+            full_name: item.full_name || "Anonymous",
+            avatar_url: item.avatar_url || "/default-avatar.png",
+            total_score: item.total_score || 0,
             rank: index + 1,
-          }));
+          })
+        );
 
         // Show top 10 for player view
-        setMonthlyLeaderboard(sortedLeaderboard.slice(0, 10));
+        setMonthlyLeaderboard(leaderboard.slice(0, 10));
 
         // Find current user's score
         if (participant.user_id) {
-          const userScore = sortedLeaderboard.find(
+          const userScore = leaderboard.find(
             (score) => score.user_id === participant.user_id
           );
           if (userScore) {

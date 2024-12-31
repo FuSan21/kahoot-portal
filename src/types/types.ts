@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { createBrowserClient } from "@supabase/ssr";
-import { Database } from "./supabase";
+import { Database as DatabaseGenerated } from "./supabase";
 
 export const supabase = createBrowserClient<Database>(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -47,3 +47,27 @@ export type Game = Database["public"]["Tables"]["games"]["Row"];
 export type GameResult = Database["public"]["Views"]["game_results"]["Row"] & {
   scores: number[];
 };
+
+export interface Database extends Omit<DatabaseGenerated, "public"> {
+  public: {
+    Tables: DatabaseGenerated["public"]["Tables"];
+    Views: DatabaseGenerated["public"]["Views"];
+    Functions: DatabaseGenerated["public"]["Functions"] & {
+      get_monthly_leaderboard: {
+        Args: {
+          start_date: string;
+          end_date: string;
+        };
+        Returns: {
+          user_id: string;
+          email: string;
+          full_name: string;
+          avatar_url: string;
+          total_score: number;
+        }[];
+      };
+    };
+    Enums: DatabaseGenerated["public"]["Enums"];
+    CompositeTypes: DatabaseGenerated["public"]["CompositeTypes"];
+  };
+}
