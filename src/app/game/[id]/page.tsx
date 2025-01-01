@@ -219,7 +219,7 @@ export default function Home(props: { params: Promise<{ id: string }> }) {
     <PanelGroup
       autoSaveId="jitsi-panel-group"
       direction="horizontal"
-      className="flex flex-1 min-h-0 relative"
+      className="flex flex-1 h-full relative"
     >
       <Panel
         minSize={20}

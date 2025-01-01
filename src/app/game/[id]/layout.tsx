@@ -6,11 +6,9 @@ export default function GameLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen h-screen flex flex-col overflow-hidden">
       <Header />
-      <div className="flex-1 min-h-[calc(100vh-3.5rem)] overflow-auto">
-        {children}
-      </div>
+      <main className="flex-1 overflow-auto">{children}</main>
     </div>
   );
 }
