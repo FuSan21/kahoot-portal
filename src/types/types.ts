@@ -10,15 +10,18 @@ export interface Database extends Omit<DatabaseGenerated, "public"> {
       add_question: {
         Args: {
           quiz_set_id: string;
-          question_text: string;
-          choices: string[];
-          correct_choice_index: number;
-          image_url?: string;
+          body: string;
+          order: number;
+          choices: { body: string; is_correct: boolean }[];
+          image?: string;
         };
-        Returns: { id: string };
+        Returns: void;
       };
       get_monthly_leaderboard: {
-        Args: Record<string, never>;
+        Args: {
+          start_date: string;
+          end_date: string;
+        };
         Returns: {
           user_id: string;
           email: string;

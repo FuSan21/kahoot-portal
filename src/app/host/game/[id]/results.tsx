@@ -155,7 +155,10 @@ export default function Results({
         {/* Social Bonus Review */}
         {(quizSet?.social_bonus_points ?? 0) > 0 && (
           <div className="w-full max-w-2xl mb-8">
-            <SocialBonusReview gameId={gameId} quizId={quizSet.id} />
+            <SocialBonusReview
+              gameId={gameId}
+              bonusPoints={quizSet.social_bonus_points!}
+            />
           </div>
         )}
 
