@@ -8,23 +8,16 @@ import {
   Answer,
 } from "@/types/types";
 import { Check, X } from "lucide-react";
-import { getPreloadedImage } from "@/utils/imagePreloader";
 import { useState, useEffect, useRef } from "react";
-import Image from "next/image";
 import { toast } from "@/hooks/use-toast";
 import {
   ColorFormat,
   CountdownCircleTimer,
 } from "react-countdown-circle-timer";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardFooter,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import ParticipantsList from "@/components/ParticipantsList";
+import QuestionDisplay from "@/components/QuestionDisplay";
 
 export default function Quiz({
   question: question,
@@ -292,29 +285,7 @@ export default function Quiz({
 
   return (
     <div className="flex flex-col flex-grow items-stretch bg-background overflow-auto w-full">
-      <Card className="m-4 shadow-lg">
-        <CardHeader>
-          <CardTitle className="text-3xl text-center">
-            {question.body}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {question.image && (
-            <div className="w-full mx-auto mb-4">
-              <Image
-                src={
-                  getPreloadedImage(`${quiz}/${question.image}`) ||
-                  `/api/getImage?path=${quiz}/${question.image}`
-                }
-                alt={question.body}
-                width={400}
-                height={400}
-                className="w-full h-auto max-h-[30vh] object-contain rounded-lg"
-              />
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <QuestionDisplay question={question} quiz={quiz} />
 
       <div className="flex-grow flex flex-col justify-center items-center min-h-0 p-4">
         {!isAnswerRevealed && chosenChoice && (
