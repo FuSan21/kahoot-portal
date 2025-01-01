@@ -7,7 +7,7 @@ import { AdminScreens } from "@/types/enums";
 import Lobby from "./lobby";
 import Quiz from "./quiz";
 import Results from "./results";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { preloadQuizImages } from "@/utils/imagePreloader";
 import JitsiMeetSidebar from "@/app/components/JitsiMeetSidebar";
 import { generateJWT } from "@/app/auth/jitsi/generateJwt";

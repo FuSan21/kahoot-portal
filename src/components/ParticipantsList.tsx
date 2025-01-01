@@ -1,8 +1,8 @@
 import { useRef, useState } from "react";
 import { Answer, Participant, Question } from "@/types/types";
 import { cn } from "@/lib/utils";
-import CheckIcon from "@/app/components/icons/CheckIcon";
-import CrossIcon from "@/app/components/icons/CrossIcon";
+import { Check, X } from "lucide-react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface ParticipantsListProps {
   participants: Participant[];
@@ -103,20 +103,16 @@ export default function ParticipantsList({
                     : "bg-background"
                 )}
               >
-                <div className="flex-shrink-0 h-8 w-8 rounded-full overflow-hidden bg-muted">
-                  {participant.profile?.avatar_url ? (
-                    <img
-                      src={participant.profile.avatar_url}
-                      alt={participant.nickname}
-                      className="h-full w-full object-cover"
-                      draggable={false}
-                    />
-                  ) : (
-                    <div className="h-full w-full flex items-center justify-center bg-primary/10 text-primary">
-                      {participant.nickname[0].toUpperCase()}
-                    </div>
-                  )}
-                </div>
+                <Avatar className="h-8 w-8">
+                  <AvatarImage
+                    src={participant.profile?.avatar_url ?? undefined}
+                    alt={participant.nickname}
+                    draggable={false}
+                  />
+                  <AvatarFallback className="bg-primary/10 text-primary">
+                    {participant.nickname[0].toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
                 <div className="flex-grow min-w-0">
                   <div className="truncate text-sm font-medium">
                     {participant.nickname}
@@ -129,9 +125,9 @@ export default function ParticipantsList({
                   <div className="flex-shrink-0">
                     {isAnswerRevealed ? (
                       choice?.is_correct ? (
-                        <CheckIcon className="h-4 w-4 text-green-500" />
+                        <Check className="h-4 w-4 text-green-500" />
                       ) : (
-                        <CrossIcon className="h-4 w-4 text-red-500" />
+                        <X className="h-4 w-4 text-red-500" />
                       )
                     ) : (
                       <div className="h-2 w-2 rounded-full bg-primary" />

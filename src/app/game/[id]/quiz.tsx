@@ -7,12 +7,11 @@ import {
   Participant,
   Answer,
 } from "@/types/types";
-import CheckIcon from "@/app/components/icons/CheckIcon";
-import CrossIcon from "@/app/components/icons/CrossIcon";
+import { Check, X } from "lucide-react";
 import { getPreloadedImage } from "@/utils/imagePreloader";
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import {
   ColorFormat,
   CountdownCircleTimer,
@@ -393,9 +392,9 @@ export default function Quiz({
               >
                 <span>{choice.body}</span>
                 {choice.is_correct ? (
-                  <CheckIcon className="h-4 w-4 text-green-500" />
+                  <Check className="h-4 w-4 text-green-500" />
                 ) : chosenChoice?.id === choice.id ? (
-                  <CrossIcon className="h-4 w-4 text-red-500" />
+                  <X className="h-4 w-4 text-red-500" />
                 ) : null}
               </div>
             ))}

@@ -1,12 +1,11 @@
 import { TIME_TIL_CHOICE_REVEAL, QUESTION_ANSWER_TIME } from "@/constants";
 import { Answer, Participant, Question, supabase, Game } from "@/types/types";
 import { getPreloadedImage } from "@/utils/imagePreloader";
-import CheckIcon from "@/app/components/icons/CheckIcon";
-import CrossIcon from "@/app/components/icons/CrossIcon";
+import { Check } from "lucide-react";
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import Image from "next/image";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import ParticipantsList from "@/components/ParticipantsList";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,9 +16,9 @@ export default function Quiz({
   question: question,
   quiz: quiz,
   questionCount: questionCount,
-  gameId,
-  participants,
-  isAuthorized,
+  gameId: gameId,
+  participants: participants,
+  isAuthorized: isAuthorized,
 }: {
   question: Question;
   quiz: string;
@@ -431,7 +430,7 @@ export default function Quiz({
                 <div className="flex justify-between items-center">
                   <span>{choice.body}</span>
                   {isAnswerRevealed && choice.is_correct && (
-                    <CheckIcon className="h-4 w-4 text-green-500" />
+                    <Check className="h-4 w-4 text-green-500" />
                   )}
                 </div>
                 {isAnswerRevealed && (

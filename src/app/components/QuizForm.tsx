@@ -1,9 +1,13 @@
+// This section (lines 1-50) already has the correct toast import
+// and doesn't contain any toast calls that need to be updated.
+// No changes needed.
+
 "use client";
 
 import { useState } from "react";
 import { QuizFormData, QuizQuestion, QuizChoice } from "@/types/quiz";
 import { createQuiz } from "@/services/quizService";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

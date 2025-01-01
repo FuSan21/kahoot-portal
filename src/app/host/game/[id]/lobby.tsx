@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Participant, supabase } from "@/types/types";
 import { useQRCode } from "next-qrcode";
 import { BASE_URL } from "@/constants";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";

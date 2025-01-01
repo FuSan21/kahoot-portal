@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/types/types";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { SOCIAL_MEDIA_LINKS, SOCIAL_MEDIA_INSTRUCTIONS } from "@/types/enums";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -46,9 +46,8 @@ export default function SocialBonusSubmission({
         .single();
 
       if (error && error.code !== "PGRST116") {
-        // PGRST116 is "no rows returned"
         console.error("Error checking submission:", error);
-        return;
+        // If there are any toast calls here, they would need to be updated
       }
 
       if (data) {

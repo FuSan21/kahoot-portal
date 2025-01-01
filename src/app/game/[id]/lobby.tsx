@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Participant, supabase } from "@/types/types";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Loader2 } from "lucide-react";
