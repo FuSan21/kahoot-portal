@@ -14,7 +14,7 @@ select g.id as game_id,
             select qs.social_bonus_points
             from social_bonus_submissions sbs
             where sbs.participant_id = p.id
-                and sbs.is_approved = true
+                and sbs.status = 'approved'
             limit 1
         ), 0
     ) as total_score

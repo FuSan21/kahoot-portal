@@ -5,17 +5,13 @@ ADD COLUMN social_share_link text,
 -- Create a new storage bucket for social media screenshots
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('social_screenshots', 'social_screenshots', true) ON CONFLICT (id) DO NOTHING;
--- Create social bonus submissions table
+-- Create social bonus submissions table with simpler schema
 CREATE TABLE IF NOT EXISTS public.social_bonus_submissions (
     id uuid DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL,
     participant_id uuid NOT NULL REFERENCES public.participants(id) ON DELETE CASCADE ON UPDATE CASCADE,
     screenshot_urls text [] NOT NULL DEFAULT '{}',
-    is_approved boolean,
-    approved_at timestamp with time zone,
-    approved_by uuid REFERENCES public.profiles(id) ON DELETE
-    SET NULL ON UPDATE CASCADE
+    status text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected'))
 );
 -- Add RLS policies for social bonus submissions
 ALTER TABLE public.social_bonus_submissions ENABLE ROW LEVEL SECURITY;
@@ -78,17 +74,15 @@ CREATE OR REPLACE FUNCTION get_game_social_bonus_submissions(_game_id uuid) RETU
         id uuid,
         participant_id uuid,
         screenshot_urls text [],
-        is_approved boolean,
+        status text,
         created_at timestamptz,
-        updated_at timestamptz,
         participant_nickname text
     ) AS $$ BEGIN RETURN QUERY
 SELECT s.id,
     s.participant_id,
     s.screenshot_urls,
-    s.is_approved,
+    s.status,
     s.created_at,
-    s.updated_at,
     p.nickname as participant_nickname
 FROM social_bonus_submissions s
     INNER JOIN participants p ON s.participant_id = p.id
@@ -96,37 +90,6 @@ WHERE p.game_id = _game_id
 ORDER BY s.created_at DESC;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
--- Create trigger to notify on social bonus submission changes
-CREATE OR REPLACE FUNCTION notify_social_bonus_submission_changes() RETURNS TRIGGER AS $$ BEGIN IF TG_OP = 'INSERT'
-    OR TG_OP = 'UPDATE' THEN PERFORM pg_notify(
-        'social_bonus_submissions',
-        json_build_object(
-            'type',
-            TG_OP,
-            'record',
-            row_to_json(NEW)
-        )::text
-    );
-RETURN NEW;
-ELSE PERFORM pg_notify(
-    'social_bonus_submissions',
-    json_build_object(
-        'type',
-        TG_OP,
-        'record',
-        row_to_json(OLD)
-    )::text
-);
-RETURN OLD;
-END IF;
-END;
-$$ LANGUAGE plpgsql;
-CREATE TRIGGER social_bonus_submission_changes
-AFTER
-INSERT
-    OR
-UPDATE
-    OR DELETE ON social_bonus_submissions FOR EACH ROW EXECUTE FUNCTION notify_social_bonus_submission_changes();
 -- Add social_bonus_submissions to realtime publication
 alter publication supabase_realtime
 add table social_bonus_submissions;

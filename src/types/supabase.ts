@@ -325,43 +325,27 @@ export type Database = {
       }
       social_bonus_submissions: {
         Row: {
-          approved_at: string | null
-          approved_by: string | null
           created_at: string
           id: string
-          is_approved: boolean | null
           participant_id: string
           screenshot_urls: string[]
-          updated_at: string
+          status: string
         }
         Insert: {
-          approved_at?: string | null
-          approved_by?: string | null
           created_at?: string
           id?: string
-          is_approved?: boolean | null
           participant_id: string
           screenshot_urls?: string[]
-          updated_at?: string
+          status?: string
         }
         Update: {
-          approved_at?: string | null
-          approved_by?: string | null
           created_at?: string
           id?: string
-          is_approved?: boolean | null
           participant_id?: string
           screenshot_urls?: string[]
-          updated_at?: string
+          status?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "social_bonus_submissions_approved_by_fkey"
-            columns: ["approved_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "social_bonus_submissions_participant_id_fkey"
             columns: ["participant_id"]
@@ -455,9 +439,8 @@ export type Database = {
           id: string
           participant_id: string
           screenshot_urls: string[]
-          is_approved: boolean
+          status: string
           created_at: string
-          updated_at: string
           participant_nickname: string
         }[]
       }

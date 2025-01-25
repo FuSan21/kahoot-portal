@@ -22,9 +22,8 @@ type SocialBonusSubmission = {
   id: string;
   participant_id: string;
   screenshot_urls: string[];
-  is_approved: boolean | null;
+  status: "pending" | "approved" | "rejected";
   created_at: string;
-  updated_at: string;
   participant_nickname: string;
 };
 
@@ -38,28 +37,21 @@ export default function SocialBonusReview({
   const [expandedImage, setExpandedImage] = useState<string | null>(null);
 
   useEffect(() => {
-    let mounted = true;
     const channel = supabase.channel(`game_${gameId}_social_bonus`);
 
     const fetchSubmissions = async () => {
-      if (!mounted) return;
-
       const { data, error } = await supabase.rpc(
         "get_game_social_bonus_submissions",
         { _game_id: gameId }
       );
 
       if (error) {
-        if (mounted) {
-          toast.error("Failed to load submissions");
-        }
+        toast.error("Failed to load submissions");
         return;
       }
 
-      if (mounted) {
-        setSubmissions(data || []);
-        setLoading(false);
-      }
+      setSubmissions((data as SocialBonusSubmission[]) || []);
+      setLoading(false);
     };
 
     // Initial fetch
@@ -75,8 +67,6 @@ export default function SocialBonusReview({
           table: "social_bonus_submissions",
         },
         (payload) => {
-          if (!mounted) return;
-
           if (payload.eventType === "UPDATE") {
             setSubmissions((prev) => {
               const newSubmissions = [...prev];
@@ -87,6 +77,7 @@ export default function SocialBonusReview({
                 newSubmissions[existingIndex] = {
                   ...newSubmissions[existingIndex],
                   ...payload.new,
+                  status: payload.new.status as SocialBonusSubmission["status"],
                 };
                 return newSubmissions;
               }
@@ -101,7 +92,6 @@ export default function SocialBonusReview({
       .subscribe();
 
     return () => {
-      mounted = false;
       channel.unsubscribe();
     };
   }, [gameId]);
@@ -112,9 +102,7 @@ export default function SocialBonusReview({
       const { error } = await supabase
         .from("social_bonus_submissions")
         .update({
-          is_approved: true,
-          approved_at: new Date().toISOString(),
-          approved_by: (await supabase.auth.getUser()).data.user?.id,
+          status: "approved" as const,
         })
         .eq("id", submissionId);
 
@@ -133,9 +121,7 @@ export default function SocialBonusReview({
       const { error } = await supabase
         .from("social_bonus_submissions")
         .update({
-          is_approved: false,
-          approved_at: new Date().toISOString(),
-          approved_by: (await supabase.auth.getUser()).data.user?.id,
+          status: "rejected" as const,
         })
         .eq("id", submissionId);
 
@@ -227,19 +213,19 @@ export default function SocialBonusReview({
                     variant="secondary"
                     className={cn(
                       "gap-1 text-xs",
-                      submission.is_approved === true
+                      submission.status === "approved"
                         ? "bg-green-100 text-green-800 hover:bg-green-100/80"
-                        : submission.is_approved === false
+                        : submission.status === "rejected"
                         ? "bg-red-100 text-red-800 hover:bg-red-100/80"
                         : "bg-blue-100 text-blue-800 hover:bg-blue-100/80"
                     )}
                   >
-                    {submission.is_approved === true ? (
+                    {submission.status === "approved" ? (
                       <>
                         <CheckCircle className="h-3 w-3" />
                         Approved
                       </>
-                    ) : submission.is_approved === false ? (
+                    ) : submission.status === "rejected" ? (
                       <>
                         <XCircle className="h-3 w-3" />
                         Rejected
@@ -273,7 +259,7 @@ export default function SocialBonusReview({
                 </div>
               </div>
 
-              {submission.is_approved === null && (
+              {submission.status === "pending" && (
                 <div className="flex gap-2 md:flex-shrink-0">
                   <Button
                     variant="outline"

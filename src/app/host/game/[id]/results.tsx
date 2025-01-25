@@ -45,37 +45,64 @@ export default function Results({
   const [monthlyLeaderboard, setMonthlyLeaderboard] = useState<UserScore[]>([]);
   const [currentDate] = useState(new Date());
 
-  useEffect(() => {
-    const getResults = async () => {
-      const { data, error } = await supabase
-        .from("game_results")
-        .select(
-          `
-          *,
-          participants(user_id),
-          profiles:participants(user:profiles(avatar_url))
+  const fetchResults = async () => {
+    const { data, error } = await supabase
+      .from("game_results")
+      .select(
         `
-        )
-        .eq("game_id", gameId)
-        .order("total_score", { ascending: false });
+        *,
+        participants(user_id),
+        profiles:participants(user:profiles(avatar_url))
+      `
+      )
+      .eq("game_id", gameId)
+      .order("total_score", { ascending: false });
 
-      if (error) {
-        return toast.error(error.message);
-      }
+    if (error) {
+      return toast.error(error.message);
+    }
 
-      const formattedResults = data?.map((result) => ({
-        ...result,
+    const formattedResults = data?.map((result) => ({
+      ...result,
+      profiles: {
         profiles: {
-          profiles: {
-            avatar_url: result.profiles?.[0]?.user?.avatar_url || null,
-          },
+          avatar_url: result.profiles?.[0]?.user?.avatar_url || null,
         },
-      }));
+      },
+    }));
 
-      setGameResults(formattedResults as DetailedGameResult[]);
+    setGameResults(formattedResults as DetailedGameResult[]);
+  };
+
+  useEffect(() => {
+    const channel = supabase.channel(`game_${gameId}_results`);
+
+    // Initial fetch
+    fetchResults();
+
+    // Setup subscription for any social bonus changes in this game
+    channel
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "social_bonus_submissions",
+          filter: `participant_id=in.(${gameResults
+            .map((r) => r.participant_id)
+            .join(",")})`,
+        },
+        () => {
+          // Refetch results when any participant's social bonus status changes
+          fetchResults();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      channel.unsubscribe();
     };
-    getResults();
-  }, [gameId]);
+  }, [gameId, gameResults.map((r) => r.participant_id).join(",")]);
 
   useEffect(() => {
     const fetchMonthlyLeaderboard = async () => {
@@ -94,7 +121,6 @@ export default function Results({
           59
         );
 
-        // Get all quiz history for the month
         const { data: historyData, error: historyError } = await supabase.rpc(
           "get_monthly_leaderboard",
           {
@@ -105,7 +131,6 @@ export default function Results({
 
         if (historyError) throw historyError;
 
-        // Format the data into UserScore objects
         const leaderboard = (historyData || []).map(
           (item: any, index: number) => ({
             user_id: item.user_id,
@@ -117,7 +142,6 @@ export default function Results({
           })
         );
 
-        // Show top 10 for host view
         setMonthlyLeaderboard(leaderboard.slice(0, 10));
       } catch (error) {
         console.error("Error fetching monthly leaderboard:", error);

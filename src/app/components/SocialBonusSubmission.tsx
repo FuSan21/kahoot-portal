@@ -22,7 +22,7 @@ interface SocialBonusSubmissionProps {
 interface SocialBonusSubmission {
   participant_id: string;
   screenshot_urls: string[];
-  is_approved?: boolean;
+  status: "pending" | "approved" | "rejected";
 }
 
 export default function SocialBonusSubmission({
@@ -34,30 +34,62 @@ export default function SocialBonusSubmission({
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
-  const [isApproved, setIsApproved] = useState(false);
+  const [submissionStatus, setSubmissionStatus] = useState<
+    "pending" | "approved" | "rejected"
+  >("pending");
 
-  // Check for existing submission when component mounts
   useEffect(() => {
+    const channel = supabase.channel(`social_bonus_${participantId}`);
+
     const checkExistingSubmission = async () => {
       const { data, error } = await supabase
         .from("social_bonus_submissions")
-        .select("id, is_approved")
+        .select("id, status")
         .eq("participant_id", participantId)
         .single();
 
       if (error && error.code !== "PGRST116") {
-        console.error("Error checking submission:", error);
-        // If there are any toast calls here, they would need to be updated
+        toast.error("Error checking submission status");
+        return;
       }
 
       if (data) {
         setHasSubmitted(true);
-        setIsApproved(data.is_approved || false);
+        setSubmissionStatus(data.status as "pending" | "approved" | "rejected");
       }
     };
 
     checkExistingSubmission();
+
+    // Setup subscription
+    channel
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "social_bonus_submissions",
+          filter: `participant_id=eq.${participantId}`,
+        },
+        (payload) => {
+          setSubmissionStatus(
+            payload.new.status as "pending" | "approved" | "rejected"
+          );
+        }
+      )
+      .subscribe();
+
+    return () => {
+      channel.unsubscribe();
+    };
   }, [participantId]);
+
+  // Cleanup preview URLs when component unmounts
+  useEffect(() => {
+    return () => {
+      previewUrls.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [previewUrls]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,6 +117,7 @@ export default function SocialBonusSubmission({
       const submission: SocialBonusSubmission = {
         participant_id: participantId,
         screenshot_urls: screenshotUrls,
+        status: "pending",
       };
 
       const { error: submissionError } = await supabase
@@ -96,7 +129,6 @@ export default function SocialBonusSubmission({
       toast.success("Your submission has been received!");
       setHasSubmitted(true);
     } catch (error) {
-      console.error("Error submitting social bonus:", error);
       toast.error(
         error instanceof Error ? error.message : "Failed to submit social bonus"
       );
@@ -104,13 +136,6 @@ export default function SocialBonusSubmission({
       setIsSubmitting(false);
     }
   };
-
-  // Cleanup preview URLs when component unmounts
-  useEffect(() => {
-    return () => {
-      previewUrls.forEach((url) => URL.revokeObjectURL(url));
-    };
-  }, [previewUrls]);
 
   if (hasSubmitted) {
     return (
@@ -121,17 +146,25 @@ export default function SocialBonusSubmission({
               variant="secondary"
               className={cn(
                 "gap-2 text-lg py-2 px-4",
-                isApproved
+                submissionStatus === "approved"
                   ? "bg-green-100 text-green-800 hover:bg-green-100/80"
+                  : submissionStatus === "rejected"
+                  ? "bg-red-100 text-red-800 hover:bg-red-100/80"
                   : "bg-blue-100 text-blue-800 hover:bg-blue-100/80"
               )}
             >
               <CheckCircle className="h-5 w-5" />
-              {isApproved ? "Bonus Points Awarded!" : "Submission Received!"}
+              {submissionStatus === "approved"
+                ? "Bonus Points Awarded!"
+                : submissionStatus === "rejected"
+                ? "Submission Rejected"
+                : "Submission Received!"}
             </Badge>
             <p className="text-center text-muted-foreground">
-              {isApproved
+              {submissionStatus === "approved"
                 ? `You've earned ${bonusPoints} bonus points for sharing!`
+                : submissionStatus === "rejected"
+                ? "Your submission was not approved. Please try again with a new submission."
                 : "Your submission will be reviewed and bonus points will be awarded soon."}
             </p>
           </div>

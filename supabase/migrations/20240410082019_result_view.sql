@@ -8,7 +8,7 @@ select participants.id as participant_id,
                 inner join games g2 on g2.id = participants.game_id
                 inner join quiz_sets on g2.quiz_set_id = quiz_sets.id
             where social_bonus_submissions.participant_id = participants.id
-                and social_bonus_submissions.is_approved = true
+                and social_bonus_submissions.status = 'approved'
             limit 1
         ), 0
     ) as total_score,
@@ -23,7 +23,7 @@ select participants.id as participant_id,
                 inner join games g2 on g2.id = participants.game_id
                 inner join quiz_sets on g2.quiz_set_id = quiz_sets.id
             where social_bonus_submissions.participant_id = participants.id
-                and social_bonus_submissions.is_approved = true
+                and social_bonus_submissions.status = 'approved'
             limit 1
         ), ARRAY []::integer []
     ) as scores

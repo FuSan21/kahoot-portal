@@ -48,6 +48,69 @@ export default function Results({ participant, gameId }: ResultsProps) {
   const { width, height } = useWindowSize();
   const [quizDetails, setQuizDetails] = useState<QuizDetails | null>(null);
 
+  const fetchResults = async () => {
+    const { data, error } = await supabase
+      .from("game_results")
+      .select(
+        `
+        *,
+        participants(user_id),
+        profiles:participants(user:profiles(avatar_url))
+      `
+      )
+      .eq("game_id", gameId)
+      .order("total_score", { ascending: false });
+
+    if (error) {
+      return toast.error(error.message);
+    }
+
+    const formattedResults = data?.map((result) => ({
+      ...result,
+      profiles: {
+        profiles: {
+          avatar_url: result.profiles?.[0]?.user?.avatar_url || null,
+        },
+      },
+    }));
+
+    setAllResults(formattedResults as DetailedGameResult[]);
+    const personal = formattedResults?.find(
+      (r) => r.participant_id === participant.id
+    );
+    if (personal) {
+      setPersonalResult(personal as DetailedGameResult);
+    }
+  };
+
+  useEffect(() => {
+    const channel = supabase.channel(`game_${gameId}_results`);
+
+    // Initial fetch
+    fetchResults();
+
+    // Setup subscription for social bonus changes
+    channel
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "social_bonus_submissions",
+          filter: `participant_id=eq.${participant.id}`,
+        },
+        () => {
+          // Refetch results when social bonus status changes
+          fetchResults();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      channel.unsubscribe();
+    };
+  }, [gameId, participant.id]);
+
   useEffect(() => {
     const getQuizDetails = async () => {
       const { data: gameData, error: gameError } = await supabase
@@ -79,44 +142,6 @@ export default function Results({ participant, gameId }: ResultsProps) {
   }, [gameId]);
 
   useEffect(() => {
-    const getResults = async () => {
-      const { data, error } = await supabase
-        .from("game_results")
-        .select(
-          `
-          *,
-          participants(user_id),
-          profiles:participants(user:profiles(avatar_url))
-        `
-        )
-        .eq("game_id", gameId)
-        .order("total_score", { ascending: false });
-
-      if (error) {
-        return toast.error(error.message);
-      }
-
-      const formattedResults = data?.map((result) => ({
-        ...result,
-        profiles: {
-          profiles: {
-            avatar_url: result.profiles?.[0]?.user?.avatar_url || null,
-          },
-        },
-      }));
-
-      setAllResults(formattedResults as DetailedGameResult[]);
-      const personal = formattedResults?.find(
-        (r) => r.participant_id === participant.id
-      );
-      if (personal) {
-        setPersonalResult(personal as DetailedGameResult);
-      }
-    };
-    getResults();
-  }, [gameId, participant.id]);
-
-  useEffect(() => {
     const fetchMonthlyLeaderboard = async () => {
       try {
         const startOfMonth = new Date(
@@ -133,7 +158,6 @@ export default function Results({ participant, gameId }: ResultsProps) {
           59
         );
 
-        // Get all quiz history for the month
         const { data: historyData, error: historyError } = await supabase.rpc(
           "get_monthly_leaderboard",
           {
@@ -144,7 +168,6 @@ export default function Results({ participant, gameId }: ResultsProps) {
 
         if (historyError) throw historyError;
 
-        // Format the data into UserScore objects
         const leaderboard = (historyData || []).map(
           (item: any, index: number) => ({
             user_id: item.user_id,
@@ -156,10 +179,8 @@ export default function Results({ participant, gameId }: ResultsProps) {
           })
         );
 
-        // Show top 10 for player view
         setMonthlyLeaderboard(leaderboard.slice(0, 10));
 
-        // Find current user's score
         if (participant.user_id) {
           const userScore = leaderboard.find(
             (score) => score.user_id === participant.user_id
