@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileUpload } from "@/components/ui/file-upload";
 import { cn } from "@/lib/utils";
+import { X } from "lucide-react";
 
 const INITIAL_CHOICE: QuizChoice = {
   body: "",
@@ -54,6 +55,20 @@ export default function QuizForm() {
 
     if (isSubmitting) return;
 
+    // Validate that each question has exactly one correct answer
+    const invalidQuestions = formData.questions.filter(
+      (question) => !question.choices.some((choice) => choice.is_correct)
+    );
+
+    if (invalidQuestions.length > 0) {
+      toast.error(
+        `Please select a correct answer for question ${
+          formData.questions.indexOf(invalidQuestions[0]) + 1
+        }`
+      );
+      return;
+    }
+
     try {
       setIsSubmitting(true);
       await createQuiz(formData);
@@ -87,6 +102,16 @@ export default function QuizForm() {
       body: idx === choiceIndex ? body : choice.body,
       is_correct: choice.is_correct,
     }));
+    setFormData({ ...formData, questions: newQuestions });
+  };
+
+  const deleteQuestion = (index: number) => {
+    if (formData.questions.length <= 1) {
+      toast.error("Quiz must have at least one question");
+      return;
+    }
+    const newQuestions = [...formData.questions];
+    newQuestions.splice(index, 1);
     setFormData({ ...formData, questions: newQuestions });
   };
 
@@ -170,8 +195,17 @@ export default function QuizForm() {
         <h2 className="text-2xl font-bold">Questions</h2>
         {formData.questions.map((question, qIndex) => (
           <Card key={qIndex}>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Question {qIndex + 1}</CardTitle>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => deleteQuestion(qIndex)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
