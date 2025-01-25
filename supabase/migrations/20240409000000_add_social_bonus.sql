@@ -96,3 +96,37 @@ WHERE p.game_id = _game_id
 ORDER BY s.created_at DESC;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+-- Create trigger to notify on social bonus submission changes
+CREATE OR REPLACE FUNCTION notify_social_bonus_submission_changes() RETURNS TRIGGER AS $$ BEGIN IF TG_OP = 'INSERT'
+    OR TG_OP = 'UPDATE' THEN PERFORM pg_notify(
+        'social_bonus_submissions',
+        json_build_object(
+            'type',
+            TG_OP,
+            'record',
+            row_to_json(NEW)
+        )::text
+    );
+RETURN NEW;
+ELSE PERFORM pg_notify(
+    'social_bonus_submissions',
+    json_build_object(
+        'type',
+        TG_OP,
+        'record',
+        row_to_json(OLD)
+    )::text
+);
+RETURN OLD;
+END IF;
+END;
+$$ LANGUAGE plpgsql;
+CREATE TRIGGER social_bonus_submission_changes
+AFTER
+INSERT
+    OR
+UPDATE
+    OR DELETE ON social_bonus_submissions FOR EACH ROW EXECUTE FUNCTION notify_social_bonus_submission_changes();
+-- Add social_bonus_submissions to realtime publication
+alter publication supabase_realtime
+add table social_bonus_submissions;

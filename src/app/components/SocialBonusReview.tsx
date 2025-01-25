@@ -38,27 +38,35 @@ export default function SocialBonusReview({
   const [expandedImage, setExpandedImage] = useState<string | null>(null);
 
   useEffect(() => {
+    let mounted = true;
+    const channel = supabase.channel(`game_${gameId}_social_bonus`);
+
     const fetchSubmissions = async () => {
+      if (!mounted) return;
+
       const { data, error } = await supabase.rpc(
         "get_game_social_bonus_submissions",
         { _game_id: gameId }
       );
 
       if (error) {
-        console.error("Error fetching submissions:", error);
-        toast.error("Failed to load submissions");
+        if (mounted) {
+          toast.error("Failed to load submissions");
+        }
         return;
       }
 
-      setSubmissions(data || []);
-      setLoading(false);
+      if (mounted) {
+        setSubmissions(data || []);
+        setLoading(false);
+      }
     };
 
+    // Initial fetch
     fetchSubmissions();
 
-    // Subscribe to changes
-    const channel = supabase
-      .channel("social_bonus_submissions")
+    // Setup subscription
+    channel
       .on(
         "postgres_changes",
         {
@@ -66,13 +74,34 @@ export default function SocialBonusReview({
           schema: "public",
           table: "social_bonus_submissions",
         },
-        () => {
-          fetchSubmissions();
+        (payload) => {
+          if (!mounted) return;
+
+          if (payload.eventType === "UPDATE") {
+            setSubmissions((prev) => {
+              const newSubmissions = [...prev];
+              const existingIndex = newSubmissions.findIndex(
+                (sub) => sub.id === payload.new.id
+              );
+              if (existingIndex !== -1) {
+                newSubmissions[existingIndex] = {
+                  ...newSubmissions[existingIndex],
+                  ...payload.new,
+                };
+                return newSubmissions;
+              }
+              return prev;
+            });
+          } else {
+            // For INSERT and DELETE, fetch all submissions
+            fetchSubmissions();
+          }
         }
       )
       .subscribe();
 
     return () => {
+      mounted = false;
       channel.unsubscribe();
     };
   }, [gameId]);
@@ -82,20 +111,16 @@ export default function SocialBonusReview({
     try {
       const { error } = await supabase
         .from("social_bonus_submissions")
-        .update({ is_approved: true })
+        .update({
+          is_approved: true,
+          approved_at: new Date().toISOString(),
+          approved_by: (await supabase.auth.getUser()).data.user?.id,
+        })
         .eq("id", submissionId);
 
       if (error) throw error;
-
-      // Update local state
-      setSubmissions((prev) =>
-        prev.map((sub) =>
-          sub.id === submissionId ? { ...sub, is_approved: true } : sub
-        )
-      );
       toast.success("Submission approved!");
     } catch (error) {
-      console.error("Error approving submission:", error);
       toast.error("Failed to approve submission");
     } finally {
       setReviewingId(null);
@@ -107,20 +132,16 @@ export default function SocialBonusReview({
     try {
       const { error } = await supabase
         .from("social_bonus_submissions")
-        .update({ is_approved: false })
+        .update({
+          is_approved: false,
+          approved_at: new Date().toISOString(),
+          approved_by: (await supabase.auth.getUser()).data.user?.id,
+        })
         .eq("id", submissionId);
 
       if (error) throw error;
-
-      // Update local state
-      setSubmissions((prev) =>
-        prev.map((sub) =>
-          sub.id === submissionId ? { ...sub, is_approved: false } : sub
-        )
-      );
       toast.success("Submission rejected");
     } catch (error) {
-      console.error("Error rejecting submission:", error);
       toast.error("Failed to reject submission");
     } finally {
       setReviewingId(null);
