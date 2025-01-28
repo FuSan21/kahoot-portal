@@ -40,7 +40,9 @@ export default function Home(props: { params: Promise<{ id: string }> }) {
   const panelRef = useRef<ImperativePanelHandle>(null);
   const [isButtonTransition, setIsButtonTransition] = useState(false);
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(true);
-  const [isMeetingClosed, setIsMeetingClosed] = useState(true);
+  const [isMeetingClosed, setIsMeetingClosed] = useState(false);
+  const [isMeetingMinimized, setIsMeetingMinimized] = useState(false);
+  const [isMeetingOpen, setIsMeetingOpen] = useState(true);
 
   // Sync panel state with cache on mount
   useEffect(() => {
@@ -319,77 +321,57 @@ export default function Home(props: { params: Promise<{ id: string }> }) {
   };
 
   return (
-    <PanelGroup
-      autoSaveId="jitsi-panel-group"
-      direction="horizontal"
-      className="flex flex-1 h-full relative"
-    >
-      <Panel
-        minSize={20}
-        className="bg-background flex flex-col items-center justify-center overflow-auto"
-      >
+    <div className="flex flex-col h-screen">
+      <div className="flex-grow relative">
         {renderScreen()}
-      </Panel>
-      <PanelResizeHandle className="coarse:flex-grow-0 coarse:flex-shrink-0 coarse:basis-2" />
-      <div className="relative">
-        <JitsiIcon
-          className={`absolute top-1/2 -translate-y-1/2 -left-10 w-10 h-10 
-            ${isMeetingClosed ? "bg-red-500" : "bg-sky-500"} 
-            hover:${
-              isMeetingClosed ? "bg-red-400" : "bg-sky-400"
-            } cursor-pointer z-10 
-            transition-all duration-1000 ease-in-out transform
-            ${isPanelCollapsed ? "rotate-0" : "rotate-180"} 
-            text-white rounded-full`}
-          onClick={() => {
-            if (isMeetingClosed) {
-              setIsMeetingClosed(false);
-              setJwt("");
-              setTimeout(() => {
-                fetchJWT();
-              }, 0);
-            }
-            togglePanel();
-          }}
-        />
-      </div>
-      <Panel
-        ref={panelRef}
-        minSize={20}
-        defaultSize={0}
-        collapsible={true}
-        collapsedSize={0}
-        className={`bg-gray-800 ${
-          isButtonTransition ? "transition-all duration-300 ease-in-out" : ""
-        }`}
-        onCollapse={() => {
-          setIsPanelCollapsed(true);
-          setTimeout(() => setIsButtonTransition(false), 300);
-        }}
-        onExpand={() => {
-          setIsPanelCollapsed(false);
-          setTimeout(() => setIsButtonTransition(false), 300);
-        }}
-      >
-        <div className={`h-full ${isPanelCollapsed ? "invisible" : "visible"}`}>
-          {jwt && !isMeetingClosed ? (
-            <JitsiMeetSidebar
-              jwt={jwt}
-              roomName={quizSet?.id || "Kahoot Portal"}
-              onReadyToClose={() => {
-                if (panelRef.current && !panelRef.current.isCollapsed()) {
-                  setIsButtonTransition(true);
-                  panelRef.current.collapse();
+        {(!isMeetingOpen || isMeetingClosed) && (
+          <div className="fixed right-0 top-1/2 -translate-y-1/2 z-[51]">
+            <JitsiIcon
+              className={`w-10 h-10 
+                ${isMeetingClosed ? "bg-red-500" : "bg-sky-500"} 
+                hover:${isMeetingClosed ? "bg-red-400" : "bg-sky-400"} 
+                cursor-pointer
+                transition-all duration-300 ease-in-out transform
+                rotate-0
+                text-white rounded-l-full`}
+              onClick={() => {
+                if (isMeetingClosed) {
+                  setIsMeetingClosed(false);
+                  setJwt("");
+                  setTimeout(() => {
+                    fetchJWT();
+                  }, 0);
                 }
-                setIsMeetingClosed(true);
-                toast.info("Meeting closed");
+                setIsMeetingOpen(true);
+                setIsMeetingMinimized(false);
               }}
             />
-          ) : (
-            <div>Loading meeting...</div>
-          )}
-        </div>
-      </Panel>
-    </PanelGroup>
+          </div>
+        )}
+        {jwt && !isMeetingClosed && (
+          <JitsiMeetSidebar
+            jwt={jwt}
+            roomName={quizSet?.id || "Kahoot Portal"}
+            isOpen={isMeetingOpen}
+            isMinimized={isMeetingMinimized}
+            onOpenChange={setIsMeetingOpen}
+            onMinimizeChange={setIsMeetingMinimized}
+            onReadyToClose={() => {
+              setIsMeetingClosed(true);
+              toast.info("Meeting closed");
+            }}
+            isMeetingClosed={isMeetingClosed}
+            onJitsiIconClick={() => {
+              if (isMeetingOpen && !isMeetingMinimized) {
+                setIsMeetingMinimized(true);
+              } else {
+                setIsMeetingOpen(true);
+                setIsMeetingMinimized(false);
+              }
+            }}
+          />
+        )}
+      </div>
+    </div>
   );
 }
