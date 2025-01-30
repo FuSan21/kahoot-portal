@@ -3,6 +3,7 @@ import { useDropzone, FileRejection, Accept } from "react-dropzone";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ImageIcon, UploadIcon } from "lucide-react";
+import Image from "next/image";
 
 interface FileUploadProps {
   className?: string;
@@ -40,11 +41,15 @@ export function FileUpload({
             {value.type.startsWith("image/") ? (
               <div className="mx-auto flex flex-col items-center gap-1">
                 <ImageIcon className="h-8 w-8 text-muted-foreground" />
-                <img
-                  src={URL.createObjectURL(value)}
-                  alt="Preview"
-                  className="mt-2 max-h-32 rounded-lg object-cover"
-                />
+                <div className="relative mt-2 h-32 w-auto">
+                  <Image
+                    src={URL.createObjectURL(value)}
+                    alt="Preview"
+                    className="rounded-lg object-contain"
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  />
+                </div>
               </div>
             ) : null}
             <div className="mt-2 flex items-center justify-center gap-2">
