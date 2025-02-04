@@ -196,57 +196,55 @@ export default function Home(props: { params: Promise<{ id: string }> }) {
   };
 
   return (
-    <div className="flex flex-col h-screen">
-      <div className="flex-grow relative">
-        {renderScreen()}
-        {(!isMeetingOpen || isMeetingClosed) && (
-          <div className="fixed right-0 top-1/2 -translate-y-1/2 z-[51]">
-            <JitsiIcon
-              className={`w-10 h-10 
-                ${isMeetingClosed ? "bg-red-500" : "bg-sky-500"} 
-                hover:${isMeetingClosed ? "bg-red-400" : "bg-sky-400"} 
-                cursor-pointer
-                transition-all duration-300 ease-in-out transform
-                rotate-0
-                text-white rounded-l-full`}
-              onClick={() => {
-                if (isMeetingClosed) {
-                  setIsMeetingClosed(false);
-                  setJwt("");
-                  setTimeout(() => {
-                    fetchJWT();
-                  }, 0);
-                }
-                setIsMeetingOpen(true);
-                setIsMeetingMinimized(false);
-              }}
-            />
-          </div>
-        )}
-        {jwt && !isMeetingClosed && (
-          <JitsiMeetSidebar
-            jwt={jwt}
-            roomName={quizSet?.id || "Kahoot Portal"}
-            isOpen={isMeetingOpen}
-            isMinimized={isMeetingMinimized}
-            onOpenChange={setIsMeetingOpen}
-            onMinimizeChange={setIsMeetingMinimized}
-            onReadyToClose={() => {
-              setIsMeetingClosed(true);
-              toast.info("Meeting closed");
-            }}
-            isMeetingClosed={isMeetingClosed}
-            onJitsiIconClick={() => {
-              if (isMeetingOpen && !isMeetingMinimized) {
-                setIsMeetingMinimized(true);
-              } else {
-                setIsMeetingOpen(true);
-                setIsMeetingMinimized(false);
+    <div className="md:h-full flex flex-col items-center justify-center bg-background p-4">
+      {renderScreen()}
+      {(!isMeetingOpen || isMeetingClosed) && (
+        <div className="fixed right-0 top-1/2 -translate-y-1/2 z-[51]">
+          <JitsiIcon
+            className={`w-10 h-10 
+              ${isMeetingClosed ? "bg-red-500" : "bg-sky-500"} 
+              hover:${isMeetingClosed ? "bg-red-400" : "bg-sky-400"} 
+              cursor-pointer
+              transition-all duration-300 ease-in-out transform
+              rotate-0
+              text-white rounded-l-full`}
+            onClick={() => {
+              if (isMeetingClosed) {
+                setIsMeetingClosed(false);
+                setJwt("");
+                setTimeout(() => {
+                  fetchJWT();
+                }, 0);
               }
+              setIsMeetingOpen(true);
+              setIsMeetingMinimized(false);
             }}
           />
-        )}
-      </div>
+        </div>
+      )}
+      {jwt && !isMeetingClosed && (
+        <JitsiMeetSidebar
+          jwt={jwt}
+          roomName={quizSet?.id || "Kahoot Portal"}
+          isOpen={isMeetingOpen}
+          isMinimized={isMeetingMinimized}
+          onOpenChange={setIsMeetingOpen}
+          onMinimizeChange={setIsMeetingMinimized}
+          onReadyToClose={() => {
+            setIsMeetingClosed(true);
+            toast.info("Meeting closed");
+          }}
+          isMeetingClosed={isMeetingClosed}
+          onJitsiIconClick={() => {
+            if (isMeetingOpen && !isMeetingMinimized) {
+              setIsMeetingMinimized(true);
+            } else {
+              setIsMeetingOpen(true);
+              setIsMeetingMinimized(false);
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

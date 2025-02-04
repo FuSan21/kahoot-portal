@@ -31,6 +31,7 @@ interface QuizSetWithSocial extends QuizSet {
 }
 
 export default function Results({
+  participants,
   quizSet,
   gameId,
   isAuthorized,
@@ -156,7 +157,7 @@ export default function Results({
   }
 
   return (
-    <div className="relative min-h-screen bg-background">
+    <div className="relative">
       <Confetti
         width={width}
         height={height}

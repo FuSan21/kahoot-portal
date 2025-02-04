@@ -198,7 +198,7 @@ export default function Results({ participant, gameId }: ResultsProps) {
   }, [currentDate, participant.user_id]);
 
   return (
-    <div className="relative min-h-screen bg-background">
+    <div className="relative">
       <Confetti
         width={width}
         height={height}

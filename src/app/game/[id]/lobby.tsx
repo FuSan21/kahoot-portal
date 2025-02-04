@@ -89,7 +89,7 @@ export default function Lobby({
   }, [gameId, onRegisterCompleted, participant]);
 
   return (
-    <div className="h-full flex flex-col items-center justify-center bg-background p-4">
+    <div className="flex flex-col items-center justify-center gap-4">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>
@@ -100,7 +100,7 @@ export default function Lobby({
         </CardHeader>
         <CardContent>
           {participant ? (
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-center">
               You have been registered and your nickname should show up on the
               admin screen. Please sit back and wait until the game master
               starts the game.
@@ -115,7 +115,7 @@ export default function Lobby({
       </Card>
 
       {preloadProgress < 100 && (
-        <Card className="w-full max-w-md mt-4">
+        <Card className="w-full max-w-md">
           <CardContent className="pt-6">
             <Progress value={preloadProgress} className="mb-2" />
             <p className="text-center text-sm text-muted-foreground">
