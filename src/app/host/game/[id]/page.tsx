@@ -14,12 +14,8 @@ import { generateJWT } from "@/app/auth/jitsi/generateJwt";
 import { useRouter } from "next/navigation";
 
 import JitsiIcon from "@/app/components/icons/JitsiIcon";
-import {
-  Panel,
-  PanelGroup,
-  PanelResizeHandle,
-  ImperativePanelHandle,
-} from "react-resizable-panels";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function Home(props: { params: Promise<{ id: string }> }) {
   const params = use(props.params);
@@ -37,30 +33,9 @@ export default function Home(props: { params: Promise<{ id: string }> }) {
   const [quizSet, setQuizSet] = useState<QuizSet>();
   const [preloadProgress, setPreloadProgress] = useState(0);
   const [currentQuestionSequence, setCurrentQuestionSequence] = useState(0);
-  const panelRef = useRef<ImperativePanelHandle>(null);
-  const [isButtonTransition, setIsButtonTransition] = useState(false);
-  const [isPanelCollapsed, setIsPanelCollapsed] = useState(true);
   const [isMeetingClosed, setIsMeetingClosed] = useState(false);
   const [isMeetingMinimized, setIsMeetingMinimized] = useState(false);
   const [isMeetingOpen, setIsMeetingOpen] = useState(true);
-
-  // Sync panel state with cache on mount
-  useEffect(() => {
-    const panel = panelRef.current;
-    if (panel) {
-      const isCollapsed = panel.getSize() === 0;
-      setIsPanelCollapsed(isCollapsed);
-      // Only update meeting state if it's the initial load
-      if (isMeetingClosed === true && !isCollapsed) {
-        setIsMeetingClosed(false);
-        // Refresh JWT to ensure Jitsi loads properly
-        setJwt("");
-        setTimeout(() => {
-          fetchJWT();
-        }, 0);
-      }
-    }
-  }, [panelRef.current]); // Re-run when panel ref is available
 
   const fetchQuizSetData = useCallback(async () => {
     try {
@@ -309,16 +284,29 @@ export default function Home(props: { params: Promise<{ id: string }> }) {
   }, [user, quizSet]);
 
   if (!isAuthorized) {
-    return <div>Checking authorization...</div>;
+    return (
+      <div className="h-screen flex items-center justify-center bg-background p-4">
+        <Card className="w-full max-w-md">
+          <CardContent className="pt-6 space-y-4">
+            <div className="space-y-3">
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-4 w-1/2" />
+            </div>
+            <div className="flex items-center space-x-4 py-4">
+              <Skeleton className="h-12 w-12 rounded-full" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-[200px]" />
+                <Skeleton className="h-4 w-[150px]" />
+              </div>
+            </div>
+            <div className="flex justify-center">
+              <Skeleton className="h-8 w-[250px]" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
-
-  const togglePanel = () => {
-    const panel = panelRef.current;
-    if (panel) {
-      setIsButtonTransition(true);
-      panel.isCollapsed() ? panel.expand() : panel.collapse();
-    }
-  };
 
   return (
     <div className="flex flex-col h-screen">

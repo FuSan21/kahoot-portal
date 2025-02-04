@@ -13,12 +13,6 @@ import JitsiMeetSidebar from "@/app/components/JitsiMeetSidebar";
 import { generateJWT } from "@/app/auth/jitsi/generateJwt";
 
 import JitsiIcon from "@/app/components/icons/JitsiIcon";
-import {
-  Panel,
-  PanelGroup,
-  PanelResizeHandle,
-  ImperativePanelHandle,
-} from "react-resizable-panels";
 
 export default function Home(props: { params: Promise<{ id: string }> }) {
   const params = use(props.params);
@@ -33,27 +27,9 @@ export default function Home(props: { params: Promise<{ id: string }> }) {
   const [currentQuestionSequence, setCurrentQuestionSequence] = useState(0);
   const [isAnswerRevealed, setIsAnswerRevealed] = useState(false);
   const [preloadProgress, setPreloadProgress] = useState(0);
-  const panelRef = useRef<ImperativePanelHandle>(null);
-  const [isButtonTransition, setIsButtonTransition] = useState(false);
-  const [isPanelCollapsed, setIsPanelCollapsed] = useState(true);
   const [isMeetingClosed, setIsMeetingClosed] = useState(false);
   const [isMeetingMinimized, setIsMeetingMinimized] = useState(false);
   const [isMeetingOpen, setIsMeetingOpen] = useState(true);
-
-  useEffect(() => {
-    const panel = panelRef.current;
-    if (panel) {
-      const isCollapsed = panel.getSize() === 0;
-      setIsPanelCollapsed(isCollapsed);
-      if (isMeetingClosed === true && !isCollapsed) {
-        setIsMeetingClosed(false);
-        setJwt("");
-        setTimeout(() => {
-          fetchJWT();
-        }, 0);
-      }
-    }
-  }, [panelRef.current]);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -206,14 +182,6 @@ export default function Home(props: { params: Promise<{ id: string }> }) {
         return <Results participant={participant!} gameId={gameId} />;
       default:
         return null;
-    }
-  };
-
-  const togglePanel = () => {
-    const panel = panelRef.current;
-    if (panel) {
-      setIsButtonTransition(true);
-      panel.isCollapsed() ? panel.expand() : panel.collapse();
     }
   };
 
