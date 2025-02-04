@@ -27,7 +27,13 @@ export default function Home(props: { params: Promise<{ id: string }> }) {
   const [currentQuestionSequence, setCurrentQuestionSequence] = useState(0);
   const [isAnswerRevealed, setIsAnswerRevealed] = useState(false);
   const [preloadProgress, setPreloadProgress] = useState(0);
-  const [isMeetingClosed, setIsMeetingClosed] = useState(false);
+  const [isMeetingClosed, setIsMeetingClosed] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("isMeetingClosed");
+      return saved !== null ? JSON.parse(saved) : true;
+    }
+    return true;
+  });
   const [isMeetingMinimized, setIsMeetingMinimized] = useState(false);
   const [isMeetingOpen, setIsMeetingOpen] = useState(true);
 
@@ -154,6 +160,10 @@ export default function Home(props: { params: Promise<{ id: string }> }) {
   useEffect(() => {
     fetchJWT();
   }, [user, quizSet]);
+
+  useEffect(() => {
+    localStorage.setItem("isMeetingClosed", JSON.stringify(isMeetingClosed));
+  }, [isMeetingClosed]);
 
   const renderScreen = () => {
     switch (currentScreen) {
