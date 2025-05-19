@@ -9,7 +9,7 @@ import {
 } from "@/types/types";
 import Confetti from "react-confetti";
 import useWindowSize from "react-use/lib/useWindowSize";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/use-sonner";
 import MonthlyLeaderboard from "@/app/components/MonthlyLeaderboard";
 import GameLeaderboard from "@/components/GameLeaderboard";
 import { UserScore } from "@/types/quiz";
@@ -194,9 +194,9 @@ export default function Results({
           currentUserId=""
           allowMonthNavigation={false}
           currentDate={currentDate}
-          onPreviousMonth={() => {}}
-          onNextMonth={() => {}}
-          onCurrentMonth={() => {}}
+          onPreviousMonth={() => { }}
+          onNextMonth={() => { }}
+          onCurrentMonth={() => { }}
         />
       </div>
     </div>

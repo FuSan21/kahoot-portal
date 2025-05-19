@@ -9,7 +9,7 @@ import {
 } from "@/types/types";
 import { Check, X } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/use-sonner";
 import {
   ColorFormat,
   CountdownCircleTimer,
@@ -307,12 +307,12 @@ export default function Quiz({
               initialRemainingTime={
                 questionStartTime
                   ? Math.max(
-                      0,
-                      (questionStartTime +
-                        TIME_TIL_CHOICE_REVEAL -
-                        Date.now()) /
-                        1000
-                    )
+                    0,
+                    (questionStartTime +
+                      TIME_TIL_CHOICE_REVEAL -
+                      Date.now()) /
+                    1000
+                  )
                   : TIME_TIL_CHOICE_REVEAL / 1000
               }
               colors={["#004777", "#F7B801", "#A30000", "#A30000"]}
@@ -358,7 +358,7 @@ export default function Quiz({
                   "p-6 rounded-lg text-lg font-semibold flex items-center justify-between",
                   getChoiceColor(index),
                   choice.is_correct &&
-                    "ring-2 ring-green-500 ring-offset-2 ring-offset-background"
+                  "ring-2 ring-green-500 ring-offset-2 ring-offset-background"
                 )}
               >
                 <span>{choice.body}</span>

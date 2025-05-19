@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Participant, supabase } from "@/types/types";
 import { useQRCode } from "next-qrcode";
 import { BASE_URL } from "@/constants";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/use-sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -73,7 +73,7 @@ export default function Lobby({
               <Canvas
                 text={gameLink}
                 options={{
-                  level: "M",
+                  errorCorrectionLevel: "M",
                   margin: 3,
                   scale: 4,
                   width: 200,

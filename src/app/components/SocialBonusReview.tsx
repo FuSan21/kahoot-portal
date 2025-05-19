@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/types/types";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/use-sonner";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -216,8 +216,8 @@ export default function SocialBonusReview({
                       submission.status === "approved"
                         ? "bg-green-100 text-green-800 hover:bg-green-100/80"
                         : submission.status === "rejected"
-                        ? "bg-red-100 text-red-800 hover:bg-red-100/80"
-                        : "bg-blue-100 text-blue-800 hover:bg-blue-100/80"
+                          ? "bg-red-100 text-red-800 hover:bg-red-100/80"
+                          : "bg-blue-100 text-blue-800 hover:bg-blue-100/80"
                     )}
                   >
                     {submission.status === "approved" ? (

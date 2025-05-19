@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/types/types";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/use-sonner";
 import { SOCIAL_MEDIA_LINKS, SOCIAL_MEDIA_INSTRUCTIONS } from "@/types/enums";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -149,23 +149,23 @@ export default function SocialBonusSubmission({
                 submissionStatus === "approved"
                   ? "bg-green-100 text-green-800 hover:bg-green-100/80"
                   : submissionStatus === "rejected"
-                  ? "bg-red-100 text-red-800 hover:bg-red-100/80"
-                  : "bg-blue-100 text-blue-800 hover:bg-blue-100/80"
+                    ? "bg-red-100 text-red-800 hover:bg-red-100/80"
+                    : "bg-blue-100 text-blue-800 hover:bg-blue-100/80"
               )}
             >
               <CheckCircle className="h-5 w-5" />
               {submissionStatus === "approved"
                 ? "Bonus Points Awarded!"
                 : submissionStatus === "rejected"
-                ? "Submission Rejected"
-                : "Submission Received!"}
+                  ? "Submission Rejected"
+                  : "Submission Received!"}
             </Badge>
             <p className="text-center text-muted-foreground">
               {submissionStatus === "approved"
                 ? `You've earned ${bonusPoints} bonus points for sharing!`
                 : submissionStatus === "rejected"
-                ? "Your submission was not approved. Please try again with a new submission."
-                : "Your submission will be reviewed and bonus points will be awarded soon."}
+                  ? "Your submission was not approved. Please try again with a new submission."
+                  : "Your submission will be reviewed and bonus points will be awarded soon."}
             </p>
           </div>
         </CardContent>

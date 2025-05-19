@@ -7,7 +7,7 @@
 import { useState } from "react";
 import { QuizFormData, QuizQuestion, QuizChoice } from "@/types/quiz";
 import { createQuiz } from "@/services/quizService";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/use-sonner";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -62,8 +62,7 @@ export default function QuizForm() {
 
     if (invalidQuestions.length > 0) {
       toast.error(
-        `Please select a correct answer for question ${
-          formData.questions.indexOf(invalidQuestions[0]) + 1
+        `Please select a correct answer for question ${formData.questions.indexOf(invalidQuestions[0]) + 1
         }`
       );
       return;

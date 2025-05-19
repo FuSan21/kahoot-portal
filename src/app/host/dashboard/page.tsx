@@ -3,7 +3,7 @@
 import { QuizSet, supabase } from "@/types/types";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/use-sonner";
 import {
   Card,
   CardContent,

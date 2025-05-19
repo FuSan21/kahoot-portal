@@ -3,7 +3,7 @@ import { Answer, Participant, Question, supabase, Game } from "@/types/types";
 import { Check } from "lucide-react";
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/use-sonner";
 import ParticipantsList from "@/components/ParticipantsList";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -316,12 +316,12 @@ export default function Quiz({
               initialRemainingTime={
                 questionStartTime
                   ? Math.max(
-                      0,
-                      (new Date(questionStartTime).getTime() +
-                        TIME_TIL_CHOICE_REVEAL -
-                        Date.now()) /
-                        1000
-                    )
+                    0,
+                    (new Date(questionStartTime).getTime() +
+                      TIME_TIL_CHOICE_REVEAL -
+                      Date.now()) /
+                    1000
+                  )
                   : TIME_TIL_CHOICE_REVEAL / 1000
               }
               colors={["#004777", "#F7B801", "#A30000", "#A30000"]}
@@ -350,13 +350,13 @@ export default function Quiz({
               initialRemainingTime={
                 questionStartTime
                   ? Math.max(
-                      0,
-                      (new Date(questionStartTime).getTime() +
-                        TIME_TIL_CHOICE_REVEAL +
-                        QUESTION_ANSWER_TIME -
-                        Date.now()) /
-                        1000
-                    )
+                    0,
+                    (new Date(questionStartTime).getTime() +
+                      TIME_TIL_CHOICE_REVEAL +
+                      QUESTION_ANSWER_TIME -
+                      Date.now()) /
+                    1000
+                  )
                   : QUESTION_ANSWER_TIME / 1000
               }
               colors={["#004777", "#F7B801", "#A30000", "#A30000"]}
@@ -400,8 +400,8 @@ export default function Quiz({
                   "p-6 rounded-lg text-lg font-semibold",
                   getChoiceColor(index),
                   isAnswerRevealed &&
-                    choice.is_correct &&
-                    "ring-2 ring-green-500 ring-offset-2 ring-offset-background"
+                  choice.is_correct &&
+                  "ring-2 ring-green-500 ring-offset-2 ring-offset-background"
                 )}
               >
                 <div className="flex justify-between items-center">
@@ -420,10 +420,10 @@ export default function Quiz({
                             index === 0
                               ? "bg-red-500"
                               : index === 1
-                              ? "bg-blue-500"
-                              : index === 2
-                              ? "bg-yellow-500"
-                              : "bg-green-500"
+                                ? "bg-blue-500"
+                                : index === 2
+                                  ? "bg-yellow-500"
+                                  : "bg-green-500"
                           )}
                           style={{ width: `${percentage}%` }}
                         />
@@ -439,10 +439,10 @@ export default function Quiz({
                         index === 0
                           ? "bg-red-500"
                           : index === 1
-                          ? "bg-blue-500"
-                          : index === 2
-                          ? "bg-yellow-500"
-                          : "bg-green-500"
+                            ? "bg-blue-500"
+                            : index === 2
+                              ? "bg-yellow-500"
+                              : "bg-green-500"
                       )}
                       style={{ height: `${Math.max(percentage, 4)}%` }}
                     />
