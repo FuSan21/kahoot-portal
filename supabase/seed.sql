@@ -1,12 +1,37 @@
--- Create a dummy user in auth.users
-INSERT INTO auth.users (id, email)
-VALUES (
-    '00000000-0000-0000-0000-000000000000',
-    'dummy@example.com'
-  ) ON CONFLICT (id) DO NOTHING;
--- create the profile for the dummy user
-INSERT INTO public.profiles (id)
-VALUES ('00000000-0000-0000-0000-000000000000') ON CONFLICT (id) DO NOTHING;
+-- Seed: a system host and four public quizzes. Images live in supabase/quiz-image/<quiz id>/.
+-- Token columns must be empty strings, not NULL, or Supabase Auth cannot list users.
+insert into auth.users (
+  id, instance_id, aud, role, email, raw_user_meta_data, created_at, updated_at,
+  confirmation_token, recovery_token, email_change_token_new, email_change_token_current,
+  email_change, phone_change, phone_change_token, reauthentication_token
+)
+values (
+  '00000000-0000-0000-0000-000000000000',
+  '00000000-0000-0000-0000-000000000000',
+  'authenticated', 'authenticated', 'quizmaster@kahoot-portal.example',
+  '{"full_name": "Quiz Master"}'::jsonb, now(), now(),
+  '', '', '', '', '', '', '', ''
+) on conflict (id) do nothing;
+
+insert into public.profiles (id, full_name)
+values ('00000000-0000-0000-0000-000000000000', 'Quiz Master')
+on conflict (id) do update set full_name = excluded.full_name;
+
+create function pg_temp.add_question(quiz_set_id uuid, body text, image text, "order" int, choices json[])
+returns void language plpgsql as $f$
+declare qid uuid; i int := 0; c json;
+begin
+  insert into public.questions (quiz_set_id, body, image, "order")
+  values (add_question.quiz_set_id, add_question.body, add_question.image, add_question."order")
+  returning id into qid;
+  foreach c in array add_question.choices loop
+    insert into public.choices (question_id, body, position, is_correct)
+    values (qid, c->>'body', i, (c->>'is_correct')::boolean);
+    i := i + 1;
+  end loop;
+end;
+$f$;
+
 -- Insert Bangladesh History Quiz into quiz_sets table
 INSERT INTO public.quiz_sets (
     id,
@@ -22,7 +47,7 @@ VALUES (
     'featured.png',
     '00000000-0000-0000-0000-000000000000'
   );
-SELECT add_question (
+SELECT pg_temp.add_question (
     quiz_set_id => 'c74f5d8c-a2d3-4b47-9b90-ec4c1e8f3b9f'::uuid,
     body => 'When did Bangladesh gain independence?'::text,
     "image" => '0.jpg'::text,
@@ -34,7 +59,7 @@ SELECT add_question (
       '{"body": "1991", "is_correct": false}'::json
     ]
   );
-SELECT add_question (
+SELECT pg_temp.add_question (
     quiz_set_id => 'c74f5d8c-a2d3-4b47-9b90-ec4c1e8f3b9f'::uuid,
     body => 'Which event is commemorated on Victory Day in Bangladesh?'::text,
     "image" => '1.jpg'::text,
@@ -46,7 +71,7 @@ SELECT add_question (
       '{"body": "The formation of the Awami League.", "is_correct": false}'::json
     ]
   );
-SELECT add_question (
+SELECT pg_temp.add_question (
     quiz_set_id => 'c74f5d8c-a2d3-4b47-9b90-ec4c1e8f3b9f'::uuid,
     body => 'What was the name of the movement in 1952 that played a significant role in the Bengali Language Movement?'::text,
     "image" => '2.jpg'::text,
@@ -58,7 +83,7 @@ SELECT add_question (
       '{"body": "Cultural Movement", "is_correct": false}'::json
     ]
   );
-SELECT add_question (
+SELECT pg_temp.add_question (
     quiz_set_id => 'c74f5d8c-a2d3-4b47-9b90-ec4c1e8f3b9f'::uuid,
     body => 'What was the original name of Dhaka when it was first established?'::text,
     "image" => '3.jpg'::text,
@@ -70,7 +95,7 @@ SELECT add_question (
       '{"body": "Narsingdi", "is_correct": false}'::json
     ]
   );
-SELECT add_question (
+SELECT pg_temp.add_question (
     quiz_set_id => 'c74f5d8c-a2d3-4b47-9b90-ec4c1e8f3b9f'::uuid,
     body => 'Which river is known as the lifeline of Bangladesh?'::text,
     "image" => '4.jpg'::text,
@@ -82,7 +107,7 @@ SELECT add_question (
       '{"body": "Karnaphuli", "is_correct": false}'::json
     ]
   );
-SELECT add_question (
+SELECT pg_temp.add_question (
     quiz_set_id => 'c74f5d8c-a2d3-4b47-9b90-ec4c1e8f3b9f'::uuid,
     body => 'Which Mughal emperor founded the city of Dhaka?'::text,
     "image" => '5.png'::text,
@@ -94,7 +119,7 @@ SELECT add_question (
       '{"body": "Aurangzeb", "is_correct": false}'::json
     ]
   );
-SELECT add_question (
+SELECT pg_temp.add_question (
     quiz_set_id => 'c74f5d8c-a2d3-4b47-9b90-ec4c1e8f3b9f'::uuid,
     body => 'Who was the first Prime Minister of Bangladesh?'::text,
     "image" => '6.webp'::text,
@@ -106,7 +131,7 @@ SELECT add_question (
       '{"body": "M. A. G. Osmani", "is_correct": false}'::json
     ]
   );
-SELECT add_question (
+SELECT pg_temp.add_question (
     quiz_set_id => 'c74f5d8c-a2d3-4b47-9b90-ec4c1e8f3b9f'::uuid,
     body => 'Which city was the first capital of Bangladesh after independence?'::text,
     "image" => '7.png'::text,
@@ -118,7 +143,7 @@ SELECT add_question (
       '{"body": "Comilla", "is_correct": false}'::json
     ]
   );
-SELECT add_question (
+SELECT pg_temp.add_question (
     quiz_set_id => 'c74f5d8c-a2d3-4b47-9b90-ec4c1e8f3b9f'::uuid,
     body => 'What is the national flower of Bangladesh?'::text,
     "image" => '8.jpg'::text,
@@ -130,7 +155,7 @@ SELECT add_question (
       '{"body": "Sunflower", "is_correct": false}'::json
     ]
   );
-SELECT add_question (
+SELECT pg_temp.add_question (
     quiz_set_id => 'c74f5d8c-a2d3-4b47-9b90-ec4c1e8f3b9f'::uuid,
     body => 'Which treaty officially recognized Bangladesh as an independent country by Pakistan?'::text,
     "image" => '9.png'::text,
@@ -157,7 +182,7 @@ VALUES (
     'featured.webp',
     '00000000-0000-0000-0000-000000000000'
   );
-SELECT add_question (
+SELECT pg_temp.add_question (
     quiz_set_id => 'd75b8c7e-bfd3-4f47-8e90-bc3c3f3a9b6f'::uuid,
     body => 'Which is the largest desert in the world?'::text,
     "image" => '0.jpg'::text,
@@ -169,7 +194,7 @@ SELECT add_question (
       '{"body": "Gobi Desert", "is_correct": false}'::json
     ]
   );
-SELECT add_question (
+SELECT pg_temp.add_question (
     quiz_set_id => 'd75b8c7e-bfd3-4f47-8e90-bc3c3f3a9b6f'::uuid,
     body => 'Which river is the longest in the world?'::text,
     "image" => '1.webp'::text,
@@ -181,7 +206,7 @@ SELECT add_question (
       '{"body": "Mississippi River", "is_correct": false}'::json
     ]
   );
-SELECT add_question (
+SELECT pg_temp.add_question (
     quiz_set_id => 'd75b8c7e-bfd3-4f47-8e90-bc3c3f3a9b6f'::uuid,
     body => 'Which country has the most natural lakes?'::text,
     "image" => '2.webp'::text,
@@ -193,7 +218,7 @@ SELECT add_question (
       '{"body": "United States", "is_correct": false}'::json
     ]
   );
-SELECT add_question (
+SELECT pg_temp.add_question (
     quiz_set_id => 'd75b8c7e-bfd3-4f47-8e90-bc3c3f3a9b6f'::uuid,
     body => 'Which is the highest mountain in the world?'::text,
     "image" => '3.webp'::text,
@@ -205,7 +230,7 @@ SELECT add_question (
       '{"body": "Lhotse", "is_correct": false}'::json
     ]
   );
-SELECT add_question (
+SELECT pg_temp.add_question (
     quiz_set_id => 'd75b8c7e-bfd3-4f47-8e90-bc3c3f3a9b6f'::uuid,
     body => 'What is the capital of Australia?'::text,
     "image" => '4.webp'::text,
@@ -232,7 +257,7 @@ VALUES (
     'featured.jpg',
     '00000000-0000-0000-0000-000000000000'
   );
-SELECT add_question (
+SELECT pg_temp.add_question (
     quiz_set_id => 'e85b9d7f-c1d3-49a6-bdf3-5a0cfe1d13b0'::uuid,
     body => 'What is the chemical symbol for water?'::text,
     "image" => '0.jpg'::text,
@@ -244,7 +269,7 @@ SELECT add_question (
       '{"body": "NaCl", "is_correct": false}'::json
     ]
   );
-SELECT add_question (
+SELECT pg_temp.add_question (
     quiz_set_id => 'e85b9d7f-c1d3-49a6-bdf3-5a0cfe1d13b0'::uuid,
     body => 'Which planet is known as the Red Planet?'::text,
     "image" => '1.webp'::text,
@@ -256,7 +281,7 @@ SELECT add_question (
       '{"body": "Jupiter", "is_correct": false}'::json
     ]
   );
-SELECT add_question (
+SELECT pg_temp.add_question (
     quiz_set_id => 'e85b9d7f-c1d3-49a6-bdf3-5a0cfe1d13b0'::uuid,
     body => 'What gas do plants absorb from the atmosphere?'::text,
     "image" => '2.webp'::text,
@@ -268,7 +293,7 @@ SELECT add_question (
       '{"body": "Hydrogen", "is_correct": false}'::json
     ]
   );
-SELECT add_question (
+SELECT pg_temp.add_question (
     quiz_set_id => 'e85b9d7f-c1d3-49a6-bdf3-5a0cfe1d13b0'::uuid,
     body => 'What is the speed of light?'::text,
     "image" => '3.jpg'::text,
@@ -280,7 +305,7 @@ SELECT add_question (
       '{"body": "670,616,629 miles per hour", "is_correct": false}'::json
     ]
   );
-SELECT add_question (
+SELECT pg_temp.add_question (
     quiz_set_id => 'e85b9d7f-c1d3-49a6-bdf3-5a0cfe1d13b0'::uuid,
     body => 'What is the powerhouse of the cell?'::text,
     "image" => '4.jpg'::text,
@@ -307,7 +332,7 @@ VALUES (
     'featured.webp',
     '00000000-0000-0000-0000-000000000000'
   );
-SELECT add_question (
+SELECT pg_temp.add_question (
     quiz_set_id => 'f93c9d7a-ecd1-44c7-9c91-94f7c93a7e63'::uuid,
     body => 'Which country won the FIFA World Cup in 2018?'::text,
     "image" => '0.webp'::text,
@@ -319,7 +344,7 @@ SELECT add_question (
       '{"body": "Argentina", "is_correct": false}'::json
     ]
   );
-SELECT add_question (
+SELECT pg_temp.add_question (
     quiz_set_id => 'f93c9d7a-ecd1-44c7-9c91-94f7c93a7e63'::uuid,
     body => 'Which athlete has won the most Olympic medals?'::text,
     "image" => '1.jpg'::text,
@@ -331,7 +356,7 @@ SELECT add_question (
       '{"body": "Larisa Latynina", "is_correct": false}'::json
     ]
   );
-SELECT add_question (
+SELECT pg_temp.add_question (
     quiz_set_id => 'f93c9d7a-ecd1-44c7-9c91-94f7c93a7e63'::uuid,
     body => 'What sport is known as "the beautiful game"?'::text,
     "image" => '2.jpg'::text,
@@ -343,7 +368,7 @@ SELECT add_question (
       '{"body": "Cricket", "is_correct": false}'::json
     ]
   );
-SELECT add_question (
+SELECT pg_temp.add_question (
     quiz_set_id => 'f93c9d7a-ecd1-44c7-9c91-94f7c93a7e63'::uuid,
     body => 'Which tennis player has won the most Grand Slam titles?'::text,
     "image" => '3.png'::text,
@@ -355,7 +380,7 @@ SELECT add_question (
       '{"body": "Novak Djokovic", "is_correct": true}'::json
     ]
   );
-SELECT add_question (
+SELECT pg_temp.add_question (
     quiz_set_id => 'f93c9d7a-ecd1-44c7-9c91-94f7c93a7e63'::uuid,
     body => 'What is the national sport of Japan?'::text,
     "image" => '4.jpg'::text,

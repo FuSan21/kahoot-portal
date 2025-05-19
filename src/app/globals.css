@@ -1,145 +1,239 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+/*
+  Kahoot Portal design system
+  Dealt by tasteskill (page: software): palette graphite-safety-orange, type outfit (+ DM Mono), radius round.
+  Dark only. One button family, one card recipe, one radius scale.
+*/
+
+:root {
+  /* palette (tasteskill :root, kept as printed) */
+  --p-bg: #18191b;
+  --p-surface: #222427;
+  --p-ink: #eff0f1;
+  --p-muted: #9c9ea3;
+  --p-accent: #ff4a1f;
+  --p-accent-ink: #18191b;
+
+  /* derived surfaces */
+  --p-surface-2: #2b2e32;
+  --p-line: #34373c;
+  --p-line-strong: #4a4e54;
+
+  /* answer colours: four distinct hues, never violet */
+  --a-ember: #ff4a1f;
+  --a-sky: #2fa8ff;
+  --a-sun: #ffc933;
+  --a-mint: #34d399;
+
+  /* motion (tasteskill motion.md) */
+  --m-in: 140ms;
+  --m-out: 200ms;
+  --m-press: 90ms;
+  --m-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* shadcn mapping */
+  --radius: 1.25rem;
+  --background: var(--p-bg);
+  --foreground: var(--p-ink);
+  --card: var(--p-surface);
+  --card-foreground: var(--p-ink);
+  --popover: var(--p-surface);
+  --popover-foreground: var(--p-ink);
+  --primary: var(--p-accent);
+  --primary-foreground: var(--p-accent-ink);
+  --secondary: var(--p-surface-2);
+  --secondary-foreground: var(--p-ink);
+  --muted: var(--p-surface-2);
+  --muted-foreground: var(--p-muted);
+  --accent: var(--p-surface-2);
+  --accent-foreground: var(--p-ink);
+  --destructive: #ff5d5d;
+  --border: var(--p-line);
+  --input: var(--p-line-strong);
+  --ring: var(--p-accent);
+}
 
 @theme inline {
-  --background-image-gradient-radial: radial-gradient(var(--tw-gradient-stops));
-  --background-image-gradient-conic: conic-gradient(
-    from 180deg at 50% 50%,
-    var(--tw-gradient-stops)
-  );
-
-  --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-sm: calc(var(--radius) - 4px);
+  --font-sans: var(--font-outfit), system-ui, sans-serif;
+  --font-display: var(--font-outfit), system-ui, sans-serif;
+  --font-mono: var(--font-dm-mono), ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
-
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
-
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
-
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
-
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
-
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
-
   --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-}
+  --color-surface: var(--p-surface);
+  --color-surface-2: var(--p-surface-2);
+  --color-line: var(--p-line);
+  --color-ink: var(--p-ink);
+  --color-ember: var(--a-ember);
+  --color-sky: var(--a-sky);
+  --color-sun: var(--a-sun);
+  --color-mint: var(--a-mint);
 
-/*
-  The default border color has changed to `currentcolor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
+  --radius-sm: calc(var(--radius) - 10px);
+  --radius-md: calc(var(--radius) - 6px);
+  --radius-lg: calc(var(--radius) - 2px);
+  --radius-xl: var(--radius);
+  --radius-2xl: calc(var(--radius) + 8px);
 
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
-@layer base {
-  *,
-  ::after,
-  ::before,
-  ::backdrop,
-  ::file-selector-button {
-    border-color: var(--color-gray-200, currentcolor);
-  }
-}
-
-@utility container-wrapper {
-  @apply w-full px-4 md:px-8 lg:px-12;
-}
-
-@layer utilities {
-  body {
-    padding: 0;
-    /* background-color: black;
-    background-image: url('/background.jpg');
-    background-position: center;
-    background-size: cover;
-    background-repeat: no-repeat; */
-  }
-}
-
-:root {
-  --background: hsl(0 0% 100%);
-  --foreground: hsl(240 10% 3.9%);
-  --card: hsl(0 0% 100%);
-  --card-foreground: hsl(240 10% 3.9%);
-  --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(240 10% 3.9%);
-  --primary: hsl(240 5.9% 10%);
-  --primary-foreground: hsl(0 0% 98%);
-  --secondary: hsl(240 4.8% 95.9%);
-  --secondary-foreground: hsl(240 5.9% 10%);
-  --muted: hsl(240 4.8% 95.9%);
-  --muted-foreground: hsl(240 3.8% 46.1%);
-  --accent: hsl(240 4.8% 95.9%);
-  --accent-foreground: hsl(240 5.9% 10%);
-  --destructive: hsl(0 84.2% 60.2%);
-  --destructive-foreground: hsl(0 0% 98%);
-  --border: hsl(240 5.9% 90%);
-  --input: hsl(240 5.9% 90%);
-  --ring: hsl(240 10% 3.9%);
-  --chart-1: hsl(12 76% 61%);
-  --chart-2: hsl(173 58% 39%);
-  --chart-3: hsl(197 37% 24%);
-  --chart-4: hsl(43 74% 66%);
-  --chart-5: hsl(27 87% 67%);
-  --radius: 0.5rem;
-}
-.dark {
-  --background: hsl(240 10% 3.9%);
-  --foreground: hsl(0 0% 98%);
-  --card: hsl(240 10% 3.9%);
-  --card-foreground: hsl(0 0% 98%);
-  --popover: hsl(240 10% 3.9%);
-  --popover-foreground: hsl(0 0% 98%);
-  --primary: hsl(0 0% 98%);
-  --primary-foreground: hsl(240 5.9% 10%);
-  --secondary: hsl(240 3.7% 15.9%);
-  --secondary-foreground: hsl(0 0% 98%);
-  --muted: hsl(240 3.7% 15.9%);
-  --muted-foreground: hsl(240 5% 64.9%);
-  --accent: 240 3.7% 15.9%;
-  --accent-foreground: hsl(0 0% 98%);
-  --destructive: hsl(0 62.8% 30.6%);
-  --destructive-foreground: hsl(0 0% 98%);
-  --border: hsl(240 3.7% 15.9%);
-  --input: hsl(240 3.7% 15.9%);
-  --ring: hsl(240 4.9% 83.9%);
-  --chart-1: hsl(220 70% 50%);
-  --chart-2: hsl(160 60% 45%);
-  --chart-3: hsl(30 80% 55%);
-  --chart-4: hsl(280 65% 60%);
-  --chart-5: hsl(340 75% 55%);
+  --ease-snap: var(--m-ease);
 }
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border outline-ring/50;
+  }
+  html {
+    color-scheme: dark;
+    -webkit-tap-highlight-color: transparent;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "ss01", "cv11";
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+  :focus-visible {
+    outline: 2px solid var(--p-accent);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--p-accent) 45%, transparent);
+  }
+}
+
+@layer components {
+  /* Display sizes */
+  .t-hero {
+    font-size: clamp(2.75rem, 7vw, 6rem);
+    line-height: 0.95;
+    letter-spacing: -0.045em;
+  }
+  .t-title {
+    font-size: clamp(2rem, 4vw, 3.25rem);
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
+  .t-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--p-muted);
+  }
+
+  /* Card recipe: one style page-wide. A linked card lifts 2px. */
+  .card {
+    background: var(--p-surface);
+    border: 1px solid var(--p-line);
+    border-radius: var(--radius);
+    transition:
+      transform 180ms var(--m-ease),
+      border-color var(--m-out) var(--m-ease),
+      box-shadow var(--m-out) var(--m-ease);
+  }
+  a.card:hover,
+  .card[data-link]:hover {
+    transform: translateY(-2px);
+    border-color: var(--p-line-strong);
+    box-shadow: 0 12px 24px -12px rgb(0 0 0 / 0.45);
+  }
+
+  /* A photo inside a linked frame zooms 1.03 */
+  .zoom {
+    overflow: hidden;
+  }
+  .zoom img {
+    transition: transform 600ms var(--m-ease);
+  }
+  a:hover .zoom img,
+  .card[data-link]:hover .zoom img {
+    transform: scale(1.03);
+  }
+
+  /* Underline that draws left to right */
+  .link {
+    background: linear-gradient(currentColor, currentColor) left bottom / 0% 1px no-repeat;
+    transition: background-size var(--m-out) var(--m-ease);
+    padding-bottom: 2px;
+  }
+  .link:hover {
+    background-size: 100% 1px;
+  }
+
+  /* Answer tiles */
+  .tile-ember { --tile: var(--a-ember); --tile-ink: #18191b; }
+  .tile-sky { --tile: var(--a-sky); --tile-ink: #0b1a26; }
+  .tile-sun { --tile: var(--a-sun); --tile-ink: #1f1700; }
+  .tile-mint { --tile: var(--a-mint); --tile-ink: #062417; }
+
+  /* Subtle dot grid for game grounds */
+  .ground-grid {
+    background-image: radial-gradient(color-mix(in oklab, var(--p-ink) 9%, transparent) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Button micro-interactions: step 1px up on hover, press 1px down and .985 */
+@media (hover: hover) and (pointer: fine) {
+  [data-slot="button"]:not(:disabled) {
+    transition:
+      transform var(--m-out) var(--m-ease),
+      background-color var(--m-in) var(--m-ease),
+      border-color var(--m-in) var(--m-ease),
+      color var(--m-in) var(--m-ease);
+  }
+  [data-slot="button"]:not(:disabled):hover {
+    transform: translateY(-1px);
+  }
+}
+[data-slot="button"]:not(:disabled):active {
+  transform: translateY(1px) scale(0.985);
+  transition-duration: var(--m-press);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
