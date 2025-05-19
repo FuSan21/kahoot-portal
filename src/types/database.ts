@@ -397,6 +397,7 @@ export type Database = {
           choice_id: string
         }[]
       }
+      ping: { Args: never; Returns: string }
       server_now: { Args: never; Returns: string }
     }
     Enums: {
