@@ -113,7 +113,7 @@ export default function ParticipantsList({
                     {participant.nickname[0].toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <div className="flex-grow min-w-0">
+                <div className="grow min-w-0">
                   <div className="truncate text-sm font-medium">
                     {participant.nickname}
                   </div>
@@ -122,7 +122,7 @@ export default function ParticipantsList({
                   )}
                 </div>
                 {answer && (
-                  <div className="flex-shrink-0">
+                  <div className="shrink-0">
                     {isAnswerRevealed ? (
                       choice?.is_correct ? (
                         <Check className="h-4 w-4 text-green-500" />

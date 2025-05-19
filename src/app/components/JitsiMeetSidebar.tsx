@@ -122,7 +122,7 @@ const JitsiMeetSidebar: React.FC<JitsiMeetProps> = ({
       >
         <div className="relative h-full">
           <div
-            className={`absolute top-1/2 -translate-y-1/2 transition-all duration-300 z-[51] ${
+            className={`absolute top-1/2 -translate-y-1/2 transition-all duration-300 z-51 ${
               isMinimized ? "-left-[40px]" : "-left-10"
             }`}
           >

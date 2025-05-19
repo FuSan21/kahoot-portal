@@ -240,7 +240,7 @@ export default function SocialBonusReview({
                   {submission.screenshot_urls.map((url, index) => (
                     <div
                       key={index}
-                      className="group relative h-20 w-36 flex-shrink-0 rounded-md overflow-hidden border"
+                      className="group relative h-20 w-36 shrink-0 rounded-md overflow-hidden border"
                     >
                       <Image
                         src={getScreenshotUrl(url)}
@@ -260,7 +260,7 @@ export default function SocialBonusReview({
               </div>
 
               {submission.status === "pending" && (
-                <div className="flex gap-2 md:flex-shrink-0">
+                <div className="flex gap-2 md:shrink-0">
                   <Button
                     variant="outline"
                     size="sm"
@@ -292,10 +292,10 @@ export default function SocialBonusReview({
         open={!!expandedImage}
         onOpenChange={() => setExpandedImage(null)}
       >
-        <DialogContent className="max-w-screen-lg">
+        <DialogContent className="max-w-(--breakpoint-lg)">
           <DialogTitle>Preview</DialogTitle>
           {expandedImage && (
-            <div className="relative aspect-[16/9]">
+            <div className="relative aspect-video">
               <Image
                 src={getScreenshotUrl(expandedImage)}
                 alt="Expanded screenshot"

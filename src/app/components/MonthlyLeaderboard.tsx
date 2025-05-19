@@ -93,7 +93,7 @@ export default function MonthlyLeaderboard({
               )}
             >
               {/* Rank */}
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center font-bold">
+              <div className="shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center font-bold">
                 {score.rank}
               </div>
 
@@ -111,14 +111,14 @@ export default function MonthlyLeaderboard({
               </Avatar>
 
               {/* Name */}
-              <div className="flex-grow min-w-0">
+              <div className="grow min-w-0">
                 <div className="font-medium truncate">
                   {score.full_name || "Anonymous"}
                 </div>
               </div>
 
               {/* Total Score */}
-              <div className="flex-shrink-0 text-lg font-bold bg-primary/10 text-primary px-4 py-1 rounded-full">
+              <div className="shrink-0 text-lg font-bold bg-primary/10 text-primary px-4 py-1 rounded-full">
                 {score.total_score} pts
               </div>
 
@@ -161,7 +161,7 @@ export default function MonthlyLeaderboard({
                     "flex items-center gap-4 p-4 rounded-lg bg-primary/10"
                   )}
                 >
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center font-bold">
+                  <div className="shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center font-bold">
                     {currentUserScore.rank}
                   </div>
                   <Avatar className="h-10 w-10">
@@ -175,12 +175,12 @@ export default function MonthlyLeaderboard({
                       {(currentUserScore.full_name || "?")?.[0]?.toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex-grow min-w-0">
+                  <div className="grow min-w-0">
                     <div className="font-medium truncate">
                       {currentUserScore.full_name || "Anonymous"}
                     </div>
                   </div>
-                  <div className="flex-shrink-0 text-lg font-bold bg-primary/10 text-primary px-4 py-1 rounded-full">
+                  <div className="shrink-0 text-lg font-bold bg-primary/10 text-primary px-4 py-1 rounded-full">
                     {currentUserScore.total_score} pts
                   </div>
                 </div>

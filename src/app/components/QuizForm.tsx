@@ -254,7 +254,7 @@ export default function QuizForm() {
                         }
                         placeholder={`Choice ${cIndex + 1}`}
                         required
-                        className="flex-grow"
+                        className="grow"
                       />
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem

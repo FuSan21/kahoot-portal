@@ -19,7 +19,7 @@ export default async function LoginPage(props: {
   return (
     <div className="h-full flex flex-col md:flex-row">
       {/* Left Section - Hero/Branding */}
-      <div className="flex-1 md:w-1/2 bg-gradient-to-br from-primary to-primary/80 p-8 flex flex-col justify-center items-center text-white">
+      <div className="flex-1 md:w-1/2 bg-linear-to-br from-primary to-primary/80 p-8 flex flex-col justify-center items-center text-white">
         <div className="max-w-md text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
             Welcome to Kahoots Portal

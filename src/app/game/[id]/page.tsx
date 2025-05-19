@@ -199,7 +199,7 @@ export default function Home(props: { params: Promise<{ id: string }> }) {
     <div className="md:h-full flex flex-col items-center justify-center bg-background p-4">
       {renderScreen()}
       {(!isMeetingOpen || isMeetingClosed) && (
-        <div className="fixed right-0 top-1/2 -translate-y-1/2 z-[51]">
+        <div className="fixed right-0 top-1/2 -translate-y-1/2 z-51">
           <JitsiIcon
             className={`w-10 h-10 
               ${isMeetingClosed ? "bg-red-500" : "bg-sky-500"} 

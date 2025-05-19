@@ -77,12 +77,12 @@ export default function GameLeaderboard({
                   )}
                 >
                   {/* Rank */}
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center font-bold">
+                  <div className="shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center font-bold">
                     {index + 1}
                   </div>
 
                   {/* Avatar */}
-                  <div className="flex-shrink-0 h-10 w-10 rounded-full overflow-hidden bg-muted">
+                  <div className="shrink-0 h-10 w-10 rounded-full overflow-hidden bg-muted">
                     {result.profiles?.profiles?.avatar_url ? (
                       <img
                         src={result.profiles.profiles.avatar_url}
@@ -98,7 +98,7 @@ export default function GameLeaderboard({
                   </div>
 
                   {/* Name */}
-                  <div className="flex-grow min-w-0">
+                  <div className="grow min-w-0">
                     <div className="font-medium truncate">
                       {result.nickname || "Anonymous"}
                     </div>
@@ -107,7 +107,7 @@ export default function GameLeaderboard({
                   {/* Total Score with Tooltip */}
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <div className="flex-shrink-0 text-lg font-bold bg-primary/10 text-primary px-4 py-1 rounded-full cursor-help">
+                      <div className="shrink-0 text-lg font-bold bg-primary/10 text-primary px-4 py-1 rounded-full cursor-help">
                         {result.total_score} pts
                       </div>
                     </TooltipTrigger>

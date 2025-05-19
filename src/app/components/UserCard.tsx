@@ -53,7 +53,7 @@ export default function UserCard() {
                 {user.user_metadata.name?.charAt(0) || "U"}
               </AvatarFallback>
             </Avatar>
-            <span className="truncate flex-grow">
+            <span className="truncate grow">
               {user.user_metadata.name}
             </span>
           </div>

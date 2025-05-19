@@ -284,10 +284,10 @@ export default function Quiz({
   };
 
   return (
-    <div className="flex flex-col flex-grow items-stretch bg-background overflow-auto w-full">
+    <div className="flex flex-col grow items-stretch bg-background overflow-auto w-full">
       <QuestionDisplay question={question} quiz={quiz} />
 
-      <div className="flex-grow flex flex-col justify-center items-center min-h-0 p-4">
+      <div className="grow flex flex-col justify-center items-center min-h-0 p-4">
         {!isAnswerRevealed && chosenChoice && (
           <Card className="w-full max-w-md mb-4">
             <CardContent className="pt-6">

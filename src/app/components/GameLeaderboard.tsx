@@ -23,8 +23,8 @@ export default function GameLeaderboard({
 }: GameLeaderboardProps) {
   return (
     <div className="container mx-auto">
-      <div className="bg-gradient-to-br from-blue-400 via-sky-500 to-cyan-600 rounded-2xl shadow-xl overflow-hidden mb-8 w-full max-w-2xl mx-auto">
-        <div className="backdrop-blur-sm bg-white/10 p-6">
+      <div className="bg-linear-to-br from-blue-400 via-sky-500 to-cyan-600 rounded-2xl shadow-xl overflow-hidden mb-8 w-full max-w-2xl mx-auto">
+        <div className="backdrop-blur-xs bg-white/10 p-6">
           <h3 className="text-xl text-white mb-4 text-center">
             Quiz Leaderboard
           </h3>
@@ -32,7 +32,7 @@ export default function GameLeaderboard({
             {results.map((result, index) => (
               <div
                 key={result.participant_id}
-                className={`bg-white/10 backdrop-blur-sm p-4 rounded-xl flex justify-between items-center hover:bg-white/20 transition duration-300 ${
+                className={`bg-white/10 backdrop-blur-xs p-4 rounded-xl flex justify-between items-center hover:bg-white/20 transition duration-300 ${
                   result.participant_id === currentParticipantId
                     ? "ring-2 ring-yellow-400"
                     : ""
@@ -45,7 +45,7 @@ export default function GameLeaderboard({
                 >
                   {index + 1}
                 </div>
-                <div className="flex items-center flex-grow">
+                <div className="flex items-center grow">
                   <div className="relative w-10 h-10 mr-3">
                     <Image
                       src={

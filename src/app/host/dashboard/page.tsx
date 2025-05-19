@@ -99,7 +99,7 @@ export default function Home() {
         <Card key={quizSet.id} className="flex flex-col">
           <CardHeader className="flex-row gap-4 items-start space-y-0">
             <Image
-              className="h-20 w-20 object-cover rounded flex-shrink-0"
+              className="h-20 w-20 object-cover rounded shrink-0"
               src={
                 quizSet.image
                   ? `/api/getImage?path=${quizSet.id}/${quizSet.image}`
